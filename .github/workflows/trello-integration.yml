@@ -1,0 +1,146 @@
+name: Trello Integration
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  trello-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Trello Card on Issue Opened
+        if: github.event_name == 'issues' && github.event.action == 'opened'
+        env:
+          RAW_BODY: ${{ github.event.issue.body }}
+          ISSUE_LABELS: ${{ toJson(github.event.issue.labels) }}
+        run: |
+          CARD_NAME="${{ github.event.issue.title }} (#${{ github.event.issue.number }})"
+          ASSIGNEE="${{ github.event.issue.assignee.login }}"
+          MILESTONE_DUE="${{ github.event.issue.milestone.due_on }}"
+          DESC=""
+
+          BODY_WITHOUT_CHECKBOXES=$(echo "$RAW_BODY" | sed -E '/^[[:space:]]*-[[:space:]]\[[ xX]\]/d' | xargs -0)
+
+          if [ ! -z "$BODY_WITHOUT_CHECKBOXES" ]; then
+            DESC="$BODY_WITHOUT_CHECKBOXES"
+          fi
+
+          DESC="$DESC
+          Creado desde GitHub: ${{ github.event.issue.html_url }}"
+
+          LIST_ID="6a1b312b6c7bfc56a4d193d6"
+          TRELLO_LABELS=""
+
+          if [ ! -z "$ISSUE_LABELS" ] && [ "$ISSUE_LABELS" != "[]" ]; then
+            HAS_FIX_LABEL=$(echo "$ISSUE_LABELS" | jq '.[] | select(.name == "fix")' 2>/dev/null)
+
+            if [ ! -z "$HAS_FIX_LABEL" ]; then
+              echo "Se detectó la label 'fix'. Cambiando destino..."
+              LIST_ID="6a1f539ead3f66a8d60ecc0d"
+              TRELLO_LABELS="6a1f53afd0f049c18f3829c1"
+            fi
+          fi
+
+          URL="https://api.trello.com/1/cards?idList=$LIST_ID&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
+
+          if [ "$MILESTONE_DUE" != "null" ] && [ ! -z "$MILESTONE_DUE" ]; then
+            URL="${URL}&due=${MILESTONE_DUE}"
+          fi
+
+          if [ ! -z "$TRELLO_LABELS" ]; then
+            URL="${URL}&idLabels=${TRELLO_LABELS}"
+          fi
+
+          CARD_RESPONSE=$(curl --silent --request POST \
+            --url "$URL" \
+            --data-urlencode "name=$CARD_NAME" \
+            --data-urlencode "desc=$DESC")
+
+          CARD_ID=$(echo "$CARD_RESPONSE" | jq -r '.id')
+          echo "Tarjeta creada en Trello con ID: $CARD_ID"
+
+          HAS_CHECKBOXES=$(echo "$RAW_BODY" | grep -E '^[[:space:]]*-[[:space:]]\[[[:space:]]\]' || true)
+
+          if [ ! -z "$HAS_CHECKBOXES" ]; then
+            CHECKLIST_RESPONSE=$(curl --silent --request POST \
+              --url "https://api.trello.com/1/cards/$CARD_ID/checklists?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" \
+              --data-urlencode "name=Subtareas")
+
+            CHECKLIST_ID=$(echo "$CHECKLIST_RESPONSE" | jq -r '.id')
+
+            echo "$RAW_BODY" | grep -E '^[[:space:]]*-[[:space:]]\[[[:space:]]\]' | sed 's/^[[:space:]]*-[[:space:]]\[[[:space:]]\][[:space:]]*//' | while read -r subtask; do
+              if [ ! -z "$subtask" ]; then
+                echo "Añadiendo subtarea a Trello: $subtask"
+                curl --silent --request POST \
+                  --url "https://api.trello.com/1/checklists/$CHECKLIST_ID/checkItems?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" \
+                  --data-urlencode "name=$subtask"
+              fi
+            done || true
+          fi
+
+          if [ ! -z "$ASSIGNEE" ]; then
+            TRELLO_MEMBER_ID=""
+            case "$ASSIGNEE" in
+              "aomineDev") TRELLO_MEMBER_ID="6a1b303748f89fae87c99606" ;;
+              "calixto24") TRELLO_MEMBER_ID="5f981522621b605ee57d5810" ;;
+              "leoelpapi") TRELLO_MEMBER_ID="6a1c54cd9c0c6548a563001c" ;;
+              "u23240301") TRELLO_MEMBER_ID="6a1b2d9de671372a58c7506a" ;;
+            esac
+
+            if [ ! -z "$TRELLO_MEMBER_ID" ]; then
+              curl --silent --request POST \
+                --url "https://api.trello.com/1/cards/$CARD_ID/idMembers?value=${TRELLO_MEMBER_ID}&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
+            fi
+          fi
+
+      - name: Move to In Progress on PR Opened
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
+        run: |
+          RAW_NUM=$(echo "${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}" | grep -oE '#[0-9]+' | head -n 1)
+
+          if [ -z "$RAW_NUM" ]; then
+            echo "No se encontró ninguna referencia a una issue (ej: #4) en el PR."
+            exit 0
+          fi
+
+          echo "Buscando la tarjeta que contenga la cadena '$RAW_NUM' en la lista Por Hacer..."
+
+          LIST_CARDS=$(curl --request GET \
+            --url "https://api.trello.com/1/lists/6a1b312b6c7bfc56a4d193d7/cards?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}")
+
+          CARD_ID=$(echo "$LIST_CARDS" | jq -r --arg target "$RAW_NUM" '.[] | select(.name | contains($target)) | .id' | head -n 1)
+
+          if [ "$CARD_ID" != "null" ] && [ ! -z "$CARD_ID" ]; then
+            echo "Tarjeta encontrada de forma precisa (ID: $CARD_ID). Moviendo a En Progreso..."
+            curl --request PUT \
+              --url "https://api.trello.com/1/cards/$CARD_ID?idList=6a1b312b6c7bfc56a4d193d8&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
+          else
+            echo "No se encontró ninguna tarjeta en la lista que contenga la cadena $RAW_NUM"
+          fi
+
+      - name: Move to Done on PR Approval
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        run: |
+          RAW_NUM=$(echo "${{ github.event.pull_request.title }} ${{ github.event.pull_request.body }}" | grep -oE '#[0-9]+' | head -n 1)
+
+          if [ -z "$RAW_NUM" ]; then
+            echo "No se encontró ninguna referencia a una issue en el PR."
+            exit 0
+          fi
+
+          echo "Buscando la tarjeta que contenga la cadena '$RAW_NUM' en la lista En Progreso..."
+
+          LIST_CARDS=$(curl --request GET \
+            --url "https://api.trello.com/1/lists/6a1b312b6c7bfc56a4d193d8/cards?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}")
+
+          CARD_ID=$(echo "$LIST_CARDS" | jq -r --arg target "$RAW_NUM" '.[] | select(.name | contains($target)) | .id' | head -n 1)
+
+          if [ "$CARD_ID" != "null" ] && [ ! -z "$CARD_ID" ]; then
+            echo "Tarjeta encontrada (ID: $CARD_ID). Moviendo a Aprobado..."
+            curl --request PUT \
+              --url "https://api.trello.com/1/cards/$CARD_ID?idList=6a1c5bbfbe77ddb4c584bbc2&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
+          else
+            echo "No se encontró la tarjeta en la lista de En Progreso."
+          fi
