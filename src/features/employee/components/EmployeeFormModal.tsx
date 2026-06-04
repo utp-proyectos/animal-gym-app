@@ -106,21 +106,24 @@ export function EmployeeFormModal({ onClose }: Props) {
 									<div className="grid gap-4 md:grid-cols-2">
 										<DateField className="w-full bg-content2" name="birthDate" isRequired>
 											<Label>Fecha de nacimiento</Label>
-											<DateField.Group>
+											<DateField.Group variant="secondary">
 												<DateField.Input>
 													{(segment) => <DateField.Segment segment={segment} />}
 												</DateField.Input>
 											</DateField.Group>
 										</DateField>
 
-										<TextField name="image">
-											<Label>URL de imagen</Label>
-											<Input placeholder="Sube tu archivo" type="field" variant="secondary" />
-											<FieldError />
-										</TextField>
+										<Label>Imagen</Label>
+										<input
+											type="file"
+											name="image"
+											accept="image/*"
+											required
+											className="block w-full rounded-medium border border-default-200 px-3 py-2 text-sm bg-gray-400 "
+										/>
+										<FieldError />
 									</div>
 								</section>
-
 								{/* DATOS LABORALES */}
 								<section className="space-y-4 border-t pt-6">
 									<h3 className="font-semibold text-lg">Datos laborales</h3>
@@ -128,7 +131,7 @@ export function EmployeeFormModal({ onClose }: Props) {
 									<div className="grid gap-4 md:grid-cols-2">
 										<DateField className="w-full" name="hireDate" isRequired>
 											<Label>Fecha de contratación</Label>
-											<DateField.Group>
+											<DateField.Group variant="secondary">
 												<DateField.Input>
 													{(segment) => <DateField.Segment segment={segment} />}
 												</DateField.Input>
