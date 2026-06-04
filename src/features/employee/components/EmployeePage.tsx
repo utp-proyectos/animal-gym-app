@@ -1,7 +1,8 @@
+import { EmployeeCard } from './EmployeeCard'
 export function EmployeePage() {
 	return (
-		<div>
-			<h1>prueba</h1>
+		<div className="flex justify-center">
+			<EmployeeCard />
 		</div>
 	)
 }
