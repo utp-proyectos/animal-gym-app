@@ -1,6 +1,6 @@
-import { Button, Table } from '@heroui/react'
+import { Button, Dropdown, Label, Separator, Table } from '@heroui/react'
 import type { ExerciseResponse } from '../ExerciseType'
-import { Plus } from 'lucide-react'
+import { Edit3, MoreVertical, Plus, Trash2 } from 'lucide-react'
 
 export function ExercisePage() {
 	const exercises: ExerciseResponse[] = [
@@ -71,13 +71,13 @@ export function ExercisePage() {
 				<main className="flex-1 bg-white rounded-3xl shadow-sm border border-default-100 overflow-hidden">
 					<Table variant="secondary">
 						<Table.ScrollContainer>
-							<Table.Content aria-label="Gestión de sesiones deportivas" className="min-w-[600px]">
+							<Table.Content aria-label="Gestión de sesiones deportivas" className="min-w-150">
 								<Table.Header>
 									<Table.Column>Nombre</Table.Column>
 									<Table.Column>Descripción</Table.Column>
 									<Table.Column>Grupo muscular</Table.Column>
 									<Table.Column>Equipo</Table.Column>
-									<Table.Column className="text-right pr-6">Acciones</Table.Column>
+									<Table.Column>Acciones</Table.Column>
 								</Table.Header>
 
 								<Table.Body
@@ -108,7 +108,7 @@ export function ExercisePage() {
 												</p>
 											</Table.Cell>
 
-											{/* Celda: Grupo muscular */}
+											{/* Celda: Grupo musculaar */}
 											<Table.Cell>
 												<span className="inline-block bg-zinc-100 text-black text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border border-zinc-200">
 													{exercise.muscleGroup}
@@ -124,15 +124,38 @@ export function ExercisePage() {
 
 											{/* Celda: Acciones (Dropdown) */}
 											<Table.Cell className="text-right pr-4">
-												<div className="flex items-center justify-end gap-2">
+												<Dropdown>
 													<Button
-														size="sm"
-														variant="outline"
-														className="text-default-500 font-medium hover:text-black hidden sm:inline-flex"
+														aria-label="Opciones"
+														className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
 													>
-														Ver detalles
+														<MoreVertical size={20} className="text-black" strokeWidth={3} />
 													</Button>
-												</div>
+													<Dropdown.Popover>
+														<Dropdown.Menu
+															// onAction={(key) => handleAction(String(key), employee.id)}
+															className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl"
+														>
+															<Dropdown.Item id="edit" textValue="Editar">
+																<div className="flex items-center gap-2 py-1">
+																	<Edit3 size={16} className="text-black" />
+																	<Label className="font-semibold text-black">Editar</Label>
+																</div>
+															</Dropdown.Item>
+															<Separator />
+															<Dropdown.Item
+																id="delete"
+																textValue="Eliminar"
+																className="text-danger"
+															>
+																<div className="flex items-center gap-2 py-1">
+																	<Trash2 size={16} />
+																	<Label className="font-semibold">Eliminar</Label>
+																</div>
+															</Dropdown.Item>
+														</Dropdown.Menu>
+													</Dropdown.Popover>
+												</Dropdown>
 											</Table.Cell>
 										</Table.Row>
 									))}
