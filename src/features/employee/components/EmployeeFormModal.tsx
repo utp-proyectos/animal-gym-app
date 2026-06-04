@@ -12,8 +12,10 @@ import {
 } from '@heroui/react'
 import { UserPlus } from 'lucide-react'
 import { CustomSelect } from '../../../components/CustomSelect'
-
-export function EmployeeFormModal() {
+interface Props {
+	onClose: () => void
+}
+export function EmployeeFormModal({ onClose }: Props) {
 	// Opciones en arreglos de strings puros
 	const GENDER_OPTIONS = ['Masculino', 'Femenino', 'Otro']
 	const CONTRACT_OPTIONS = ['FULL_TIME', 'PART_TIME', 'TEMPORARY']
@@ -31,11 +33,12 @@ export function EmployeeFormModal() {
 	}
 
 	return (
-		<Modal>
-			<Button variant="primary">
-				<UserPlus className="size-4" />
-				Agregar empleado
-			</Button>
+		<Modal
+			defaultOpen
+			onOpenChange={(isOpen) => {
+				if (!isOpen) onClose()
+			}}
+		>
 			<Modal.Backdrop>
 				<Modal.Container>
 					<Modal.Dialog className="sm:max-w-4xl max-h-[90vh]">

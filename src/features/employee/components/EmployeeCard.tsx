@@ -26,92 +26,88 @@ export function EmployeeCard({
 	}
 
 	return (
-		<div className="p-8 max-w-7xl mx-auto">
-			{' '}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-				{employees.map((employee) => (
-					<Card
-						key={employee.id}
-						className="p-0 border-none bg-white hover:translate-y-[-4px] transition-all duration-300 shadow-md overflow-hidden flex flex-col w-full"
-					>
-						{/* Imagen */}
-						<div className="w-full aspect-[16/9] relative">
-							<img
-								alt={`${employee.firstName} ${employee.lastName}`}
-								className="w-full h-full object-cover"
-								src={employee.image}
-							/>
-							<div className="absolute top-4 left-5">
-								<span className="bg-white/90 backdrop-blur-md text-primary text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
-									{employee.role}
-								</span>
-							</div>
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+			{employees.map((employee) => (
+				<Card
+					key={employee.id}
+					className="p-0 border-none bg-white hover:translate-y-[-4px] transition-all duration-300 shadow-md overflow-hidden flex flex-col"
+				>
+					{/* Imagen */}
+					<div className="w-full aspect-[4/3] relative">
+						<img
+							alt={`${employee.firstName} ${employee.lastName}`}
+							className="w-full h-full object-cover"
+							src={employee.image}
+						/>
+						<div className="absolute top-3 left-4">
+							<span className="bg-white/90 backdrop-blur-md text-primary text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full">
+								{employee.role}
+							</span>
 						</div>
+					</div>
 
-						<div className="p-6 flex flex-col gap-4 flex-1 justify-between">
-							<div className="flex justify-between items-start gap-2">
-								<div className="flex flex-col">
-									<h4 className="font-bold text-2xl text-black tracking-tight leading-tight">
-										{employee.firstName} {employee.lastName}
-									</h4>
-									<p className="text-default-400 text-xs font-semibold uppercase mt-0.5">
-										Animal Gym
-									</p>
-								</div>
+					{/* Contenido */}
+					<div className="p-4 flex flex-col gap-3 flex-1 justify-between">
+						<div className="flex justify-between items-start gap-2">
+							<div className="flex flex-col">
+								<h4 className="font-bold text-lg text-black tracking-tight leading-tight">
+									{employee.firstName} {employee.lastName}
+								</h4>
+								<p className="text-default-400 text-[11px] font-semibold uppercase mt-0.5">
+									Animal Gym
+								</p>
+							</div>
 
-								<Dropdown>
-									<Button
-										aria-label="Opciones"
-										className="min-w-10 w-10 h-10 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
+							<Dropdown>
+								<Button
+									aria-label="Opciones"
+									className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
+								>
+									<MoreVertical size={20} className="text-black" strokeWidth={3} />
+								</Button>
+								<Dropdown.Popover>
+									<Dropdown.Menu
+										onAction={(key) => handleAction(String(key), employee.id)}
+										className="min-w-[170px] bg-white border border-default-100 shadow-xl rounded-2xl"
 									>
-										<MoreVertical size={24} className="text-black" strokeWidth={3} />
-									</Button>
-									<Dropdown.Popover>
-										<Dropdown.Menu
-											onAction={(key) => handleAction(String(key), employee.id)}
-											className="min-w-[170px] bg-white border border-default-100 shadow-xl rounded-2xl"
-										>
-											<Dropdown.Item id="edit" textValue="Editar">
-												<div className="flex items-center gap-2 py-1">
-													<Edit3 size={18} className="text-black" />
-													<Label className="font-semibold text-black">Editar</Label>
-												</div>
-											</Dropdown.Item>
-											<Dropdown.Item id="password" textValue="Cambiar contraseña">
-												<div className="flex items-center gap-2 py-1">
-													<KeyRound size={18} className="text-black" />
-													<Label className="font-semibold text-black">Cambiar contraseña</Label>
-												</div>
-											</Dropdown.Item>
+										<Dropdown.Item id="edit" textValue="Editar">
+											<div className="flex items-center gap-2 py-1">
+												<Edit3 size={16} className="text-black" />
+												<Label className="font-semibold text-black">Editar</Label>
+											</div>
+										</Dropdown.Item>
+										<Dropdown.Item id="password" textValue="Cambiar contraseña">
+											<div className="flex items-center gap-2 py-1">
+												<KeyRound size={16} className="text-black" />
+												<Label className="font-semibold text-black">Cambiar contraseña</Label>
+											</div>
+										</Dropdown.Item>
+										<Separator />
+										<Dropdown.Item id="delete" textValue="Eliminar" className="text-danger">
+											<div className="flex items-center gap-2 py-1">
+												<Trash2 size={16} />
+												<Label className="font-semibold">Eliminar</Label>
+											</div>
+										</Dropdown.Item>
+									</Dropdown.Menu>
+								</Dropdown.Popover>
+							</Dropdown>
+						</div>
 
-											<Separator />
-											<Dropdown.Item id="delete" textValue="Eliminar" className="text-danger">
-												<div className="flex items-center gap-2 py-1">
-													<Trash2 size={18} />
-													<Label className="font-semibold">Eliminar</Label>
-												</div>
-											</Dropdown.Item>
-										</Dropdown.Menu>
-									</Dropdown.Popover>
-								</Dropdown>
-							</div>
-
-							{/* Separador y sección inferior */}
-							<div>
-								<div className="h-[1px] w-full bg-default-100 mb-3" />
-								<div className="flex items-center justify-between">
-									<span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-										ID: #{employee.id}
-									</span>
-									<Button variant="outline" onPress={() => onViewDetail(employee.id)}>
-										Ver detalles
-									</Button>
-								</div>
+						<div>
+							<div className="h-[1px] w-full bg-default-100 mb-3" />
+							<div className="flex items-center justify-between">
+								<span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+									ID: #{employee.id}
+								</span>
+								<Button variant="outline" size="sm" onPress={() => onViewDetail(employee.id)}>
+									Ver detalles
+								</Button>
 							</div>
 						</div>
-					</Card>
-				))}
-			</div>
+					</div>
+				</Card>
+			))}
 		</div>
 	)
 }
