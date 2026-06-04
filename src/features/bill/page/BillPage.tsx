@@ -73,7 +73,7 @@ export function BillPage() {
 						<h3 className="font-bold text-lg mb-6 text-black">Filtrar empleados</h3>
 						<div className="flex flex-col gap-7">
 							<div className="flex flex-col gap-1">
-								<SearchField name="Buscador">
+								<SearchField name="Buscador" variant="secondary">
 									<Label>Buscador</Label>
 									<SearchField.Group>
 										<SearchField.SearchIcon />
@@ -85,7 +85,7 @@ export function BillPage() {
 							<div className="flex flex-col gap-1">
 								<DateField className="w-[256px]" name="date">
 									<Label>Fecha de incio</Label>
-									<DateField.Group>
+									<DateField.Group variant="secondary">
 										<DateField.Input>
 											{(segment) => <DateField.Segment segment={segment} />}
 										</DateField.Input>
@@ -95,7 +95,7 @@ export function BillPage() {
 							<div className="flex flex-col gap-1">
 								<DateField className="w-[256px]" name="date">
 									<Label>Fecha de fin</Label>
-									<DateField.Group>
+									<DateField.Group variant="secondary">
 										<DateField.Input>
 											{(segment) => <DateField.Segment segment={segment} />}
 										</DateField.Input>

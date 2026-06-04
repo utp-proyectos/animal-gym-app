@@ -7,6 +7,7 @@ import { EmployeeFormModal } from '../components/EmployeeFormModal'
 import { EmployeeDetailModal } from '../components/EmployeeDetailModal'
 import type { EmployeeResponse, EmployeeDetailResponse } from '../EmployeeType'
 import { EmployeePasswordModal } from '../components/EmployeePasswordModal'
+import { DeleteModal } from '@/features/bill/components/DeleteModal'
 
 export function EmployeePage() {
 	const mockEmployees: EmployeeResponse[] = [
@@ -37,6 +38,13 @@ export function EmployeePage() {
 	const [openDetail, setOpenDetail] = useState(false)
 	const [openPassword, setOpenPassword] = useState(false)
 	const [selectedEmployee, setSelectedEmployee] = useState<EmployeeDetailResponse | null>(null)
+	const [openDelete, setOpenDelete] = useState(false)
+	const [selectedId, setSelectedId] = useState<number | null>(null)
+
+	const handleDelete = (id: number) => {
+		setSelectedId(id)
+		setOpenDelete(true)
+	}
 
 	const handleViewDetail = (id: number) => {
 		setSelectedEmployee({
@@ -79,10 +87,10 @@ export function EmployeePage() {
 			<div className="flex flex-col md:flex-row gap-8">
 				<aside className="w-full md:w-72 flex flex-col gap-4">
 					<Card className="p-6 border-none bg-default-50/50 rounded-3xl shadow-sm">
-						<h3 className="font-bold text-lg mb-6 text-black">Filtrar empleados</h3>
+						<h3 className="font-bold text-lg mb-3 text-black">Filtrar empleados</h3>
 						<div className="flex flex-col gap-7">
 							<div className="flex flex-col gap-1">
-								<SearchField name="Buscador">
+								<SearchField name="Buscador" variant="secondary">
 									<Label>Buscador</Label>
 									<SearchField.Group>
 										<SearchField.SearchIcon />
@@ -93,7 +101,7 @@ export function EmployeePage() {
 							</div>
 							<div className="flex flex-col gap-2">
 								<label className="text-sm font-semibold text-slate-700 ml-1">Rol</label>
-								<Select className="w-full" placeholder="Seleccionar rol">
+								<Select className="w-full" placeholder="Seleccionar rol" variant="secondary">
 									<Select.Trigger className="px-3 py-2 flex justify-between items-center">
 										<Select.Value />
 										<Select.Indicator />
@@ -128,7 +136,7 @@ export function EmployeePage() {
 					<EmployeeCard
 						employees={mockEmployees}
 						onEdit={(id) => console.log('editar', id)}
-						onDelete={(id) => console.log('eliminar', id)}
+						onDelete={handleDelete}
 						onChangePassword={(id) => {
 							console.log('contraseña', id)
 							setOpenPassword(true)
@@ -149,6 +157,18 @@ export function EmployeePage() {
 				/>
 			)}
 			{openPassword && <EmployeePasswordModal onClose={() => setOpenPassword(false)} />}
+			{openDelete && selectedId !== null && (
+				<DeleteModal
+					id={selectedId}
+					title="Eliminar empleado"
+					description="¿Estás seguro de que deseas eliminar a este empleado?"
+					onConfirm={(id) => console.log('eliminar', id)}
+					onClose={() => {
+						setOpenDelete(false)
+						setSelectedId(null)
+					}}
+				/>
+			)}
 		</div>
 	)
 }
