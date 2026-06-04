@@ -4,11 +4,13 @@ import { EmployeePage } from '@/features/employee/page/EmployeePage'
 import { ExercisePage } from '@/features/exercise/page/ExercisePage'
 import { DashboardLayout } from '@/layout/DashboardLayout'
 import { createBrowserRouter } from 'react-router-dom'
+import { authGuard } from './authGuard'
 
 const router = createBrowserRouter([
 	{
 		path: '/',
 		element: <DashboardLayout />,
+		loader: (args) => authGuard(args),
 		children: [
 			{
 				path: 'socios',
@@ -35,6 +37,7 @@ const router = createBrowserRouter([
 	{
 		path: '/login',
 		Component: LoginPage,
+		loader: (args) => authGuard(args),
 	},
 ])
 
