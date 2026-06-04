@@ -31,20 +31,90 @@ Aplicación web desarrollada en React para la administración de un gimnasio. Pe
 
 ## Estructura del Proyecto
 
-```text
-src/
-├── assets/              # Recursos estáticos
-├── components/          # Componentes reutilizables
-├── config/              # Configuraciones globales
-├── features/            # Módulos funcionales
-├── layout/              # Layouts de la aplicación
-├── lib/                 # Librerías y utilidades
-├── router/              # Configuración de rutas
-├── shared/              # Recursos compartidos
-├── store/               # Estado global
-├── App.tsx
-├── main.tsx
-└── index.css
+```
+animal-gym-app
+├─ .editorconfig
+├─ .prettierrc.json
+├─ eslint.config.js
+├─ index.html
+├─ package.json
+├─ pnpm-lock.yaml
+├─ public
+│  ├─ favicon.svg
+│  └─ icons.svg
+├─ README.md
+├─ src
+│  ├─ App.tsx
+│  ├─ assets
+│  │  └─ global
+│  │     ├─ login.mp4
+│  │     ├─ logo.png
+│  │     └─ preview.png
+│  ├─ components
+│  │  └─ CustomSelect.tsx
+│  ├─ config
+│  │  └─ index.ts
+│  ├─ features
+│  │  ├─ auth
+│  │  │  ├─ hooks
+│  │  │  │  └─ useLogin.ts
+│  │  │  ├─ pages
+│  │  │  │  └─ LoginPage.tsx
+│  │  │  └─ services
+│  │  │     └─ authService.ts
+│  │  ├─ bill
+│  │  │  ├─ BillType.ts
+│  │  │  ├─ components
+│  │  │  │  ├─ BillDetailModal.tsx
+│  │  │  │  └─ DeleteModal.tsx
+│  │  │  └─ page
+│  │  │     └─ BillPage.tsx
+│  │  ├─ employee
+│  │  │  ├─ components
+│  │  │  │  ├─ EmployeeCard.tsx
+│  │  │  │  ├─ EmployeeDetailModal.tsx
+│  │  │  │  ├─ EmployeeFormModal.tsx
+│  │  │  │  └─ EmployeePasswordModal.tsx
+│  │  │  ├─ EmployeeType.ts
+│  │  │  └─ page
+│  │  │     └─ EmployeePage.tsx
+│  │  ├─ exercise
+│  │  │  ├─ components
+│  │  │  ├─ ExerciseType.ts
+│  │  │  └─ page
+│  │  │     └─ ExercisePage.tsx
+│  │  └─ membership
+│  │     ├─ components
+│  │     │  ├─ MembershipCard.tsx
+│  │     │  └─ MembershipFilters.tsx
+│  │     └─ MembershipType.ts
+│  ├─ index.css
+│  ├─ layout
+│  │  ├─ DashboardLayout.tsx
+│  │  └─ style.css
+│  ├─ lib
+│  │  ├─ axios.ts
+│  │  └─ queryClient.ts
+│  ├─ main.tsx
+│  ├─ router
+│  │  ├─ authGuard.ts
+│  │  └─ index.tsx
+│  ├─ shared
+│  │  ├─ components
+│  │  │  └─ HasRole.tsx
+│  │  ├─ enums
+│  │  │  └─ Role.ts
+│  │  └─ types
+│  │     ├─ apiResponse.d.ts
+│  │     ├─ auth.d.ts
+│  │     └─ index.ts
+│  └─ store
+│     └─ authStore.ts
+├─ tsconfig.app.json
+├─ tsconfig.json
+├─ tsconfig.node.json
+└─ vite.config.ts
+
 ```
 
 ## Instalación
