@@ -12,9 +12,11 @@ import {
 } from '@heroui/react'
 import { UserPlus } from 'lucide-react'
 import { CustomSelect } from '../../../components/CustomSelect'
+
 interface Props {
 	onClose: () => void
 }
+
 export function EmployeeFormModal({ onClose }: Props) {
 	// Opciones en arreglos de strings puros
 	const GENDER_OPTIONS = ['Masculino', 'Femenino', 'Otro']
@@ -44,7 +46,7 @@ export function EmployeeFormModal({ onClose }: Props) {
 					<Modal.Dialog className="sm:max-w-4xl max-h-[90vh]">
 						<Modal.CloseTrigger />
 
-						<Modal.Header className="border-b pb-4">
+						<Modal.Header className=" pb-4">
 							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
 								Nuevo empleado
 							</Modal.Heading>
@@ -180,7 +182,11 @@ export function EmployeeFormModal({ onClose }: Props) {
 										</TextField>
 
 										<div className="flex items-center justify-center border rounded-xl h-40">
-											<img src="image-preview.png" alt="" className="w-full h-full object-fill" />
+											<img
+												src="../assets/global/preview.png"
+												alt="img"
+												className="w-full h-full object-fill"
+											/>
 										</div>
 									</div>
 								</section>

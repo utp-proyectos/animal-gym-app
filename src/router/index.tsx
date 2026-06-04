@@ -1,5 +1,5 @@
 import { BillPage } from '@/features/bill/page/BillPage'
-import { EmployeePage } from '@/features/employee/components/EmployeePage'
+import { EmployeePage } from '@/features/employee/page/EmployeePage'
 import { ExercisePage } from '@/features/exercise/page/ExercisePage'
 import { DashboardLayout } from '@/layout/DashboardLayout'
 import { createBrowserRouter } from 'react-router-dom'
