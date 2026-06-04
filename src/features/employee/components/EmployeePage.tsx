@@ -1,5 +1,6 @@
 import type { EmployeeResponse } from '../EmployeeType'
 import { EmployeeCard } from './EmployeeCard'
+import { EmployeeFormModal } from './EmployeeFormModal'
 export function EmployeePage() {
 	const mockEmployees: EmployeeResponse[] = [
 		{
@@ -26,6 +27,8 @@ export function EmployeePage() {
 	]
 	return (
 		<div className="flex justify-center">
+			<EmployeeFormModal />
+
 			<EmployeeCard
 				employees={mockEmployees}
 				onEdit={(id) => console.log('editar', id)}
