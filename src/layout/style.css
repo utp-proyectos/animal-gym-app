@@ -1,0 +1,159 @@
+/* Estilos Base del Layout Animal GYM */
+.app-gym {
+	position: relative;
+	background-color: #000;
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+}
+
+.sidebar-gym {
+	height: 100%;
+	width: 300px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	padding: 20px;
+	z-index: 50;
+}
+
+.sidebar-items-gym {
+	list-style: none;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.sidebar-item-gym {
+	opacity: 0.6;
+	transition: all 0.3s ease;
+	padding: 12px 16px;
+	border-radius: 12px;
+}
+
+.sidebar-item-gym:hover,
+.sidebar-item-gym.active {
+	opacity: 1;
+}
+
+/* Tu gradiente de fondo original */
+.sidebar-item-gym.active {
+	background-image: linear-gradient(to right, #d4342a, #482117, #000000);
+}
+
+.sidebar-item-gym.active .sidebar-link-gym {
+	font-weight: 600;
+}
+
+.sidebar-header-gym {
+	padding: 20px 0;
+	text-align: center;
+}
+
+.sidebar-logo-gym {
+	width: 180px;
+	object-fit: contain;
+}
+
+.sidebar-link-gym {
+	text-decoration: none;
+	color: white;
+	display: flex;
+	align-items: center;
+}
+
+.sidebar-link-icon-gym {
+	display: inline-block;
+	width: 35px;
+	color: white;
+}
+
+/* Área del Contenedor de la derecha */
+.main-container-gym {
+	height: 100%;
+	position: relative;
+	transition: all 0.5s ease;
+	z-index: 60;
+}
+
+.main-gym {
+	background-color: #fafbfe;
+	height: 100%;
+	position: relative;
+	z-index: 70;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.app-gym.sidebar-open {
+	visibility: visible;
+	opacity: 1;
+}
+
+/* Navbar */
+.main-navbar-gym {
+	height: 72px;
+	background-color: #ffffff;
+	display: flex;
+	align-items: center;
+	padding: 0 24px;
+	box-shadow: 0px 0px 35px 0px rgba(154, 161, 171, 0.15);
+	z-index: 80;
+}
+
+.navbar-content-gym {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.navbar-user-image-gym {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.main-body-gym {
+	flex: 1;
+	overflow-y: auto;
+	background-color: #fafbfe;
+}
+
+/* RESPONSIVE: ESCRITORIO */
+@media (min-width: 1024px) {
+	.app-gym {
+		padding: 12px;
+	}
+
+	.main-gym {
+		border-radius: 24px;
+	}
+
+	/* Desplazamiento y escalado al abrir sidebar */
+	.app-gym.sidebar-open .main-container-gym {
+		transform: translateX(300px) scale(0.9);
+	}
+}
+
+/* RESPONSIVE: MÓVILES */
+@media (max-width: 1023px) {
+	.sidebar-gym {
+		z-index: 2100;
+		transform: translateX(-300px);
+		transition: all 0.5s ease;
+		background-color: #000;
+	}
+
+	.app-gym.sidebar-open .sidebar-gym {
+		transform: translateX(0);
+	}
+
+	.app-gym.sidebar-open {
+		visibility: visible;
+		opacity: 1;
+	}
+}
