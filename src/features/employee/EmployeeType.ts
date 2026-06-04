@@ -7,3 +7,19 @@ export interface EmployeeResponse {
 	image: string
 	role: Role
 }
+export interface EmployeeCreateRequest {
+	dni: string
+	firstName: string
+	lastName: string
+	phoneNumber: string
+	gender: string
+	email: string
+	birthDate: string
+	hireDate: string
+	image: string
+	salary: number
+	contractType: string
+	specialty: string
+	password: string
+	role: Role
+}
