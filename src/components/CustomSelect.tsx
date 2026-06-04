@@ -1,29 +1,34 @@
-// src/components/ui/CustomSelect.tsx
-import { Select, ListBox, Label } from '@heroui/react'
+import type { Key } from '@heroui/react'
+import { Select, ListBox, Label, FieldError } from '@heroui/react'
 
 interface CustomSelectProps {
-	name: string
 	label: string
+	value: Key | null
+	onChange: (value: Key | null) => void
 	placeholder?: string
 	options: string[]
-	isRequired?: boolean
 	className?: string
+	isInvalid?: boolean
+	errorMessage?: string | undefined
 }
 
 export function CustomSelect({
-	name,
 	label,
+	value,
+	onChange,
 	placeholder,
 	options,
-	isRequired = false,
+	errorMessage,
 	className = 'w-full',
+	isInvalid = false,
 }: CustomSelectProps) {
 	return (
 		<Select
-			name={name}
-			isRequired={isRequired}
 			className={className}
 			placeholder={placeholder}
+			value={value}
+			onChange={(val) => onChange(val)}
+			isInvalid={isInvalid}
 			variant="secondary"
 		>
 			<Label>{label}</Label>
@@ -35,7 +40,6 @@ export function CustomSelect({
 			<Select.Popover>
 				<ListBox>
 					{options.map((option) => (
-						/* Usamos el propio string como id y como textValue */
 						<ListBox.Item key={option} id={option} textValue={option}>
 							{option}
 							<ListBox.ItemIndicator />
@@ -43,6 +47,7 @@ export function CustomSelect({
 					))}
 				</ListBox>
 			</Select.Popover>
+			<FieldError>{errorMessage}</FieldError>
 		</Select>
 	)
 }
