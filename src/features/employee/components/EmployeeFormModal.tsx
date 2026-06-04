@@ -192,7 +192,7 @@ export function EmployeeFormModal({ onClose }: Props) {
 								</section>
 							</Form>
 						</Modal.Body>
-						<Modal.Footer className="border-t pt-4">
+						<Modal.Footer className="pt-4">
 							<Button type="reset" variant="secondary" slot="close">
 								Cancelar
 							</Button>

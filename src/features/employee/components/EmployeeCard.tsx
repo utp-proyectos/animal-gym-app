@@ -30,10 +30,10 @@ export function EmployeeCard({
 			{employees.map((employee) => (
 				<Card
 					key={employee.id}
-					className="p-0 border-none bg-white hover:translate-y-[-4px] transition-all duration-300 shadow-md overflow-hidden flex flex-col"
+					className="p-0 border-none bg-white hover:-translate-y-1 transition-all duration-300 shadow-md overflow-hidden flex flex-col"
 				>
 					{/* Imagen */}
-					<div className="w-full aspect-[4/3] relative">
+					<div className="w-full aspect-4/3 relative">
 						<img
 							alt={`${employee.firstName} ${employee.lastName}`}
 							className="w-full h-full object-cover"
@@ -68,7 +68,7 @@ export function EmployeeCard({
 								<Dropdown.Popover>
 									<Dropdown.Menu
 										onAction={(key) => handleAction(String(key), employee.id)}
-										className="min-w-[170px] bg-white border border-default-100 shadow-xl rounded-2xl"
+										className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl"
 									>
 										<Dropdown.Item id="edit" textValue="Editar">
 											<div className="flex items-center gap-2 py-1">
@@ -95,7 +95,7 @@ export function EmployeeCard({
 						</div>
 
 						<div>
-							<div className="h-[1px] w-full bg-default-100 mb-3" />
+							<div className="h-px w-full bg-default-100 mb-3" />
 							<div className="flex items-center justify-between">
 								<span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
 									ID: #{employee.id}
