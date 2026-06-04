@@ -1,40 +1,59 @@
 import type { BillResponse } from '../BillType'
 import { Button, Dropdown, Label, Table } from '@heroui/react'
 import { MoreVertical, Info } from 'lucide-react'
+import { BillDetailModal } from '../components/BillDetailModal'
+import { useState } from 'react'
 export function BillPage() {
+	// dentro del componente
+	const [openDetail, setOpenDetail] = useState(false)
+	const [selectedBill, setSelectedBill] = useState<BillResponse | null>(null)
+
+	const handleViewDetail = (bill: BillResponse) => {
+		setSelectedBill(bill)
+		setOpenDetail(true)
+	}
 	const bills: BillResponse[] = [
 		{
 			id: 1,
-			issueDate: '2024-01-10',
-			time: '10:30',
-			subTotal: 80,
-			totalPrice: 94.4,
+			issueDate: '2026-06-03',
+			time: '14:30',
+			subTotal: 150.0,
+			totalPrice: 177.0,
+			igv: 27.0,
 			status: true,
-			employeeFirstName: 'Juan',
-			partnerFirstName: 'Carlos',
-			membershipName: 'Mensual',
+			employeeFirstName: 'Carlos',
+			employeeLastName: 'Pérez',
+			partnerFirstName: 'Ana',
+			partnerLastName: 'Gómez',
+			membershipName: 'Gold',
 		},
 		{
 			id: 2,
-			issueDate: '2024-01-11',
-			time: '11:00',
-			subTotal: 120,
-			totalPrice: 141.6,
-			status: false,
-			employeeFirstName: 'María',
+			issueDate: '2026-06-03',
+			time: '14:30',
+			subTotal: 150.0,
+			totalPrice: 177.0,
+			igv: 27.0,
+			status: true,
+			employeeFirstName: 'Carlos',
+			employeeLastName: 'Pérez',
 			partnerFirstName: 'Ana',
-			membershipName: 'Anual',
+			partnerLastName: 'Gómez',
+			membershipName: 'Gold',
 		},
 		{
 			id: 3,
-			issueDate: '2024-01-12',
-			time: '09:15',
-			subTotal: 60,
-			totalPrice: 70.8,
+			issueDate: '2026-06-03',
+			time: '14:30',
+			subTotal: 150.0,
+			totalPrice: 177.0,
+			igv: 27.0,
 			status: true,
 			employeeFirstName: 'Carlos',
-			partnerFirstName: 'Luis',
-			membershipName: 'Semanal',
+			employeeLastName: 'Pérez',
+			partnerFirstName: 'Ana',
+			partnerLastName: 'Gómez',
+			membershipName: 'Gold',
 		},
 	]
 
@@ -129,8 +148,13 @@ export function BillPage() {
 													<MoreVertical size={20} className="text-black" strokeWidth={3} />
 												</Button>
 												<Dropdown.Popover>
-													<Dropdown.Menu className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl">
-														<Dropdown.Item id="edit" textValue="Editar">
+													<Dropdown.Menu
+														className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl"
+														onAction={(key) => {
+															if (key === 'detail') handleViewDetail(bill)
+														}}
+													>
+														<Dropdown.Item id="detail" textValue="Editar">
 															<div className="flex items-center gap-2 py-1">
 																<Info size={16} className="text-black" />
 																<Label className="font-semibold text-black">Ver detalles</Label>
@@ -147,6 +171,15 @@ export function BillPage() {
 					</Table.ScrollContainer>
 				</Table>
 			</main>
+			{openDetail && (
+				<BillDetailModal
+					bill={selectedBill}
+					onClose={() => {
+						setOpenDetail(false)
+						setSelectedBill(null)
+					}}
+				/>
+			)}
 		</div>
 	)
 }
