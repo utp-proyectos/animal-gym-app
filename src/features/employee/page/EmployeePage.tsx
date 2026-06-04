@@ -6,6 +6,7 @@ import { EmployeeCard } from '../components/EmployeeCard'
 import { EmployeeFormModal } from '../components/EmployeeFormModal'
 import { EmployeeDetailModal } from '../components/EmployeeDetailModal'
 import type { EmployeeResponse, EmployeeDetailResponse } from '../EmployeeType'
+import { EmployeePasswordModal } from '../components/EmployeePasswordModal'
 
 export function EmployeePage() {
 	const mockEmployees: EmployeeResponse[] = [
@@ -34,6 +35,7 @@ export function EmployeePage() {
 
 	const [openCreate, setOpenCreate] = useState(false)
 	const [openDetail, setOpenDetail] = useState(false)
+	const [openPassword, setOpenPassword] = useState(false)
 	const [selectedEmployee, setSelectedEmployee] = useState<EmployeeDetailResponse | null>(null)
 
 	const handleViewDetail = (id: number) => {
@@ -127,7 +129,10 @@ export function EmployeePage() {
 						employees={mockEmployees}
 						onEdit={(id) => console.log('editar', id)}
 						onDelete={(id) => console.log('eliminar', id)}
-						onChangePassword={(id) => console.log('contraseña', id)}
+						onChangePassword={(id) => {
+							console.log('contraseña', id)
+							setOpenPassword(true)
+						}}
 						onViewDetail={handleViewDetail}
 					/>
 				</main>
@@ -143,6 +148,7 @@ export function EmployeePage() {
 					}}
 				/>
 			)}
+			{openPassword && <EmployeePasswordModal onClose={() => setOpenPassword(false)} />}
 		</div>
 	)
 }

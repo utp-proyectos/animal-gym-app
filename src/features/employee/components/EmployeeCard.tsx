@@ -97,9 +97,6 @@ export function EmployeeCard({
 						<div>
 							<div className="h-px w-full bg-default-100 mb-3" />
 							<div className="flex items-center justify-between">
-								<span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-									ID: #{employee.id}
-								</span>
 								<Button variant="outline" size="sm" onPress={() => onViewDetail(employee.id)}>
 									Ver detalles
 								</Button>
