@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { Button, Dropdown, Label } from '@heroui/react'
-import { Menu, House, Users, Contact, IdCard, SportShoe } from 'lucide-react'
+import { Menu, House, Users, Contact, IdCard, SportShoe, ReceiptSwissFranc } from 'lucide-react'
 import logo from '../assets/global/logo.png'
 import './style.css'
 
@@ -15,6 +15,7 @@ export function DashboardLayout() {
 		{ label: 'Membresias', path: '/membresias', icon: <IdCard size={20} /> },
 		{ label: 'Empleados', path: '/empleados', icon: <Users size={20} /> },
 		{ label: 'Ejercicios', path: '/ejercicios', icon: <SportShoe size={20} /> },
+		{ label: 'Boletas', path: '/boletas', icon: <ReceiptSwissFranc size={20} /> },
 	]
 
 	return (

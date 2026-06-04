@@ -1,3 +1,4 @@
+import { BillPage } from '@/features/bill/page/BillPage'
 import { EmployeePage } from '@/features/employee/components/EmployeePage'
 import { ExercisePage } from '@/features/exercise/page/ExercisePage'
 import { DashboardLayout } from '@/layout/DashboardLayout'
@@ -26,7 +27,7 @@ const router = createBrowserRouter([
 			},
 			{
 				path: 'boletas',
-				element: <ExercisePage />,
+				element: <BillPage />,
 			},
 		],
 	},
