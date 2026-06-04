@@ -1,3 +1,4 @@
+import LoginPage from '@/features/auth/pages/LoginPage'
 import { BillPage } from '@/features/bill/page/BillPage'
 import { EmployeePage } from '@/features/employee/page/EmployeePage'
 import { ExercisePage } from '@/features/exercise/page/ExercisePage'
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
 				element: <BillPage />,
 			},
 		],
+	},
+	{
+		path: '/login',
+		Component: LoginPage,
 	},
 ])
 
