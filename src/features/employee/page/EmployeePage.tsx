@@ -1,5 +1,5 @@
 // src/pages/EmployeePage.tsx
-import { Button, Card, Input, Label, ListBox, Select } from '@heroui/react'
+import { Button, Card, Label, ListBox, SearchField, Select } from '@heroui/react'
 import { Plus, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { EmployeeCard } from '../components/EmployeeCard'
@@ -80,8 +80,14 @@ export function EmployeePage() {
 						<h3 className="font-bold text-lg mb-6 text-black">Filtrar empleados</h3>
 						<div className="flex flex-col gap-7">
 							<div className="flex flex-col gap-1">
-								<Label>Nombre</Label>
-								<Input placeholder="Ej. Juan" />
+								<SearchField name="Buscador">
+									<Label>Buscador</Label>
+									<SearchField.Group>
+										<SearchField.SearchIcon />
+										<SearchField.Input className="w-70]" placeholder="Search..." />
+										<SearchField.ClearButton />
+									</SearchField.Group>
+								</SearchField>
 							</div>
 							<div className="flex flex-col gap-2">
 								<label className="text-sm font-semibold text-slate-700 ml-1">Rol</label>
