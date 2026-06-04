@@ -1,19 +1,23 @@
 import {
 	Button,
-	DateField,
 	Description,
 	FieldError,
 	Input,
 	Label,
 	Modal,
 	TextField,
+	type Key,
 } from '@heroui/react'
 import { UserPlus } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { CustomSelect } from '../../../components/CustomSelect'
+import { CalendarDate, CalendarDateTime, ZonedDateTime } from '@internationalized/date'
+import { CustomDateField } from '@/components/CustomDateField'
+
+type HeroUIDate = CalendarDate | CalendarDateTime | ZonedDateTime
 
 const schema = z.object({
 	dni: z.string().length(8, 'DNI debe tener exactamente 8 caracteres'),
@@ -21,13 +25,38 @@ const schema = z.object({
 	lastName: z.string().min(2, 'Mínimo 2 caracteres'),
 	phoneNumber: z.string().min(9, 'Teléfono inválido'),
 	email: z.string().email('Email inválido'),
-	gender: z.string().min(1, 'Selecciona un género'),
-	birthDate: z.string().min(1, 'Fecha requerida'),
-	hireDate: z.string().min(1, 'Fecha requerida'),
+	gender: z
+		.custom<Key>()
+		.nullable()
+		.refine((value) => value !== null && value !== '', {
+			error: 'Selecciona un genero',
+		}),
+	birthDate: z
+		.custom<HeroUIDate | null>()
+		.refine((value) => value !== null, {
+			message: 'Fecha de nacimiento requerida',
+		})
+		.transform((val) => val as HeroUIDate | null),
+
+	hireDate: z
+		.custom<HeroUIDate | null>()
+		.refine((value) => value !== null, {
+			message: 'Fecha de contratación requerida',
+		})
+		.transform((val) => val as HeroUIDate | null),
 	salary: z.number().positive('Debe ser mayor a 0'),
-	contractType: z.string().min(1, 'Selecciona un tipo'),
-	specialty: z.string().min(1, 'Selecciona una especialidad'),
-	role: z.string().min(1, 'Selecciona un rol'),
+	contractType: z
+		.custom<Key>()
+		.nullable()
+		.refine((value) => value !== null && value !== '', { error: 'Selecciona un contrato' }),
+	specialty: z
+		.custom<Key>()
+		.nullable()
+		.refine((value) => value !== null && value !== '', { error: 'Selecciona una especialidad' }),
+	role: z
+		.custom<Key>()
+		.nullable()
+		.refine((value) => value !== null && value !== '', { error: 'Selecciona un rol' }),
 	password: z.string().min(8, 'Mínimo 8 caracteres'),
 })
 
@@ -48,9 +77,18 @@ export function EmployeeFormModal({ onClose }: Props) {
 	const {
 		register,
 		handleSubmit,
+		control,
 		formState: { errors },
 	} = useForm<EmployeeFormSchema>({
 		resolver: zodResolver(schema),
+		defaultValues: {
+			gender: null,
+			contractType: null,
+			specialty: null,
+			role: null,
+			birthDate: null,
+			hireDate: null,
+		},
 	})
 
 	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +97,11 @@ export function EmployeeFormModal({ onClose }: Props) {
 	}
 
 	const onSubmit = (data: EmployeeFormSchema) => {
-		console.log(data)
+		console.log({
+			...data,
+			birthDate: data.birthDate?.toString(),
+			hireDate: data.hireDate?.toString(),
+		})
 		onClose()
 	}
 
@@ -93,7 +135,7 @@ export function EmployeeFormModal({ onClose }: Props) {
 									<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 										<TextField isInvalid={!!errors.dni}>
 											<Label>DNI</Label>
-											<Input {...register('dni')} placeholder="12345678" variant="secondary" />
+											<Input placeholder="00000000" {...register('dni')} variant="secondary" />
 											<FieldError>{errors.dni?.message}</FieldError>
 										</TextField>
 										<TextField isInvalid={!!errors.firstName}>
@@ -127,30 +169,42 @@ export function EmployeeFormModal({ onClose }: Props) {
 											/>
 											<FieldError>{errors.email?.message}</FieldError>
 										</TextField>
-										<CustomSelect
-											label="Género"
-											placeholder="Selecciona género"
-											options={GENDER_OPTIONS}
-											isRequired
-											{...register('gender')}
-										/>
+										<Controller
+											name="gender"
+											control={control}
+											render={({ field, fieldState: { error } }) => (
+												<>
+													<CustomSelect
+														label="Género"
+														placeholder="Selecciona género"
+														options={GENDER_OPTIONS}
+														value={field.value}
+														onChange={field.onChange}
+														isInvalid={!!error}
+														errorMessage={error?.message}
+													/>
+												</>
+											)}
+										></Controller>
 									</div>
 
 									<div className="grid gap-4 md:grid-cols-2">
-										<DateField
-											className="w-full"
+										<Controller
 											name="birthDate"
-											isRequired
-											isInvalid={!!errors.birthDate}
-										>
-											<Label>Fecha de nacimiento</Label>
-											<DateField.Group variant="secondary">
-												<DateField.Input>
-													{(segment) => <DateField.Segment segment={segment} />}
-												</DateField.Input>
-											</DateField.Group>
-											<FieldError>{errors.birthDate?.message}</FieldError>
-										</DateField>
+											control={control}
+											render={({ field, fieldState: { error } }) => (
+												<>
+													<CustomDateField
+														label="Fecha de Nacimiento"
+														value={field.value}
+														onChange={field.onChange}
+														isInvalid={!!error}
+														errorMessage={error?.message}
+													/>
+													<FieldError>{error?.message}</FieldError>
+												</>
+											)}
+										></Controller>
 
 										<div className="flex flex-col gap-2">
 											<Label>Imagen</Label>
@@ -172,26 +226,26 @@ export function EmployeeFormModal({ onClose }: Props) {
 								{/* DATOS LABORALES */}
 								<section className="space-y-4 border-t pt-6">
 									<h3 className="font-semibold text-lg">Datos laborales</h3>
-
+									<Controller
+										name="hireDate"
+										control={control}
+										render={({ field, fieldState: { error } }) => (
+											<>
+												<CustomDateField
+													label="Fecha de Contratacion"
+													value={field.value}
+													onChange={field.onChange}
+													isInvalid={!!error}
+													errorMessage={error?.message}
+												/>
+											</>
+										)}
+									></Controller>
 									<div className="grid gap-4 md:grid-cols-2">
-										<DateField
-											className="w-full"
-											name="hireDate"
-											isRequired
-											isInvalid={!!errors.hireDate}
-										>
-											<Label>Fecha de contratación</Label>
-											<DateField.Group variant="secondary">
-												<DateField.Input>
-													{(segment) => <DateField.Segment segment={segment} />}
-												</DateField.Input>
-											</DateField.Group>
-											<FieldError>{errors.hireDate?.message}</FieldError>
-										</DateField>
 										<TextField isInvalid={!!errors.salary}>
 											<Label>Salario</Label>
 											<Input
-												{...register('salary')}
+												{...register('salary', { valueAsNumber: true })}
 												placeholder="2500"
 												variant="secondary"
 												type="number"
@@ -201,27 +255,59 @@ export function EmployeeFormModal({ onClose }: Props) {
 									</div>
 
 									<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-										<CustomSelect
-											label="Tipo de contrato"
-											placeholder="Selecciona contrato"
-											options={CONTRACT_OPTIONS}
-											isRequired
-											{...register('contractType')}
-										/>
-										<CustomSelect
-											label="Especialidad"
-											placeholder="Selecciona especialidad"
-											options={SPECIALTY_OPTIONS}
-											isRequired
-											{...register('specialty')}
-										/>
-										<CustomSelect
-											label="Rol"
-											placeholder="Selecciona un rol"
-											options={ROLE_OPTIONS}
-											isRequired
-											{...register('role')}
-										/>
+										<Controller
+											name="contractType"
+											control={control}
+											render={({ field, fieldState: { error } }) => (
+												<>
+													<CustomSelect
+														label="Tipo de contrato"
+														placeholder="Selecciona  contrato"
+														options={CONTRACT_OPTIONS}
+														value={field.value}
+														onChange={field.onChange}
+														isInvalid={!!error}
+														errorMessage={error?.message}
+													/>
+												</>
+											)}
+										></Controller>
+
+										<Controller
+											name="specialty"
+											control={control}
+											render={({ field, fieldState: { error } }) => (
+												<>
+													<CustomSelect
+														label="Especialidad"
+														placeholder="Selecciona especialidad"
+														options={SPECIALTY_OPTIONS}
+														value={field.value}
+														onChange={field.onChange}
+														isInvalid={!!error}
+														errorMessage={error?.message}
+													/>
+												</>
+											)}
+										></Controller>
+
+										<Controller
+											name="role"
+											control={control}
+											render={({ field, fieldState: { error } }) => (
+												<>
+													<CustomSelect
+														label="Puesto"
+														placeholder="Selecciona puesto"
+														options={ROLE_OPTIONS}
+														value={field.value}
+														onChange={field.onChange}
+														isInvalid={!!error}
+														errorMessage={error?.message}
+													/>
+												</>
+											)}
+										></Controller>
 									</div>
 								</section>
 
