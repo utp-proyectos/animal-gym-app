@@ -1,43 +1,21 @@
-// src/pages/EmployeePage.tsx
 import { Button, Card, Label, ListBox, SearchField, Select } from '@heroui/react'
 import { Plus, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import { EmployeeCard } from '../components/EmployeeCard'
 import { EmployeeFormModal } from '../components/EmployeeFormModal'
 import { EmployeeDetailModal } from '../components/EmployeeDetailModal'
-import type { EmployeeResponse, EmployeeDetailResponse } from '../EmployeeType'
 import { EmployeePasswordModal } from '../components/EmployeePasswordModal'
 import { DeleteModal } from '@/features/bill/components/DeleteModal'
+import { useEmployees } from '../hooks/useEmployees'
+import { useDeleteEmployee } from '../hooks/useEmployees'
 
 export function EmployeePage() {
-	const mockEmployees: EmployeeResponse[] = [
-		{
-			id: 1,
-			firstName: 'Juan',
-			lastName: 'Pérez',
-			image: 'https://i.pravatar.cc/150?img=9',
-			role: 'ADMIN',
-		},
-		{
-			id: 2,
-			firstName: 'María',
-			lastName: 'López',
-			image: 'https://i.pravatar.cc/150?img=5',
-			role: 'ENTRENADOR',
-		},
-		{
-			id: 3,
-			firstName: 'Carlos',
-			lastName: 'Ramos',
-			image: 'https://i.pravatar.cc/150?img=30',
-			role: 'RECEPCIONISTA',
-		},
-	]
+	const { mutate: deleteEmployee } = useDeleteEmployee()
+	const { data: employees = [], isLoading } = useEmployees()
 
 	const [openCreate, setOpenCreate] = useState(false)
 	const [openDetail, setOpenDetail] = useState(false)
 	const [openPassword, setOpenPassword] = useState(false)
-	const [selectedEmployee, setSelectedEmployee] = useState<EmployeeDetailResponse | null>(null)
 	const [openDelete, setOpenDelete] = useState(false)
 	const [selectedId, setSelectedId] = useState<number | null>(null)
 
@@ -47,24 +25,11 @@ export function EmployeePage() {
 	}
 
 	const handleViewDetail = (id: number) => {
-		setSelectedEmployee({
-			id,
-			dni: '12345678',
-			firstName: 'Juan',
-			lastName: 'Pérez',
-			phoneNumber: '999888777',
-			gender: 'MALE',
-			email: 'juan@animalgym.com',
-			birthDate: '1990-05-15',
-			hireDate: '2024-01-10',
-			image: 'https://i.pravatar.cc/150?img=9',
-			salary: 2500,
-			contractType: 'FULL_TIME',
-			specialty: 'Emergencias',
-			role: 'ADMIN',
-		})
+		setSelectedId(id)
 		setOpenDetail(true)
 	}
+
+	if (isLoading) return <p>Cargando...</p>
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
@@ -94,7 +59,7 @@ export function EmployeePage() {
 									<Label>Buscador</Label>
 									<SearchField.Group>
 										<SearchField.SearchIcon />
-										<SearchField.Input className="w-70]" placeholder="Search..." />
+										<SearchField.Input placeholder="Search..." />
 										<SearchField.ClearButton />
 									</SearchField.Group>
 								</SearchField>
@@ -134,11 +99,11 @@ export function EmployeePage() {
 
 				<main className="flex-1">
 					<EmployeeCard
-						employees={mockEmployees}
+						employees={employees}
 						onEdit={(id) => console.log('editar', id)}
 						onDelete={handleDelete}
 						onChangePassword={(id) => {
-							console.log('contraseña', id)
+							setSelectedId(id)
 							setOpenPassword(true)
 						}}
 						onViewDetail={handleViewDetail}
@@ -147,22 +112,33 @@ export function EmployeePage() {
 			</div>
 
 			{openCreate && <EmployeeFormModal onClose={() => setOpenCreate(false)} />}
-			{openDetail && (
+
+			{openDetail && selectedId !== null && (
 				<EmployeeDetailModal
-					employee={selectedEmployee}
+					id={selectedId}
 					onClose={() => {
 						setOpenDetail(false)
-						setSelectedEmployee(null)
+						setSelectedId(null)
 					}}
 				/>
 			)}
-			{openPassword && <EmployeePasswordModal onClose={() => setOpenPassword(false)} />}
+
+			{openPassword && selectedId !== null && (
+				<EmployeePasswordModal
+					id={selectedId}
+					onClose={() => {
+						setOpenPassword(false)
+						setSelectedId(null)
+					}}
+				/>
+			)}
+
 			{openDelete && selectedId !== null && (
 				<DeleteModal
 					id={selectedId}
 					title="Eliminar empleado"
 					description="¿Estás seguro de que deseas eliminar a este empleado?"
-					onConfirm={(id) => console.log('eliminar', id)}
+					onConfirm={(id) => deleteEmployee(id)}
 					onClose={() => {
 						setOpenDelete(false)
 						setSelectedId(null)

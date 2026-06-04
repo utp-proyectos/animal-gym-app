@@ -1,18 +1,41 @@
-// src/components/ChangePasswordModal.tsx
-import { Button, FieldError, Form, Input, Label, Modal, TextField } from '@heroui/react'
+// src/components/EmployeePasswordModal.tsx
+import { Button, FieldError, InputGroup, Label, Modal, TextField } from '@heroui/react'
 import { KeyRound } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useChangePassword } from '../../user/hook/UseUser'
+
+const schema = z
+	.object({
+		newPassword: z.string().min(8, 'Mínimo 8 caracteres'),
+		confirmPassword: z.string().min(8, 'Mínimo 8 caracteres'),
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: 'Las contraseñas no coinciden',
+		path: ['confirmPassword'],
+	})
+
+type PasswordSchema = z.infer<typeof schema>
 
 interface Props {
+	id: number
 	onClose: () => void
 }
 
-export function EmployeePasswordModal({ onClose }: Props) {
-	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-		const formData = new FormData(e.currentTarget)
-		const newPassword = formData.get('newPassword')
-		console.log('cambiar contraseña:', newPassword)
-		onClose()
+export function EmployeePasswordModal({ id, onClose }: Props) {
+	const { mutate: changePassword, isPending } = useChangePassword()
+
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm<PasswordSchema>({
+		resolver: zodResolver(schema),
+	})
+
+	const onSubmit = (data: PasswordSchema) => {
+		changePassword({ personId: id, newPassword: data.newPassword }, { onSuccess: () => onClose() })
 	}
 
 	return (
@@ -29,6 +52,7 @@ export function EmployeePasswordModal({ onClose }: Props) {
 
 						<Modal.Header>
 							<div className="flex items-center gap-3">
+								<KeyRound size={24} className="text-black" />
 								<div>
 									<Modal.Heading className="text-2xl font-black tracking-tight uppercase text-black">
 										Cambiar contraseña
@@ -39,38 +63,48 @@ export function EmployeePasswordModal({ onClose }: Props) {
 						</Modal.Header>
 
 						<Modal.Body className="py-6">
-							<Form id="form-password" className="flex flex-col gap-4" onSubmit={onSubmit}>
-								<TextField isRequired name="newPassword" type="password" minLength={8}>
+							<form
+								id="form-password"
+								className="flex flex-col gap-4"
+								onSubmit={handleSubmit(onSubmit)}
+							>
+								<TextField isInvalid={!!errors.newPassword}>
 									<Label>Nueva contraseña</Label>
-									<Input
-										placeholder="Mínimo 8 caracteres"
-										variant="secondary"
-										autoComplete="new-password"
-									/>
-									<FieldError />
+									<InputGroup>
+										<InputGroup.Input
+											{...register('newPassword')}
+											type="password"
+											placeholder="Mínimo 8 caracteres"
+											autoComplete="new-password"
+										/>
+									</InputGroup>
+									<FieldError>{errors.newPassword?.message}</FieldError>
 								</TextField>
 
-								<TextField isRequired name="confirmPassword" type="password" minLength={8}>
+								<TextField isInvalid={!!errors.confirmPassword}>
 									<Label>Confirmar contraseña</Label>
-									<Input
-										placeholder="Repite la contraseña"
-										variant="secondary"
-										autoComplete="new-password"
-									/>
-									<FieldError />
+									<InputGroup>
+										<InputGroup.Input
+											{...register('confirmPassword')}
+											type="password"
+											placeholder="Repite la contraseña"
+											autoComplete="new-password"
+										/>
+									</InputGroup>
+									<FieldError>{errors.confirmPassword?.message}</FieldError>
 								</TextField>
-							</Form>
-						</Modal.Body>
 
-						<Modal.Footer className=" pt-4">
-							<Button variant="secondary" slot="close">
-								Cancelar
-							</Button>
-							<Button type="submit" form="form-password">
-								<KeyRound className="size-4" />
-								Guardar
-							</Button>
-						</Modal.Footer>
+								<div className="flex justify-end gap-2 border-t pt-4">
+									<Button type="button" variant="secondary" onPress={onClose}>
+										Cancelar
+									</Button>
+									<Button type="submit" isPending={isPending}>
+										<KeyRound className="size-4" />
+										{isPending ? 'Guardando...' : 'Guardar'}
+									</Button>
+								</div>
+							</form>
+						</Modal.Body>
 					</Modal.Dialog>
 				</Modal.Container>
 			</Modal.Backdrop>

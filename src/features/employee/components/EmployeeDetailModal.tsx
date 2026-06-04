@@ -1,13 +1,17 @@
 // src/components/EmployeeDetailModal.tsx
 import { Button, Modal } from '@heroui/react'
-import type { EmployeeDetailResponse } from '../EmployeeType'
+import { useEmployee } from '../hooks/useEmployees'
+import defult from '../../../assets/global/default.png'
 
 interface Props {
-	employee: EmployeeDetailResponse | null
+	id: number
 	onClose: () => void
 }
 
-export function EmployeeDetailModal({ employee, onClose }: Props) {
+export function EmployeeDetailModal({ id, onClose }: Props) {
+	const { data: employee, isLoading } = useEmployee(id)
+
+	if (isLoading) return null
 	if (!employee) return null
 
 	return (
@@ -22,12 +26,15 @@ export function EmployeeDetailModal({ employee, onClose }: Props) {
 					<Modal.Dialog className="sm:max-w-3xl max-h-[90vh]">
 						<Modal.CloseTrigger />
 
-						<Modal.Header className="pb-4">
+						<Modal.Header className="border-b pb-4">
 							<div className="flex items-center gap-4">
 								<img
-									src={employee.image}
+									src={employee.image || 'defult'}
 									alt={`${employee.firstName} ${employee.lastName}`}
 									className="w-16 h-16 rounded-full object-cover"
+									onError={(e) => {
+										e.currentTarget.src = defult
+									}}
 								/>
 								<div>
 									<Modal.Heading className="text-3xl font-black tracking-tight uppercase text-black">
@@ -41,7 +48,6 @@ export function EmployeeDetailModal({ employee, onClose }: Props) {
 						</Modal.Header>
 
 						<Modal.Body className="overflow-y-auto py-6">
-							{/* Datos personales */}
 							<section className="space-y-4">
 								<h3 className="font-semibold text-lg border-b pb-2">Datos personales</h3>
 								<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -78,7 +84,6 @@ export function EmployeeDetailModal({ employee, onClose }: Props) {
 								</div>
 							</section>
 
-							{/* Datos laborales */}
 							<section className="space-y-4 border-t pt-6 mt-2">
 								<h3 className="font-semibold text-lg border-b pb-2">Datos laborales</h3>
 								<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -112,11 +117,17 @@ export function EmployeeDetailModal({ employee, onClose }: Props) {
 										</p>
 										<p className="font-medium text-black">{employee.role}</p>
 									</div>
+									<div>
+										<p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+											ID
+										</p>
+										<p className="font-medium text-black">#{employee.id}</p>
+									</div>
 								</div>
 							</section>
 						</Modal.Body>
 
-						<Modal.Footer className="pt-4">
+						<Modal.Footer className="border-t pt-4">
 							<Button variant="secondary" onPress={onClose}>
 								Cerrar
 							</Button>
