@@ -116,7 +116,7 @@ export function EmployeeDetailModal({ employee, onClose }: Props) {
 							</section>
 						</Modal.Body>
 
-						<Modal.Footer className="border-t pt-4">
+						<Modal.Footer className="pt-4">
 							<Button variant="secondary" onPress={onClose}>
 								Cerrar
 							</Button>
