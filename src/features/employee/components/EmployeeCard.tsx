@@ -1,39 +1,37 @@
 // src/components/EmployeeCard.tsx
 import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
 import { EllipsisVertical } from 'lucide-react'
+import type { EmployeeResponse } from '../EmployeeType'
 
-const mockEmployees = [
-	{
-		id: 1,
-		firstName: 'Juan',
-		lastName: 'Pérez',
-		image: 'https://i.pravatar.cc/150?img=9',
-		role: 'administrador',
-	},
-	{
-		id: 2,
-		firstName: 'María',
-		lastName: 'López',
-		image: 'https://i.pravatar.cc/150?img=5',
-		role: 'administrador',
-	},
-	{
-		id: 3,
-		firstName: 'Carlos',
-		lastName: 'Ramos',
-		image: 'https://i.pravatar.cc/150?img=30',
-		role: 'administrador',
-	},
-]
+interface Props {
+	employees: EmployeeResponse[]
+	onEdit: (id: number) => void
+	onDelete: (id: number) => void
+	onChangePassword: (id: number) => void
+	onViewDetail: (id: number) => void
+}
 
-export function EmployeeCard() {
+export function EmployeeCard({
+	employees,
+	onEdit,
+	onDelete,
+	onChangePassword,
+	onViewDetail,
+}: Props) {
+	const handleAction = (key: string, id: number) => {
+		if (key === 'edit') onEdit(id)
+		if (key === 'delete') onDelete(id)
+		if (key === 'password') onChangePassword(id)
+		if (key === 'detail') onViewDetail(id)
+	}
+
 	return (
 		<div className="flex flex-wrap gap-4 p-6">
-			{mockEmployees.map((employee) => (
+			{employees.map((employee) => (
 				<Card key={employee.id} className="w-[320px] gap-3 shadow-lg">
 					<img
 						alt={`${employee.firstName} ${employee.lastName}`}
-						className="w-full h-48 object-fill rounded-2xl"
+						className="w-full h-48 object-fill rounded"
 						src={employee.image}
 					/>
 					<Card.Header className="gap-1 flex-row items-center justify-between">
@@ -51,7 +49,7 @@ export function EmployeeCard() {
 								</Button>
 							</Dropdown.Trigger>
 							<Dropdown.Popover>
-								<Dropdown.Menu>
+								<Dropdown.Menu onAction={(key) => handleAction(String(key), employee.id)}>
 									<Dropdown.Item id="edit" textValue="Editar">
 										<Label>Editar</Label>
 									</Dropdown.Item>
