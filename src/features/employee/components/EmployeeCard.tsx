@@ -2,7 +2,7 @@
 import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
 import { Edit3, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
 import type { EmployeeResponse } from '../EmployeeType'
-
+import defult from '../../../assets/global/default.png'
 interface Props {
 	employees: EmployeeResponse[]
 	onEdit: (id: number) => void
@@ -37,7 +37,10 @@ export function EmployeeCard({
 						<img
 							alt={`${employee.firstName} ${employee.lastName}`}
 							className="w-full h-full object-cover"
-							src={employee.image}
+							src={employee.image || defult}
+							onError={(e) => {
+								e.currentTarget.src = defult
+							}}
 						/>
 						<div className="absolute top-3 left-4">
 							<span className="bg-white/90 backdrop-blur-md text-primary text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full">
