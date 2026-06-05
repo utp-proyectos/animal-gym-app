@@ -16,6 +16,9 @@ import { z } from 'zod'
 import { CustomSelect } from '../../../components/CustomSelect'
 import { CalendarDate, CalendarDateTime, ZonedDateTime } from '@internationalized/date'
 import { CustomDateField } from '@/components/CustomDateField'
+import { useCreateEmployee } from '../hooks/useEmployees'
+import type { Role } from '@/shared/types'
+import type { EmployeeCreateRequest } from '../EmployeeType'
 
 type HeroUIDate = CalendarDate | CalendarDateTime | ZonedDateTime
 
@@ -67,10 +70,11 @@ interface Props {
 }
 
 export function EmployeeFormModal({ onClose }: Props) {
+	const { mutate } = useCreateEmployee()
 	const GENDER_OPTIONS = ['Masculino', 'Femenino', 'Otro']
 	const CONTRACT_OPTIONS = ['FULL_TIME', 'PART_TIME', 'TEMPORARY']
 	const SPECIALTY_OPTIONS = ['Emergencias', 'Pediatría', 'Cardiología', 'General']
-	const ROLE_OPTIONS = ['ADMIN', 'NURSE', 'DOCTOR']
+	const ROLE_OPTIONS: Role[] = ['ADMIN', 'ENTRENADOR', 'SOCIO', 'RECEPCIONISTA']
 
 	const [preview, setPreview] = useState<string | null>(null)
 
@@ -97,11 +101,25 @@ export function EmployeeFormModal({ onClose }: Props) {
 	}
 
 	const onSubmit = (data: EmployeeFormSchema) => {
-		console.log({
-			...data,
+		const emplooyee: EmployeeCreateRequest = {
+			dni: data.dni,
+			firstName: data.firstName,
+			lastName: data.lastName,
+			phoneNumber: data.phoneNumber,
+			gender: data.gender,
+			email: data.email,
 			birthDate: data.birthDate?.toString(),
 			hireDate: data.hireDate?.toString(),
-		})
+			image:
+				'https://images.unsplash.com/photo-1734629322027-6aa0c50dd51e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+			salary: data.salary,
+			contractType: data.contractType,
+			specialty: data.specialty,
+			password: data.password,
+			role: data.role as Role,
+		}
+		console.log(emplooyee)
+		mutate(emplooyee)
 		onClose()
 	}
 

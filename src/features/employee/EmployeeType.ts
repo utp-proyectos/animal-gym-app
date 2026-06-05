@@ -12,16 +12,16 @@ export interface EmployeeCreateRequest {
 	firstName: string
 	lastName: string
 	phoneNumber: string
-	gender: string
+	gender: string | number | null
 	email: string
-	birthDate: string
-	hireDate: string
-	image: string
+	birthDate: string | undefined
+	hireDate: string | undefined
+	image: string | number | null
 	salary: number
-	contractType: string
-	specialty: string
+	contractType: string | number | null
+	specialty: string | number | null
 	password: string
-	role: Role
+	role: Role | null
 }
 export interface EmployeeDetailResponse {
 	id: number
@@ -33,7 +33,7 @@ export interface EmployeeDetailResponse {
 	email: string
 	birthDate: string
 	hireDate: string
-	image: string
+	image: string | null
 	salary: number
 	contractType: string
 	specialty: string

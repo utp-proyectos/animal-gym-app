@@ -4,10 +4,14 @@ import { Button, Dropdown, Label } from '@heroui/react'
 import { Menu, House, Users, Contact, IdCard, SportShoe, ReceiptSwissFranc } from 'lucide-react'
 import logo from '../assets/global/logo.png'
 import './style.css'
+import { useLogout } from '@/features/auth/hooks/useLogin'
+import { useAuthStore } from '@/store/authStore'
 
 export function DashboardLayout() {
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const location = useLocation()
+	const logout = useLogout()
+	const user = useAuthStore((state) => state.user)
 
 	const menuItems = [
 		{ label: 'Inicio', path: '/', icon: <House size={20} /> },
@@ -81,7 +85,7 @@ export function DashboardLayout() {
 											alt="user avatar"
 											className="navbar-user-image-gym"
 										/>
-										<span>Admin</span>
+										<span>{user?.firstName}</span>
 									</Button>
 									<Dropdown.Popover>
 										<Dropdown.Menu
@@ -91,7 +95,12 @@ export function DashboardLayout() {
 											<Dropdown.Item id="profile" textValue="Ver Perfil">
 												<Label className="text-black font-medium cursor-pointer">Ver Perfil</Label>
 											</Dropdown.Item>
-											<Dropdown.Item id="logout" textValue="Cerrar Sesión" className="text-danger">
+											<Dropdown.Item
+												id="logout"
+												textValue="Cerrar Sesión"
+												className="text-danger"
+												onClick={logout}
+											>
 												<Label className="text-danger font-medium cursor-pointer">
 													Cerrar Sesión
 												</Label>
