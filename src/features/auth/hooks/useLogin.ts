@@ -27,3 +27,13 @@ export const useLogin = () => {
 		},
 	})
 }
+
+export const useLogout = () => {
+	const navigate = useNavigate()
+	const logout = useAuthStore((state) => state.logout)
+
+	return () => {
+		logout()
+		navigate('/login')
+	}
+}

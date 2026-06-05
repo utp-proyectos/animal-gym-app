@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { employeeService } from '../services/EmployeeService'
-import type { EmployeeCreateRequest } from '../EmployeeType'
 
 const EMPLOYEE_KEY = 'employees'
 
@@ -23,7 +22,7 @@ export function useCreateEmployee() {
 	const queryClient = useQueryClient()
 
 	return useMutation({
-		mutationFn: (payload: EmployeeCreateRequest) => employeeService.save(payload),
+		mutationFn: employeeService.save,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [EMPLOYEE_KEY] })
 		},
