@@ -1,9 +1,10 @@
 // src/components/EmployeePasswordModal.tsx
 import { Button, FieldError, InputGroup, Label, Modal, TextField } from '@heroui/react'
-import { KeyRound } from 'lucide-react'
+import { KeyRound, Eye, EyeClosed, Lock } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useState } from 'react'
 import { useChangePassword } from '../../user/hook/UseUser'
 
 const schema = z
@@ -25,6 +26,9 @@ interface Props {
 
 export function EmployeePasswordModal({ id, onClose }: Props) {
 	const { mutate: changePassword, isPending } = useChangePassword()
+
+	const [isNewVisible, setIsNewVisible] = useState(false)
+	const [isConfirmVisible, setIsConfirmVisible] = useState(false)
 
 	const {
 		register,
@@ -71,12 +75,31 @@ export function EmployeePasswordModal({ id, onClose }: Props) {
 								<TextField isInvalid={!!errors.newPassword}>
 									<Label>Nueva contraseña</Label>
 									<InputGroup>
+										<InputGroup.Prefix>
+											<Lock className="size-4" />
+										</InputGroup.Prefix>
 										<InputGroup.Input
 											{...register('newPassword')}
-											type="password"
+											type={isNewVisible ? 'text' : 'password'}
 											placeholder="Mínimo 8 caracteres"
 											autoComplete="new-password"
 										/>
+										<InputGroup.Suffix>
+											<Button
+												type="button"
+												isIconOnly
+												aria-label={isNewVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+												size="sm"
+												variant="ghost"
+												onPress={() => setIsNewVisible(!isNewVisible)}
+											>
+												{isNewVisible ? (
+													<EyeClosed className="size-4" />
+												) : (
+													<Eye className="size-4" />
+												)}
+											</Button>
+										</InputGroup.Suffix>
 									</InputGroup>
 									<FieldError>{errors.newPassword?.message}</FieldError>
 								</TextField>
@@ -84,12 +107,31 @@ export function EmployeePasswordModal({ id, onClose }: Props) {
 								<TextField isInvalid={!!errors.confirmPassword}>
 									<Label>Confirmar contraseña</Label>
 									<InputGroup>
+										<InputGroup.Prefix>
+											<Lock className="size-4" />
+										</InputGroup.Prefix>
 										<InputGroup.Input
 											{...register('confirmPassword')}
-											type="password"
+											type={isConfirmVisible ? 'text' : 'password'}
 											placeholder="Repite la contraseña"
 											autoComplete="new-password"
 										/>
+										<InputGroup.Suffix>
+											<Button
+												type="button"
+												isIconOnly
+												aria-label={isConfirmVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+												size="sm"
+												variant="ghost"
+												onPress={() => setIsConfirmVisible(!isConfirmVisible)}
+											>
+												{isConfirmVisible ? (
+													<EyeClosed className="size-4" />
+												) : (
+													<Eye className="size-4" />
+												)}
+											</Button>
+										</InputGroup.Suffix>
 									</InputGroup>
 									<FieldError>{errors.confirmPassword?.message}</FieldError>
 								</TextField>
