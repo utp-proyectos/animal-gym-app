@@ -1,2 +1,3 @@
-export type { ApiResponse } from './apiResponse'
-export type { AuthResponse, Role } from './auth'
+export type { ApiResponse } from './api'
+export type { AuthResponse } from './auth'
+export type { Role } from './role'

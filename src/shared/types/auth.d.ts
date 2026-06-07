@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'ENTRENADOR' | 'SOCIO' | 'RECEPCIONISTA'
+import { Role } from './index'
 
 export interface AuthResponse {
 	id: string
