@@ -1,7 +1,7 @@
 // src/components/EmployeeCard.tsx
 import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
 import { Edit3, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
-import type { EmployeeResponse } from '../EmployeeType'
+import type { EmployeeResponse } from '../types'
 import defult from '@/assets/global/default.png'
 interface Props {
 	employees: EmployeeResponse[]
