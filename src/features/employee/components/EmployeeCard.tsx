@@ -2,7 +2,7 @@
 import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
 import { Edit3, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
 import type { EmployeeResponse } from '../EmployeeType'
-import defult from '../../../assets/global/default.png'
+import defult from '@/assets/global/default.png'
 interface Props {
 	employees: EmployeeResponse[]
 	onEdit: (id: number) => void
