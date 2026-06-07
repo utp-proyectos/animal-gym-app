@@ -6,7 +6,7 @@ import { DashboardLayout } from '@/shared/components/layout/DashboardLayout'
 import { createBrowserRouter } from 'react-router-dom'
 import { authGuard } from './authGuard'
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
 	{
 		path: '/',
 		element: <DashboardLayout />,
@@ -40,5 +40,3 @@ const router = createBrowserRouter([
 		loader: (args) => authGuard(args),
 	},
 ])
-
-export default router
