@@ -14,23 +14,23 @@ const router = createBrowserRouter([
 		children: [
 			{
 				path: 'socios',
-				element: <EmployeePage />,
+				Component: EmployeePage,
 			},
 			{
 				path: 'membresias',
-				element: <EmployeePage />,
+				Component: EmployeePage,
 			},
 			{
 				path: 'empleados',
-				element: <EmployeePage />,
+				Component: EmployeePage,
 			},
 			{
 				path: 'ejercicios',
-				element: <ExercisePage />,
+				Component: ExercisePage,
 			},
 			{
 				path: 'boletas',
-				element: <BillPage />,
+				Component: BillPage,
 			},
 		],
 	},
