@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
-import { useChangePassword } from '../../user/hook/UseUser'
+import { useChangePassword } from '@/features/user/hook/UseUser'
 
 const schema = z
 	.object({

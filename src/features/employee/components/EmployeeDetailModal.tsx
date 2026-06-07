@@ -1,7 +1,7 @@
 // src/components/EmployeeDetailModal.tsx
 import { Button, Modal } from '@heroui/react'
 import { useEmployee } from '../hooks/useEmployees'
-import defult from '../../../assets/global/default.png'
+import defult from '@/assets/global/default.png'
 
 interface Props {
 	id: number
