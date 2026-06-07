@@ -1,4 +1,4 @@
-import type { Role } from '@/shared/enums/Role'
+import type { Role } from '@/shared/types'
 
 export interface EmployeeResponse {
 	id: number

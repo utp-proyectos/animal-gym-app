@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { AuthResponse, Role } from '@/shared/types/auth'
+import type { AuthResponse, Role } from '@/shared/types'
 
 type User = Omit<AuthResponse, 'token'>
 interface AuthState {

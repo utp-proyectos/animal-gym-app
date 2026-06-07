@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore } from '@/store'
 import { loginService } from '../services/authService'
-import type { Role } from '@/shared/types'
-
-const ROLE_REDIRECT: Record<Role, string> = {
+// import type { Role } from '@/shared/types'
+type Roles = 'ADMIN' | 'ENTRENADOR' | 'SOCIO' | 'RECEPCIONISTA'
+const ROLE_REDIRECT: Record<Roles, string> = {
 	ADMIN: '/',
 	ENTRENADOR: '/',
 	SOCIO: '/',

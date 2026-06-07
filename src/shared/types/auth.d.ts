@@ -1,5 +1,3 @@
-export type Role = 'ADMIN' | 'ENTRENADOR' | 'SOCIO' | 'RECEPCIONISTA'
-
 export interface AuthResponse {
 	id: string
 	dni: string

@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/store/authStore'
-import type { Role } from '../types'
+import type { Role } from '@/shared/types'
 
 interface HasRoleProps {
 	roles: Role | Role[]
