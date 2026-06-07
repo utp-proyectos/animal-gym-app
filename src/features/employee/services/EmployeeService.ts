@@ -1,10 +1,6 @@
 import { api } from '@/lib/axios'
 import type { ApiResponse } from '@/shared/types'
-import type {
-	EmployeeResponse,
-	EmployeeDetailResponse,
-	EmployeeCreateRequest,
-} from '../EmployeeType'
+import type { EmployeeCreateRequest, EmployeeDetailResponse, EmployeeResponse } from '../types'
 
 export const employeeService = {
 	getAll: () => api.get<ApiResponse<EmployeeResponse[]>>('/employees').then((res) => res.data.data),

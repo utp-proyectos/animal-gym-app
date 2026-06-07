@@ -18,7 +18,7 @@ import { CalendarDate, CalendarDateTime, ZonedDateTime } from '@internationalize
 import { CustomDateField } from '@/shared/components/ui/CustomDateField'
 import { useCreateEmployee } from '../hooks/useEmployees'
 import type { Role } from '@/shared/types'
-import type { EmployeeCreateRequest } from '../EmployeeType'
+import type { EmployeeCreateRequest } from '../types'
 
 type HeroUIDate = CalendarDate | CalendarDateTime | ZonedDateTime
 
