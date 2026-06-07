@@ -223,7 +223,7 @@ const OPTIONS: Option[] = ['option_1', 'option_2']
 //             TypeScript garantiza que solo entran valores de tipo Option ✅
 
 const schema = z.object({
-	fieldName: z.custom<Option | null>().refine((val): val is Option => val !== null, {
+	fieldName: z.custom<Option | null>().refine((val) => val !== null, {
 		//       ^^^^^^^^^^^^^^^^^^^^ type predicate
 		//       elimina null del tipo de output
 		message: 'Selecciona una opción',
@@ -398,11 +398,12 @@ defaultValues: {
 <Controller
 	name="fieldName"
 	control={control}
-	render={({ field: { onChange }, fieldState: { error } }) => (
-		<CustomFileInput
+	render={({ field: { onChange, value }, fieldState: { error } }) => (
+		<FileField
 			label="Archivo"
 			accept="image/jpeg,image/png"
 			onChange={onChange}
+			value={value}
 			isInvalid={!!error}
 			errorMessage={error?.message}
 		/>
