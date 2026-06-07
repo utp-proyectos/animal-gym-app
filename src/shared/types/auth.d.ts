@@ -1,3 +1,5 @@
+import { Role } from './index'
+
 export interface AuthResponse {
 	id: string
 	dni: string
