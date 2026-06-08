@@ -1,5 +1,5 @@
 import { Button, Dropdown, Label, Separator, Table } from '@heroui/react'
-import type { ExerciseResponse } from '../ExerciseType'
+import type { ExerciseResponse } from '../types/exercise.response'
 import { Edit3, MoreVertical, Plus, Trash2 } from 'lucide-react'
 
 export function ExercisePage() {
