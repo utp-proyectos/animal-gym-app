@@ -4,7 +4,7 @@ import type { ExerciseRequest } from '../types'
 
 const EXERCISE_KEY = 'exercises'
 
-export function useExercises() {
+export function useExercise() {
 	return useQuery({
 		queryKey: [EXERCISE_KEY],
 		queryFn: exerciseService.getAll,

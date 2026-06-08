@@ -2,6 +2,7 @@ import { Button, Input, Label, Modal, Surface, TextField } from '@heroui/react'
 import { UserPlus } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useCreateExercise } from '../hooks/useExercises'
 import z from 'zod'
 
 interface Props {
@@ -38,8 +39,10 @@ export function ExcerciseFormModal({ onClose }: Props) {
 		},
 	})
 
+	const { mutate } = useCreateExercise()
+
 	const onSubmit = (data: ExerciseFormOutput) => {
-		console.log('Prueba de envio :v', data)
+		mutate(data)
 		onClose()
 	}
 
