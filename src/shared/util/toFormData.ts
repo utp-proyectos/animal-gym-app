@@ -1,4 +1,4 @@
-export function toFormData(data: Record<string, unknown>): FormData {
+export function toFormData(data: object): FormData {
 	const formData = new FormData()
 
 	Object.entries(data).forEach(([key, value]) => {
