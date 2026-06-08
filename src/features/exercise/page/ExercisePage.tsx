@@ -1,52 +1,13 @@
 import { Button, Dropdown, Label, Separator, Table } from '@heroui/react'
-import type { ExerciseResponse } from '../types/exercise.response'
+import type { ExerciseResponse } from '../types'
 import { Edit3, MoreVertical, Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { ExcerciseFormModal } from '../components/ExcerciseFormModal'
 
 export function ExercisePage() {
-	const exercises: ExerciseResponse[] = [
-		{
-			id: 1,
-			name: 'HIIT Avanzado',
-			description: 'Entrenamiento de alta intensidad',
-			muscleGroup: 'Cardio',
-			equipment: 'Máquina',
-		},
-		{
-			id: 2,
-			name: 'Pilates',
-			description: 'ejercicio de pilates con ejercicios de core',
-			muscleGroup: 'Core',
-			equipment: 'Colchoneta',
-		},
-		{
-			id: 3,
-			name: 'Spinning',
-			description: 'ejercicio de ciclismo indoor',
-			muscleGroup: 'Cardio',
-			equipment: 'Bicicleta estacionaria',
-		},
-		{
-			id: 4,
-			name: 'Zumba',
-			description: 'ejercicio de baile fitness',
-			muscleGroup: 'Cardio',
-			equipment: 'Espacio abierto',
-		},
-		{
-			id: 5,
-			name: 'Crossfit',
-			description: 'Entrenamiento funcional',
-			muscleGroup: 'Funcional',
-			equipment: 'Materiales',
-		},
-		{
-			id: 6,
-			name: 'Stretching',
-			description: 'Estiramientos guiados',
-			muscleGroup: 'Flexibilidad',
-			equipment: 'Colchoneta',
-		},
-	]
+	const [isModalOpen, setIsModalOpen] = useState(false)
+
+	const exercises: ExerciseResponse[] = []
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
@@ -60,7 +21,10 @@ export function ExercisePage() {
 						Administra los ejercicios disponibles en el gimnasio
 					</p>
 				</div>
-				<Button className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20">
+				<Button
+					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
+					onPress={() => setIsModalOpen(true)}
+				>
 					<Plus size={20} className="mr-2" />
 					Crear ejercicio
 				</Button>
@@ -84,7 +48,7 @@ export function ExercisePage() {
 									renderEmptyState={() => (
 										<div className="flex h-40 w-full flex-col items-center justify-center gap-2 text-center p-8">
 											<span className="text-sm font-medium text-default-400">
-												No hay clases registradas
+												No hay ejercicios registradas
 											</span>
 										</div>
 									)}
@@ -165,6 +129,8 @@ export function ExercisePage() {
 					</Table>
 				</main>
 			</div>
+
+			{isModalOpen && <ExcerciseFormModal onClose={() => setIsModalOpen(false)} />}
 		</div>
 	)
 }
