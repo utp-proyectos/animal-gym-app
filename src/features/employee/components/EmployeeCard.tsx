@@ -37,7 +37,7 @@ export function EmployeeCard({
 						<img
 							alt={`${employee.firstName} ${employee.lastName}`}
 							className="w-full h-full object-cover"
-							src={employee.image || defult}
+							src={employee.avatar || defult}
 							onError={(e) => {
 								e.currentTarget.src = defult
 							}}
@@ -57,7 +57,7 @@ export function EmployeeCard({
 									{employee.firstName} {employee.lastName}
 								</h4>
 								<p className="text-default-400 text-[11px] font-semibold uppercase mt-0.5">
-									Animal Gym
+									{employee.dni}
 								</p>
 							</div>
 

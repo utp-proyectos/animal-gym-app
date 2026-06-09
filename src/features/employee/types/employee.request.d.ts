@@ -7,7 +7,7 @@ export interface EmployeeCreateRequest {
 	email: string
 	birthDate: string | undefined
 	hireDate: string | undefined
-	image: string | number | null
+	avatar: null | File
 	salary: number
 	contractType: string | number | null
 	specialty: string | number | null

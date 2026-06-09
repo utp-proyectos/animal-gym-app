@@ -1,5 +1,5 @@
-import { Button, Card, Label, ListBox, SearchField, Select } from '@heroui/react'
-import { Plus, RotateCcw } from 'lucide-react'
+import { Button, Card, Label, ListBox, SearchField, Select, Skeleton } from '@heroui/react'
+import { Plus, RotateCcw, Frown } from 'lucide-react'
 import { useState } from 'react'
 import { EmployeeCard } from '../components/EmployeeCard'
 import { EmployeeFormModal } from '../components/EmployeeFormModal'
@@ -11,7 +11,7 @@ import { useDeleteEmployee } from '../hooks/useEmployees'
 
 export function EmployeePage() {
 	const { mutate: deleteEmployee } = useDeleteEmployee()
-	const { data: employees = [], isLoading } = useEmployees()
+	const { data: employees = [], isLoading, error } = useEmployees()
 
 	const [openCreate, setOpenCreate] = useState(false)
 	const [openDetail, setOpenDetail] = useState(false)
@@ -28,8 +28,6 @@ export function EmployeePage() {
 		setSelectedId(id)
 		setOpenDetail(true)
 	}
-
-	if (isLoading) return <p>Cargando...</p>
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
@@ -96,18 +94,59 @@ export function EmployeePage() {
 						</div>
 					</Card>
 				</aside>
-
 				<main className="flex-1">
-					<EmployeeCard
-						employees={employees}
-						onEdit={(id) => console.log('editar', id)}
-						onDelete={handleDelete}
-						onChangePassword={(id) => {
-							setSelectedId(id)
-							setOpenPassword(true)
-						}}
-						onViewDetail={handleViewDetail}
-					/>
+					{isLoading ? (
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+							{Array.from({ length: 4 }).map((_, index) => (
+								<Card
+									key={index}
+									className="p-0 border-none bg-white shadow-md overflow-hidden flex flex-col"
+								>
+									<div className="w-full aspect-4/3 relative">
+										<Skeleton className="w-full h-full" animationType="shimmer" />
+
+										<div className="absolute top-3 left-4">
+											<Skeleton className="w-16 h-5 rounded-full" animationType="shimmer" />
+										</div>
+									</div>
+
+									<div className="p-4 flex flex-col gap-3 flex-1 justify-between">
+										<div className="flex justify-between items-start gap-2">
+											<div className="flex flex-col gap-2 w-full">
+												<Skeleton className="w-3/4 h-5 rounded-xl" animationType="shimmer" />{' '}
+												<Skeleton className="w-1/2 h-3.5 rounded-lg" animationType="shimmer" />{' '}
+											</div>
+
+											<Skeleton className="w-8 h-8 rounded-full shrink-0" animationType="shimmer" />
+										</div>
+
+										<div>
+											<div className="h-px w-full bg-default-100 mb-3" />
+											<div className="flex items-center justify-between">
+												<Skeleton className="w-28 h-8 rounded-xl" animationType="shimmer" />
+											</div>
+										</div>
+									</div>
+								</Card>
+							))}
+						</div>
+					) : error ? (
+						<div className="p-8 flex flex-col items-center justify-center gap-3 bg-danger-50 text-danger rounded-2xl border border-danger-100">
+							<p className="font-semibold">Error al cargar los empleados</p>
+							<Frown />
+						</div>
+					) : (
+						<EmployeeCard
+							employees={employees}
+							onEdit={(id) => console.log('editar', id)}
+							onDelete={handleDelete}
+							onChangePassword={(id) => {
+								setSelectedId(id)
+								setOpenPassword(true)
+							}}
+							onViewDetail={handleViewDetail}
+						/>
+					)}
 				</main>
 			</div>
 
