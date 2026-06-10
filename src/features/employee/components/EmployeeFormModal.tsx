@@ -219,7 +219,6 @@ export function EmployeeFormModal({ onClose }: Props) {
 														options={GENDER_OPTIONS}
 														value={field.value}
 														onChange={field.onChange}
-														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
 												)}
@@ -238,7 +237,6 @@ export function EmployeeFormModal({ onClose }: Props) {
 															label="Fecha de Nacimiento"
 															value={field.value}
 															onChange={field.onChange}
-															isInvalid={!!error}
 															errorMessage={error?.message}
 														/>
 														{error && <FieldError>{error.message}</FieldError>}
@@ -285,7 +283,6 @@ export function EmployeeFormModal({ onClose }: Props) {
 														label="Fecha de Contratacion"
 														value={field.value}
 														onChange={field.onChange}
-														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
 												)}
@@ -314,7 +311,6 @@ export function EmployeeFormModal({ onClose }: Props) {
 														options={CONTRACT_OPTIONS}
 														value={field.value}
 														onChange={field.onChange}
-														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
 												)}
@@ -331,7 +327,6 @@ export function EmployeeFormModal({ onClose }: Props) {
 														options={SPECIALTY_OPTIONS}
 														value={field.value}
 														onChange={field.onChange}
-														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
 												)}
@@ -348,7 +343,6 @@ export function EmployeeFormModal({ onClose }: Props) {
 														options={ROLE_OPTIONS}
 														value={field.value}
 														onChange={field.onChange}
-														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
 												)}

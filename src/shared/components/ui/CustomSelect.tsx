@@ -8,7 +8,6 @@ interface CustomSelectProps {
 	placeholder?: string
 	options: string[]
 	className?: string
-	isInvalid?: boolean
 	errorMessage?: string | undefined
 }
 
@@ -20,8 +19,9 @@ export function CustomSelect({
 	options,
 	errorMessage,
 	className = 'w-full',
-	isInvalid = false,
 }: CustomSelectProps) {
+	const isInvalid = !!errorMessage
+
 	return (
 		<Select
 			className={className}
