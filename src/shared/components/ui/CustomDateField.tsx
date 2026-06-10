@@ -6,7 +6,6 @@ interface CustomDateFieldProps {
 	value: DateValue | null
 	onChange: (value: DateValue | null) => void
 	className?: string
-	isInvalid?: boolean
 	errorMessage?: string | undefined
 }
 
@@ -16,8 +15,9 @@ export function CustomDateField({
 	onChange,
 	errorMessage,
 	className = 'w-full',
-	isInvalid = false,
 }: CustomDateFieldProps) {
+	const isInvalid = !!errorMessage
+
 	return (
 		<DateField className={className} value={value} onChange={onChange} isInvalid={isInvalid}>
 			<Label>{label}</Label>

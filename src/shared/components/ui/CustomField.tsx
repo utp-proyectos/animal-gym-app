@@ -8,6 +8,7 @@ interface FileFieldProps {
 
 const CustomField = ({ label, errorMessage, children }: FileFieldProps) => {
 	const isInvalid = !!errorMessage
+
 	return (
 		<TextField isInvalid={isInvalid}>
 			<Label>{label}</Label>

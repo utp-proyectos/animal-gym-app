@@ -6,7 +6,6 @@ interface CustomTimeFieldProps {
 	value: Time | null
 	onChange: (value: Time | null) => void
 	className?: string
-	isInvalid?: boolean
 	errorMessage?: string | undefined
 }
 
@@ -16,8 +15,9 @@ export function CustomTimeField({
 	onChange,
 	errorMessage,
 	className = 'w-full',
-	isInvalid = false,
 }: CustomTimeFieldProps) {
+	const isInvalid = !!errorMessage
+
 	return (
 		<TimeField className={className} value={value} onChange={onChange} isInvalid={isInvalid}>
 			<Label>{label}</Label>

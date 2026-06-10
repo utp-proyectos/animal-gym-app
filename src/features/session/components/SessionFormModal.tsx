@@ -130,7 +130,6 @@ export function SessionFormModal({ onClose }: Props) {
 														options={INTENSITY_OPTIONS}
 														value={field.value}
 														onChange={field.onChange}
-														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
 												</>
@@ -179,7 +178,6 @@ export function SessionFormModal({ onClose }: Props) {
 													label="Fecha"
 													value={field.value}
 													onChange={field.onChange}
-													isInvalid={!!error}
 													errorMessage={error?.message}
 												/>
 											)}
@@ -193,7 +191,6 @@ export function SessionFormModal({ onClose }: Props) {
 													label="Hora Inicio"
 													value={field.value}
 													onChange={field.onChange}
-													isInvalid={!!error}
 													errorMessage={error?.message}
 												/>
 											)}
@@ -207,7 +204,6 @@ export function SessionFormModal({ onClose }: Props) {
 													label="Hora Fin"
 													value={field.value}
 													onChange={field.onChange}
-													isInvalid={!!error}
 													errorMessage={error?.message}
 												/>
 											)}

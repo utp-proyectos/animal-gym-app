@@ -8,7 +8,6 @@ interface FileFieldProps {
 	accept?: string
 	value?: FileList | null
 	onChange?: (file: FileList | null) => void
-	isInvalid?: boolean
 	errorMessage?: string
 }
 
@@ -20,9 +19,9 @@ const FileField = ({
 	accept,
 	value,
 	onChange,
-	isInvalid,
 	errorMessage,
 }: FileFieldProps) => {
+	const isInvalid = !!errorMessage
 	const fileInput = useRef<HTMLInputElement>(null)
 
 	useEffect(() => {
