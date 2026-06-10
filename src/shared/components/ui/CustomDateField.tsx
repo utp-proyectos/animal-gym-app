@@ -21,7 +21,7 @@ export function CustomDateField({
 	return (
 		<DateField className={className} value={value} onChange={onChange} isInvalid={isInvalid}>
 			<Label>{label}</Label>
-			<DateField.Group>
+			<DateField.Group variant="secondary">
 				<DateField.Input>{(segment) => <DateField.Segment segment={segment} />}</DateField.Input>
 			</DateField.Group>
 			<FieldError>{errorMessage}</FieldError>
