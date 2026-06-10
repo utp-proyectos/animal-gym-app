@@ -1,16 +1,8 @@
-export interface EmployeeDetailResponse {
+export interface EmployeeResponse {
 	id: number
-	dni: string
 	firstName: string
 	lastName: string
-	phoneNumber: string
-	gender: string
-	email: string
-	birthDate: string
-	hireDate: string
-	image: string | null
-	salary: number
-	contractType: string
-	specialty: string
-	role: string
+	avatar: string | null
+	dni: string
+	role: Role
 }

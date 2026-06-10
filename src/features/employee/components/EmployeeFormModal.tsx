@@ -110,8 +110,7 @@ export function EmployeeFormModal({ onClose }: Props) {
 			email: data.email,
 			birthDate: data.birthDate?.toString(),
 			hireDate: data.hireDate?.toString(),
-			image:
-				'https://images.unsplash.com/photo-1734629322027-6aa0c50dd51e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+			avatar: null,
 			salary: data.salary,
 			contractType: data.contractType,
 			specialty: data.specialty,
@@ -131,10 +130,9 @@ export function EmployeeFormModal({ onClose }: Props) {
 			}}
 		>
 			<Modal.Backdrop>
-				<Modal.Container>
-					<Modal.Dialog className="sm:max-w-4xl max-h-[90vh]">
+				<Modal.Container size="cover">
+					<Modal.Dialog>
 						<Modal.CloseTrigger />
-
 						<Modal.Header className="pb-4">
 							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
 								Nuevo empleado
@@ -144,54 +142,77 @@ export function EmployeeFormModal({ onClose }: Props) {
 							</p>
 						</Modal.Header>
 
-						<Modal.Body className="overflow-y-auto py-4">
-							<form className="space-y-8" id="form-modal-s" onSubmit={handleSubmit(onSubmit)}>
-								{/* DATOS PERSONALES */}
-								<section className="space-y-4">
-									<h3 className="font-semibold text-lg">Datos personales</h3>
+						<Modal.Body className="overflow-y-auto py-4 h-[calc(100vh-120px)] md:h-full">
+							<form
+								className="space-y-8 h-full"
+								id="form-modal-s"
+								onSubmit={handleSubmit(onSubmit)}
+							>
+								<div className="grid grid-cols-1  sm:grid-cols-1 lg:grid-cols-3 gap-10 h-full items-stretch">
+									{/* DATOS PERSONALES */}
+									<section className="flex flex-col  p-4 rounded-xl  border">
+										<h3 className="font-semibold text-lg mb-3">Datos personales</h3>
+										{/* DNI NOMBRE */}
+										<div className="grid gap-4  lg:grid-cols-2 grow">
+											<TextField isInvalid={!!errors.dni}>
+												<Label>DNI</Label>
+												<Input
+													placeholder="Ej. 00000000"
+													{...register('dni')}
+													variant="secondary"
+													maxLength={8}
+												/>
+												<FieldError>{errors.dni?.message}</FieldError>
+											</TextField>
+											<TextField isInvalid={!!errors.firstName}>
+												<Label>Nombre</Label>
+												<Input
+													{...register('firstName')}
+													placeholder="Ej. Juan"
+													variant="secondary"
+												/>
+												<FieldError>{errors.firstName?.message}</FieldError>
+											</TextField>
+										</div>
 
-									<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-										<TextField isInvalid={!!errors.dni}>
-											<Label>DNI</Label>
-											<Input placeholder="00000000" {...register('dni')} variant="secondary" />
-											<FieldError>{errors.dni?.message}</FieldError>
-										</TextField>
-										<TextField isInvalid={!!errors.firstName}>
-											<Label>Nombre</Label>
-											<Input {...register('firstName')} placeholder="Juan" variant="secondary" />
-											<FieldError>{errors.firstName?.message}</FieldError>
-										</TextField>
-										<TextField isInvalid={!!errors.lastName}>
-											<Label>Apellido</Label>
-											<Input {...register('lastName')} placeholder="Pérez" variant="secondary" />
-											<FieldError>{errors.lastName?.message}</FieldError>
-										</TextField>
-									</div>
+										{/* APELLIDO TELEFONO */}
+										<div className="grid gap-4  lg:grid-cols-2  grow">
+											<TextField isInvalid={!!errors.lastName}>
+												<Label>Apellido</Label>
+												<Input
+													{...register('lastName')}
+													placeholder="Ej. Pérez"
+													variant="secondary"
+												/>
+												<FieldError>{errors.lastName?.message}</FieldError>
+											</TextField>
+											<TextField isInvalid={!!errors.phoneNumber}>
+												<Label>Teléfono</Label>
+												<Input
+													{...register('phoneNumber')}
+													placeholder="Ej. 999888777"
+													variant="secondary"
+													maxLength={9}
+												/>
+												<FieldError>{errors.phoneNumber?.message}</FieldError>
+											</TextField>
+										</div>
 
-									<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-										<TextField isInvalid={!!errors.phoneNumber}>
-											<Label>Teléfono</Label>
-											<Input
-												{...register('phoneNumber')}
-												placeholder="999888777"
-												variant="secondary"
-											/>
-											<FieldError>{errors.phoneNumber?.message}</FieldError>
-										</TextField>
-										<TextField isInvalid={!!errors.email}>
-											<Label>Email</Label>
-											<Input
-												{...register('email')}
-												placeholder="juan@empresa.com"
-												variant="secondary"
-											/>
-											<FieldError>{errors.email?.message}</FieldError>
-										</TextField>
-										<Controller
-											name="gender"
-											control={control}
-											render={({ field, fieldState: { error } }) => (
-												<>
+										{/* EMAIL GENERO */}
+										<div className="grid gap-4  lg:grid-cols-2  grow">
+											<TextField isInvalid={!!errors.email}>
+												<Label>Email</Label>
+												<Input
+													{...register('email')}
+													placeholder="Ej. xx@gmail.com"
+													variant="secondary"
+												/>
+												<FieldError>{errors.email?.message}</FieldError>
+											</TextField>
+											<Controller
+												name="gender"
+												control={control}
+												render={({ field, fieldState: { error } }) => (
 													<CustomSelect
 														label="Género"
 														placeholder="Selecciona género"
@@ -201,101 +222,109 @@ export function EmployeeFormModal({ onClose }: Props) {
 														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
-												</>
-											)}
-										></Controller>
-									</div>
+												)}
+											/>
+										</div>
 
-									<div className="grid gap-4 md:grid-cols-2">
-										<Controller
-											name="birthDate"
-											control={control}
-											render={({ field, fieldState: { error } }) => (
-												<>
+										{/* NACIMIENTO GENERO */}
+										<div className="grid gap-4 md:grid-cols-2 grow">
+											<Controller
+												name="birthDate"
+												control={control}
+												render={({ field, fieldState: { error } }) => (
+													<>
+														{' '}
+														<CustomDateField
+															label="Fecha de Nacimiento"
+															value={field.value}
+															onChange={field.onChange}
+															isInvalid={!!error}
+															errorMessage={error?.message}
+														/>
+														{error && <FieldError>{error.message}</FieldError>}
+													</>
+												)}
+											/>
+
+											<div className="flex flex-col gap-2">
+												<Label>Imagen</Label>
+												<input
+													type="file"
+													accept="image/*"
+													className="cursor-pointer
+													bg-surface-secondary
+													p-2
+													rounded-xl
+													file:cursor-pointer
+													"
+													onChange={handleImageChange}
+												/>
+											</div>
+										</div>
+
+										{/* IMG PREVIEW */}
+										<div className="mt-5">
+											{preview && (
+												<div className="rounded-xl overflow-hidden">
+													<img src={preview} alt="preview" />
+												</div>
+											)}
+										</div>
+									</section>
+
+									{/* DATOS LABORALES */}
+									<section className="flex flex-col p-4 rounded-xl border">
+										<h3 className="font-semibold text-lg mb-3">Datos laborales</h3>
+										<div className="flex flex-col gap-4">
+											{/* CONTRATO */}
+											<Controller
+												name="hireDate"
+												control={control}
+												render={({ field, fieldState: { error } }) => (
 													<CustomDateField
-														label="Fecha de Nacimiento"
+														label="Fecha de Contratacion"
 														value={field.value}
 														onChange={field.onChange}
 														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
-													<FieldError>{error?.message}</FieldError>
-												</>
-											)}
-										></Controller>
-
-										<div className="flex flex-col gap-2">
-											<Label>Imagen</Label>
-											<input
-												type="file"
-												accept="image/*"
-												className="block w-full rounded-medium border border-default-200 px-3 py-2 text-sm"
-												onChange={handleImageChange}
+												)}
 											/>
-											{preview && (
-												<div className="w-full h-40 rounded-xl overflow-hidden border border-default-200">
-													<img src={preview} alt="preview" className="w-full h-full object-cover" />
-												</div>
-											)}
-										</div>
-									</div>
-								</section>
 
-								{/* DATOS LABORALES */}
-								<section className="space-y-4 border-t pt-6">
-									<h3 className="font-semibold text-lg">Datos laborales</h3>
-									<Controller
-										name="hireDate"
-										control={control}
-										render={({ field, fieldState: { error } }) => (
-											<>
-												<CustomDateField
-													label="Fecha de Contratacion"
-													value={field.value}
-													onChange={field.onChange}
-													isInvalid={!!error}
-													errorMessage={error?.message}
+											{/* SALARIO */}
+											<TextField isInvalid={!!errors.salary}>
+												<Label>Salario</Label>
+												<Input
+													{...register('salary', { valueAsNumber: true })}
+													placeholder="Ej. 1000"
+													variant="secondary"
+													type="number"
 												/>
-											</>
-										)}
-									></Controller>
-									<div className="grid gap-4 md:grid-cols-2">
-										<TextField isInvalid={!!errors.salary}>
-											<Label>Salario</Label>
-											<Input
-												{...register('salary', { valueAsNumber: true })}
-												placeholder="2500"
-												variant="secondary"
-												type="number"
-											/>
-											<FieldError>{errors.salary?.message}</FieldError>
-										</TextField>
-									</div>
+												<FieldError>{errors.salary?.message}</FieldError>
+											</TextField>
 
-									<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-										<Controller
-											name="contractType"
-											control={control}
-											render={({ field, fieldState: { error } }) => (
-												<>
+											{/* TIPO CONTRATO */}
+											<Controller
+												name="contractType"
+												control={control}
+												render={({ field, fieldState: { error } }) => (
 													<CustomSelect
 														label="Tipo de contrato"
-														placeholder="Selecciona  contrato"
+														placeholder="Selecciona contrato"
 														options={CONTRACT_OPTIONS}
 														value={field.value}
 														onChange={field.onChange}
 														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
-												</>
-											)}
-										></Controller>
+												)}
+											/>
 
-										<Controller
-											name="specialty"
-											control={control}
-											render={({ field, fieldState: { error } }) => (
-												<>
+											{/* ESPECIALIAD*/}
+											<Controller
+												name="specialty"
+												control={control}
+												render={({ field, fieldState: { error } }) => (
 													<CustomSelect
 														label="Especialidad"
 														placeholder="Selecciona especialidad"
@@ -305,15 +334,14 @@ export function EmployeeFormModal({ onClose }: Props) {
 														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
-												</>
-											)}
-										></Controller>
+												)}
+											/>
 
-										<Controller
-											name="role"
-											control={control}
-											render={({ field, fieldState: { error } }) => (
-												<>
+											{/* ROL */}
+											<Controller
+												name="role"
+												control={control}
+												render={({ field, fieldState: { error } }) => (
 													<CustomSelect
 														label="Puesto"
 														placeholder="Selecciona puesto"
@@ -323,16 +351,15 @@ export function EmployeeFormModal({ onClose }: Props) {
 														isInvalid={!!error}
 														errorMessage={error?.message}
 													/>
-												</>
-											)}
-										></Controller>
-									</div>
-								</section>
+												)}
+											/>
+										</div>
+									</section>
 
-								{/* CREDENCIALES */}
-								<section className="space-y-4 border-t pt-6">
-									<h3 className="font-semibold text-lg">Credenciales</h3>
-									<div className="grid gap-4 md:grid-cols-2">
+									{/* CREDENCIALES */}
+									<section className="flex flex-col p-4 rounded-xl border">
+										<h3 className="font-semibold text-lg mb-3">Credenciales</h3>
+										{/*CONTRASEÑA */}
 										<TextField isInvalid={!!errors.password}>
 											<Label>Contraseña</Label>
 											<Input
@@ -345,11 +372,10 @@ export function EmployeeFormModal({ onClose }: Props) {
 											<Description>La contraseña debe tener al menos 8 caracteres.</Description>
 											<FieldError>{errors.password?.message}</FieldError>
 										</TextField>
-									</div>
-								</section>
+									</section>
+								</div>
 							</form>
 						</Modal.Body>
-
 						<Modal.Footer className="pt-4">
 							<Button type="reset" variant="secondary" slot="close">
 								Cancelar
