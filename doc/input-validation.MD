@@ -33,6 +33,14 @@ useForm<FormInput, unknown, FormOutput>()
 - `FormInput` = `z.input<typeof schema>` → el tipo que manejan los componentes UI
 - `FormOutput` = `z.output<typeof schema>` → el tipo que llega al `onSubmit` y se envía a la API
 
+> **Nota:** Si los tipos de entrada y salida son iguales entonces solo usamos `z.infer`
+
+```typescript
+type Form = z.infer<typeof schema>
+
+useForm<Form>()
+```
+
 ### `defaultValues` siempre explícitos
 
 RHF inicializa todos los campos como `undefined` en runtime si no defines `defaultValues`,
@@ -102,37 +110,49 @@ type FormOutput = z.output<typeof schema> // { fieldName: string }
 > Usar `message` para un mensaje general o `error: (issue) => ...` para mensajes por tipo de error.
 
 ```tsx
-const { register, formState: { errors } } = useForm<FormInput, unknown, FormOutput>({
+const { control } = useForm<FormInput, unknown, FormOutput>({
   resolver: zodResolver(schema),
   defaultValues: { fieldName: '' },
 })
 
-<Field {...register('fieldName')} />
-<FieldError>{errors.email?.message}</FieldError>
+<Controller
+	name="fieldName"
+	control={control}
+	render={({ field, fieldState: { error } }) => (
+		<CustomField errorMessage={error?.message}>
+			<Input {...field} />
+		</CustomField>
+	)}
+/>
 ```
 
 `z.string()` acepta string vacío `''` — por eso siempre combinar con `.min(1)` para campos requeridos.
 
 ### Number
 
-Los inputs `type="number"` devuelven `string` desde el DOM. Hay dos formas de manejarlo:
-
-```typescript
+```tsx
 // Opción A: valueAsNumber en register (control explícito)
 const schema = z.object({
   fieldName: z.number({ message: 'El campo es requerido' })
               .min(0, 'El valor mínimo es 0'),
 })
 
-<input type="number" {...register('fieldName', { valueAsNumber: true })} />
 
-// Opción B: z.coerce (conversión automática string → number)
-const schema = z.object({
-  fieldName: z.coerce.number({ message: 'El campo es requerido' })
-                     .min(0, 'El valor mínimo es 0'),
-})
-
-<input type="number" {...register('fieldName')} />
+<Controller
+	name="fieldName"
+	control={control}
+	render={({ field, fieldState: { error } }) => (
+		<NumberField minValue={0} name="number" value={field.value} onChange={field.onChange}>
+      <Label>Number</Label>
+      <NumberField.Group>
+        <NumberField.DecrementButton />
+        <NumberField.Input  />
+        <NumberField.IncrementButton />
+				<FieldError>{error?.message}</FieldError>
+      </NumberField.Group>
+    </NumberField>
+	)}
+/>
 ```
 
 ### Checkbox
@@ -202,7 +222,6 @@ type FormOutput = z.output<typeof schema> // { fieldName: Option }
 			options={SELECT_OPTIONS}
 			value={field.value}
 			onChange={field.onChange}
-			isInvalid={!!error}
 			errorMessage={error?.message}
 		/>
 	)}
@@ -224,8 +243,8 @@ const OPTIONS: Option[] = ['option_1', 'option_2']
 
 const schema = z.object({
 	fieldName: z.custom<Option | null>().refine((val) => val !== null, {
-		//       ^^^^^^^^^^^^^^^^^^^^ type predicate
-		//       elimina null del tipo de output
+		//                                       ^^^^^^^^^^^^^^^^^^^^
+		//                                       elimina null del tipo de output
 		message: 'Selecciona una opción',
 	}),
 })
@@ -244,7 +263,6 @@ type FormOutput = z.output<typeof schema> // { fieldName: Option }
 			options={OPTIONS}
 			value={field.value}
 			onChange={field.onChange}
-			isInvalid={!!error}
 			errorMessage={error?.message}
 		/>
 	)}
@@ -282,7 +300,7 @@ const schema = z.object({
 	fieldName: z
 		.custom<DateValue | null>()
 		.refine((val) => val !== null, {
-			//       			 ^^^^^^^^^^^~ validamos que no sea null
+			//           ^^^^^^^^^^^~ validamos que no sea null
 			message: 'La fecha es requerida',
 		})
 		.transform((val) => val.toString()),
@@ -302,7 +320,6 @@ type FormOutput = z.output<typeof schema> // { fieldName: string }
 			label="Fecha"
 			value={field.value} // DateValue | null → directo al componente
 			onChange={field.onChange}
-			isInvalid={!!error}
 			errorMessage={error?.message}
 		/>
 	)}
@@ -404,7 +421,6 @@ defaultValues: {
 			accept="image/jpeg,image/png"
 			onChange={onChange}
 			value={value}
-			isInvalid={!!error}
 			errorMessage={error?.message}
 		/>
 	)}
