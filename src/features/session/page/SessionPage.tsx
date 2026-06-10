@@ -1,5 +1,7 @@
 import { Card, Input, Button, ListBox, Select, Dropdown, Label } from '@heroui/react'
 import { Plus, RotateCcw, MoreVertical, Edit3, Trash2 } from 'lucide-react'
+import { SessionFormModal } from '../components/SessionFormModal'
+import { useState } from 'react'
 
 interface ClaseGym {
 	id: number
@@ -8,42 +10,18 @@ interface ClaseGym {
 	estado: string
 }
 
-export function LessonPage() {
+export function SessionPage() {
+	const [isModalOpen, setIsModalOpen] = useState(false)
+
+	const handleCreateClick = () => {
+		setIsModalOpen(true)
+	}
+
 	const clases: ClaseGym[] = [
 		{
 			id: 1,
 			nombre: 'HIIT Avanzado',
 			desc: 'Entrenamiento de alta intensidad',
-			estado: 'Programado',
-		},
-		{
-			id: 2,
-			nombre: 'Pilates',
-			desc: 'Clase de pilates con ejercicios de core',
-			estado: 'Programado',
-		},
-		{
-			id: 3,
-			nombre: 'Spinning',
-			desc: 'Clase de ciclismo indoor',
-			estado: 'Programado',
-		},
-		{
-			id: 4,
-			nombre: 'Zumba',
-			desc: 'Clase de baile fitness',
-			estado: 'Programado',
-		},
-		{
-			id: 5,
-			nombre: 'Crossfit',
-			desc: 'Entrenamiento funcional',
-			estado: 'Programado',
-		},
-		{
-			id: 6,
-			nombre: 'Stretching',
-			desc: 'Estiramientos guiados',
 			estado: 'Programado',
 		},
 	]
@@ -58,7 +36,10 @@ export function LessonPage() {
 					</h1>
 					<p className="text-default-500 text-sm">Administra y organiza tus sesiones deportivas</p>
 				</div>
-				<Button className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20">
+				<Button
+					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
+					onPress={handleCreateClick}
+				>
 					<Plus size={20} className="mr-2" />
 					Crear clase
 				</Button>
@@ -187,6 +168,8 @@ export function LessonPage() {
 					))}
 				</main>
 			</div>
+
+			{isModalOpen && <SessionFormModal onClose={() => setIsModalOpen(false)} />}
 		</div>
 	)
 }
