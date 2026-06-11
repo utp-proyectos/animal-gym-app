@@ -1,6 +1,6 @@
 // src/components/EmployeeDetailModal.tsx
 import { Button, Modal } from '@heroui/react'
-import { useEmployee } from '../hooks/useEmployees'
+import { useGetEmployee } from '../hooks/useEmployees'
 import defult from '@/assets/global/default.png'
 
 interface Props {
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function EmployeeDetailModal({ id, onClose }: Props) {
-	const { data: employee, isLoading } = useEmployee(id)
+	const { data: employee, isLoading } = useGetEmployee(id)
 
 	if (isLoading) return null
 	if (!employee) return null

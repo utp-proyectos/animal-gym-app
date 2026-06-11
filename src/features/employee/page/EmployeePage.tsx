@@ -2,22 +2,40 @@ import { Button, Card, Label, ListBox, SearchField, Select, Skeleton } from '@he
 import { Plus, RotateCcw, Frown } from 'lucide-react'
 import { useState } from 'react'
 import { EmployeeCard } from '../components/EmployeeCard'
-import { EmployeeFormModal } from '../components/EmployeeFormModal'
 import { EmployeeDetailModal } from '../components/EmployeeDetailModal'
 import { EmployeePasswordModal } from '../components/EmployeePasswordModal'
 import { DeleteModal } from '@/features/bill/components/DeleteModal'
-import { useEmployees } from '../hooks/useEmployees'
-import { useDeleteEmployee } from '../hooks/useEmployees'
+import { useEmployees, useDeleteEmployee } from '../hooks/useEmployees'
+import CreateForm from '../components/CreateForm'
+import EditForm from '../components/EditForm'
 
 export function EmployeePage() {
 	const { mutate: deleteEmployee } = useDeleteEmployee()
 	const { data: employees = [], isLoading, error } = useEmployees()
 
-	const [openCreate, setOpenCreate] = useState(false)
+	const [isModalOpen, setIsModalOpen] = useState(false)
+	const [editId, setEditId] = useState<number | null>(null)
+	const isEditing = editId !== null
+
+	const [selectedId, setSelectedId] = useState<number | null>(null)
 	const [openDetail, setOpenDetail] = useState(false)
 	const [openPassword, setOpenPassword] = useState(false)
 	const [openDelete, setOpenDelete] = useState(false)
-	const [selectedId, setSelectedId] = useState<number | null>(null)
+
+	const handleCreate = () => {
+		setEditId(null)
+		setIsModalOpen(true)
+	}
+
+	const handleEdit = (id: number) => {
+		setEditId(id)
+		setIsModalOpen(true)
+	}
+
+	const handleClose = () => {
+		setIsModalOpen(false)
+		setEditId(null)
+	}
 
 	const handleDelete = (id: number) => {
 		setSelectedId(id)
@@ -39,7 +57,7 @@ export function EmployeePage() {
 					<p className="text-default-500 text-sm">Administra y organiza tus empleados</p>
 				</div>
 				<Button
-					onPress={() => setOpenCreate(true)}
+					onPress={handleCreate}
 					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
 				>
 					<Plus size={20} className="mr-2" />
@@ -94,6 +112,7 @@ export function EmployeePage() {
 						</div>
 					</Card>
 				</aside>
+
 				<main className="flex-1">
 					{isLoading ? (
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -104,22 +123,18 @@ export function EmployeePage() {
 								>
 									<div className="w-full aspect-4/3 relative">
 										<Skeleton className="w-full h-full" animationType="shimmer" />
-
 										<div className="absolute top-3 left-4">
 											<Skeleton className="w-16 h-5 rounded-full" animationType="shimmer" />
 										</div>
 									</div>
-
 									<div className="p-4 flex flex-col gap-3 flex-1 justify-between">
 										<div className="flex justify-between items-start gap-2">
 											<div className="flex flex-col gap-2 w-full">
-												<Skeleton className="w-3/4 h-5 rounded-xl" animationType="shimmer" />{' '}
-												<Skeleton className="w-1/2 h-3.5 rounded-lg" animationType="shimmer" />{' '}
+												<Skeleton className="w-3/4 h-5 rounded-xl" animationType="shimmer" />
+												<Skeleton className="w-1/2 h-3.5 rounded-lg" animationType="shimmer" />
 											</div>
-
 											<Skeleton className="w-8 h-8 rounded-full shrink-0" animationType="shimmer" />
 										</div>
-
 										<div>
 											<div className="h-px w-full bg-default-100 mb-3" />
 											<div className="flex items-center justify-between">
@@ -138,7 +153,7 @@ export function EmployeePage() {
 					) : (
 						<EmployeeCard
 							employees={employees}
-							onEdit={(id) => console.log('editar', id)}
+							onEdit={handleEdit}
 							onDelete={handleDelete}
 							onChangePassword={(id) => {
 								setSelectedId(id)
@@ -150,7 +165,13 @@ export function EmployeePage() {
 				</main>
 			</div>
 
-			{openCreate && <EmployeeFormModal onClose={() => setOpenCreate(false)} />}
+			{/* MODALES */}
+			{isModalOpen &&
+				(isEditing ? (
+					<EditForm id={editId!} onClose={handleClose} />
+				) : (
+					<CreateForm onClose={handleClose} />
+				))}
 
 			{openDetail && selectedId !== null && (
 				<EmployeeDetailModal
@@ -177,7 +198,11 @@ export function EmployeePage() {
 					id={selectedId}
 					title="Eliminar empleado"
 					description="¿Estás seguro de que deseas eliminar a este empleado?"
-					onConfirm={(id) => deleteEmployee(id)}
+					onConfirm={(id) => {
+						deleteEmployee(id)
+						setOpenDelete(false)
+						setSelectedId(null)
+					}}
 					onClose={() => {
 						setOpenDelete(false)
 						setSelectedId(null)

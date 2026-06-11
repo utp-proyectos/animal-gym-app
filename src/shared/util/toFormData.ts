@@ -3,6 +3,7 @@ export function toFormData(data: object): FormData {
 
 	Object.entries(data).forEach(([key, value]) => {
 		if (value === null || value === undefined) return
+		if (key === 'avatar' && !(value instanceof File)) return
 
 		if (value instanceof File) {
 			formData.append(key, value)
