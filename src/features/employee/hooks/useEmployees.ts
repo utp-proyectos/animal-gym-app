@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { employeeService } from '../services/EmployeeService'
+import type { EditOutput } from '../schema/employeeSchema'
 
 const EMPLOYEE_KEY = 'employees'
 
@@ -10,7 +11,28 @@ export function useEmployees() {
 	})
 }
 
-export function useEmployee(id: number) {
+export function useUpdateEmployee() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: ({ id, payload }: { id: number; payload: EditOutput }) =>
+			employeeService.update(id, payload),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: [EMPLOYEE_KEY] })
+		},
+	})
+}
+export function usePrefetchEmployee() {
+	const queryClient = useQueryClient()
+
+	return (id: number) => {
+		queryClient.prefetchQuery({
+			queryKey: [EMPLOYEE_KEY, id],
+			queryFn: () => employeeService.getById(id),
+		})
+	}
+}
+export function useGetEmployee(id: number) {
 	return useQuery({
 		queryKey: [EMPLOYEE_KEY, id],
 		queryFn: () => employeeService.getById(id),
