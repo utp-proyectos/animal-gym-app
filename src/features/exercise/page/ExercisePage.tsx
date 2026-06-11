@@ -1,27 +1,31 @@
-import { Button, Dropdown, Label, Separator, Table } from '@heroui/react'
-import { Edit3, Loader2, MoreVertical, Plus, Trash2 } from 'lucide-react'
+import { Button, Dropdown, Label, Modal, Separator, Table, useOverlayState } from '@heroui/react'
+import { Edit3, Loader2, MoreVertical, Plus, Trash2, UserPlus } from 'lucide-react'
 import { useState } from 'react'
-import { ExcerciseFormModal } from '../components/ExcerciseFormModal'
 import { useExercise } from '../hooks/useExercises'
+import type { ExerciseResponse } from '../types'
+import EditForm from '../components/EditForm'
+import CreateForm from '../components/CreateForm'
 
 export function ExercisePage() {
-	const [isModalOpen, setIsModalOpen] = useState(false)
-	// const [setSelectedExercise] = useState<ExerciseResponse | null>(null)
+	const modal = useOverlayState()
+	const [currentExercise, setCurrentExercise] = useState<ExerciseResponse | null>(null)
+	const isEditing = currentExercise !== null
 
 	const { data: exercises = [], isLoading, isError, error } = useExercise()
 
-	// Controladores de flujo para el Modal
-	const handleCreateClick = () => {
-		// setSelectedExercise(null)
-		setIsModalOpen(true)
+	// Función para abrir en Modo Crear
+	const openCreateForm = () => {
+		setCurrentExercise(null)
+		modal.open()
 	}
 
-	const handleEditClick = () => {
-		// setSelectedExercise(exercise)
-		setIsModalOpen(true)
+	// Función para abrir en Modo Editar
+	const openEditForm = (exercise: ExerciseResponse) => {
+		setCurrentExercise(exercise)
+		modal.open()
 	}
 
-	const handleDeleteClick = (id: number) => {
+	const openDeleteForm = (id: number) => {
 		console.log('Ejercicio a eliminar:', id)
 	}
 
@@ -39,7 +43,7 @@ export function ExercisePage() {
 				</div>
 				<Button
 					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
-					onPress={handleCreateClick}
+					onPress={openCreateForm}
 				>
 					<Plus size={20} className="mr-2" />
 					Crear ejercicio
@@ -48,8 +52,8 @@ export function ExercisePage() {
 
 			<div className="flex flex-col md:flex-row gap-8">
 				{/* Contenido de la Tabla */}
-				<main className="flex-1 bg-white rounded-3xl shadow-sm border border-default-100 overflow-hidden">
-					<Table variant="secondary">
+				<main className="flex-1 overflow-hidden">
+					<Table>
 						<Table.ScrollContainer>
 							<Table.Content aria-label="Gestión de sesiones deportivas" className="min-w-150">
 								<Table.Header>
@@ -127,7 +131,7 @@ export function ExercisePage() {
 																<Dropdown.Item
 																	id="edit"
 																	textValue="Editar"
-																	onPress={() => handleEditClick()}
+																	onPress={() => openEditForm(exercise)}
 																>
 																	<div className="flex items-center gap-2 py-1">
 																		<Edit3 size={16} className="text-black" />
@@ -142,7 +146,7 @@ export function ExercisePage() {
 																	id="delete"
 																	textValue="Eliminar"
 																	className="text-danger"
-																	onPress={() => handleDeleteClick(exercise.id)}
+																	onPress={() => openDeleteForm(exercise.id)}
 																>
 																	<div className="flex items-center gap-2 py-1">
 																		<Trash2 size={16} />
@@ -162,7 +166,42 @@ export function ExercisePage() {
 				</main>
 			</div>
 
-			{isModalOpen && <ExcerciseFormModal onClose={() => setIsModalOpen(false)} />}
+			<Modal.Backdrop isOpen={modal.isOpen} onOpenChange={modal.setOpen}>
+				<Modal.Container>
+					<Modal.Dialog className="max-w-xl">
+						<Modal.CloseTrigger />
+
+						<Modal.Header className="pb-4">
+							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
+								{isEditing ? 'Editar Ejercicio' : 'Nuevo Ejercicio'}
+							</Modal.Heading>
+							<p className="text-sm text-default-500">
+								{isEditing
+									? 'Modifica los campos necesarios para actualizar el ejercicio.'
+									: 'Completa la información para registrar un nuevo ejercicio.'}
+							</p>
+						</Modal.Header>
+
+						<Modal.Body className="p-6">
+							{isEditing ? (
+								<EditForm item={currentExercise!} onClose={modal.close} />
+							) : (
+								<CreateForm onClose={modal.close} />
+							)}
+						</Modal.Body>
+
+						<Modal.Footer className="pt-4">
+							<Button variant="secondary" slot="close">
+								Cancelar
+							</Button>
+							<Button type="submit" form="exercise-form">
+								<UserPlus className="size-4" />
+								Guardar ejercicio
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
+			</Modal.Backdrop>
 		</div>
 	)
 }

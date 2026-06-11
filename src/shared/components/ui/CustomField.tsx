@@ -10,7 +10,7 @@ const CustomField = ({ label, errorMessage, children }: FileFieldProps) => {
 	const isInvalid = !!errorMessage
 
 	return (
-		<TextField isInvalid={isInvalid}>
+		<TextField isInvalid={isInvalid} variant="secondary">
 			<Label>{label}</Label>
 			{children}
 			<FieldError>{errorMessage}</FieldError>

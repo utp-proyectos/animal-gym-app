@@ -10,7 +10,7 @@ export const exerciseService = {
 
 	update: (id: number, payload: ExerciseRequest) =>
 		api
-			.put<ApiResponse<ExerciseResponse>>(`/api/exercises/${id}`, payload)
+			.put<ApiResponse<ExerciseResponse>>(`/exercises/${id}`, payload)
 			.then((res) => res.data.data),
 
 	delete: (id: number) => api.delete<ApiResponse<void>>(`/exercises/${id}`).then((res) => res.data),
