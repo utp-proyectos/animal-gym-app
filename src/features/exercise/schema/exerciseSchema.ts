@@ -1,0 +1,32 @@
+import { z } from 'zod'
+
+// Schema base con los campos compartidos entre modos
+const baseSchema = z.object({
+	name: z
+		.string({ message: 'El nombre es requerido' })
+		.min(1, 'El nombre es requerido')
+		.min(3, 'El nombre debe tener al menos 3 caracteres'),
+	description: z
+		.string({ message: 'La descripción es requerida' })
+		.min(1, 'La descripción es requerida'),
+	muscleGroup: z
+		.string({ message: 'El grupo muscular es requerido' })
+		.min(1, 'El grupo muscular es requerido'),
+	equipment: z
+		.string({ message: 'El tipo de equipo es requerido' })
+		.min(1, 'El tipo de equipo es requerido'),
+})
+
+// Modo editar: extiende base con id
+export const editSchema = baseSchema.extend({
+	id: z.number(),
+})
+
+// Modo crear: extiende base con campos exclusivos
+export const createSchema = baseSchema
+
+export type CreateInput = z.input<typeof createSchema>
+export type CreateOutput = z.output<typeof createSchema>
+
+export type EditInput = z.input<typeof editSchema>
+export type EditOutput = z.output<typeof editSchema>
