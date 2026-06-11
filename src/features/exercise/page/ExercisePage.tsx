@@ -5,9 +5,11 @@ import { useExercise } from '../hooks/useExercises'
 import type { ExerciseResponse } from '../types'
 import EditForm from '../components/EditForm'
 import CreateForm from '../components/CreateForm'
+import { DeleteForm } from '../components/DeleteForm'
 
 export function ExercisePage() {
 	const modal = useOverlayState()
+	const modalDelete = useOverlayState()
 	const [currentExercise, setCurrentExercise] = useState<ExerciseResponse | null>(null)
 	const isEditing = currentExercise !== null
 
@@ -25,8 +27,10 @@ export function ExercisePage() {
 		modal.open()
 	}
 
-	const openDeleteForm = (id: number) => {
-		console.log('Ejercicio a eliminar:', id)
+	// Función para abrir Eliminar
+	const openDeleteForm = (exercise: ExerciseResponse) => {
+		setCurrentExercise(exercise)
+		modalDelete.open()
 	}
 
 	return (
@@ -146,7 +150,7 @@ export function ExercisePage() {
 																	id="delete"
 																	textValue="Eliminar"
 																	className="text-danger"
-																	onPress={() => openDeleteForm(exercise.id)}
+																	onPress={() => openDeleteForm(exercise)}
 																>
 																	<div className="flex items-center gap-2 py-1">
 																		<Trash2 size={16} />
@@ -166,7 +170,7 @@ export function ExercisePage() {
 				</main>
 			</div>
 
-			<Modal.Backdrop isOpen={modal.isOpen} onOpenChange={modal.setOpen}>
+			<Modal.Backdrop variant="blur" isOpen={modal.isOpen} onOpenChange={modal.setOpen}>
 				<Modal.Container>
 					<Modal.Dialog className="max-w-xl">
 						<Modal.CloseTrigger />
@@ -202,6 +206,13 @@ export function ExercisePage() {
 					</Modal.Dialog>
 				</Modal.Container>
 			</Modal.Backdrop>
+
+			<DeleteForm
+				exercise={currentExercise}
+				isOpen={modalDelete.isOpen}
+				onOpenChange={modalDelete.setOpen}
+				onClose={modalDelete.close}
+			/>
 		</div>
 	)
 }
