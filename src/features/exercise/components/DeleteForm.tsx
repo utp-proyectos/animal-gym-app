@@ -29,7 +29,7 @@ export function DeleteForm({ exercise, isOpen, onOpenChange, onClose }: DeleteMo
 
 	return (
 		<Modal>
-			<Modal.Backdrop variant="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
+			<Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
 				<Modal.Container size="sm" placement="center">
 					<Modal.Dialog className="rounded-3xl">
 						<Modal.CloseTrigger />

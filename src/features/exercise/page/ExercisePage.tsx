@@ -170,7 +170,7 @@ export function ExercisePage() {
 				</main>
 			</div>
 
-			<Modal.Backdrop variant="blur" isOpen={modal.isOpen} onOpenChange={modal.setOpen}>
+			<Modal.Backdrop isOpen={modal.isOpen} onOpenChange={modal.setOpen}>
 				<Modal.Container>
 					<Modal.Dialog className="max-w-xl">
 						<Modal.CloseTrigger />
