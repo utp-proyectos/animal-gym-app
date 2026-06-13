@@ -1,4 +1,5 @@
-export interface SessionRequest {
+export interface SessionResponse {
+	id: number
 	name: string
 	description: string | null
 	capacity: number
@@ -7,6 +8,7 @@ export interface SessionRequest {
 	endTime: string
 	goal: string | null
 	intensity: string
-	image: File | null
+	image: string | null
 	employeeId: number | null
+	status: string
 }

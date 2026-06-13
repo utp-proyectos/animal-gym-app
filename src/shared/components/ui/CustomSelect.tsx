@@ -1,12 +1,17 @@
 import type { Key } from '@heroui/react'
 import { Select, ListBox, Label, FieldError } from '@heroui/react'
 
+interface SelectOption {
+	label: string
+	value: Key
+}
+
 interface CustomSelectProps {
 	label: string
 	value: Key | null
 	onChange: (value: Key | null) => void
 	placeholder?: string
-	options: string[]
+	options: (string | SelectOption)[]
 	className?: string
 	errorMessage?: string | undefined
 }
@@ -39,12 +44,18 @@ export function CustomSelect({
 
 			<Select.Popover>
 				<ListBox>
-					{options.map((option) => (
-						<ListBox.Item key={option} id={option} textValue={option}>
-							{option}
-							<ListBox.ItemIndicator />
-						</ListBox.Item>
-					))}
+					{options.map((option) => {
+						const isObject = typeof option !== 'string'
+						const itemKey = isObject ? option.value : option
+						const itemLabel = isObject ? option.label : option
+
+						return (
+							<ListBox.Item key={itemKey} id={itemKey} textValue={itemLabel}>
+								{itemLabel}
+								<ListBox.ItemIndicator />
+							</ListBox.Item>
+						)
+					})}
 				</ListBox>
 			</Select.Popover>
 			<FieldError>{errorMessage}</FieldError>

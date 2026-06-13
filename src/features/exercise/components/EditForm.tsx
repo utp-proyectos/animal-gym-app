@@ -3,17 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { editSchema, type EditInput, type EditOutput } from '../schema/exerciseSchema'
 import ExerciseForm from './ExerciseForm'
 import { useUpdateExercise } from '../hooks/useExercises'
-
-interface Item {
-	id: number
-	name: string
-	description: string
-	muscleGroup: string
-	equipment: string
-}
+import type { ExerciseResponse } from '../types'
 
 interface EditFormProps {
-	item: Item
+	item: ExerciseResponse
 	onClose: () => void
 }
 
