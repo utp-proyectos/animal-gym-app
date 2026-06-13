@@ -1,5 +1,5 @@
 import type { MembershipReponse } from "../types";
-import { Card, Button, Chip, Dropdown} from '@heroui/react'
+import { Card, Button, Chip, Dropdown, type Key} from '@heroui/react'
 import {Ellipsis, Pencil, Trash2, Users, Clock, AlertCircle} from 'lucide-react'
 
 const FALLBACK_IMAGE = 'https://placeholder.co/600x400/f1f5f9/94a3b8?text=Sin+imagen'
@@ -20,7 +20,7 @@ export function MembershipCard( {membership, onEdit, onDelete} : MembershipCardP
   const isAlmostFull = !isFull && membership.enrolledMembers >= membership.capacityLimit * 0.8
   const spotsLeft = membership.capacityLimit - membership.enrolledMembers
 
-  const handleMenuAction = (key: React.Key) => {
+  const handleMenuAction = (key:Key) => {
     if(key === 'edit') onEdit(membership)
     if(key === 'delete') onDelete(membership)
   }
@@ -78,7 +78,7 @@ export function MembershipCard( {membership, onEdit, onDelete} : MembershipCardP
                   </div>
                 </Dropdown.Item>
 
-                <Dropdown.Item id="delete" textValue="Eliminar" className="text-danger">
+                <Dropdown.Item id="delete" textValue="Eliminar" variant="danger">
                   <div className="flex items-center gap-2 py-0.5">
                     <Trash2 size={14} />
                     <span className="text-sm font-medium">Eliminar</span>
