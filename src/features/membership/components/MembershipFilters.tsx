@@ -1,115 +1,148 @@
-import { Card, Input, Button, Select, ListBox, Label } from '@heroui/react';
-import { RotateCcw } from 'lucide-react';
+import { Card, Input, Button } from '@heroui/react'
+import { SlidersHorizontal, RotateCcw } from 'lucide-react'
 
-interface FiltersProps {
-  search: string;
-  setSearch: (value: string) => void;
-  estado: string;
-  setEstado: (value: string) => void;
-  minPrecio: number;
-  setMinPrecio: (value: number) => void;
-  maxPrecio: number;
-  setMaxPrecio: (value: number) => void;
-  onReset: () => void;
+type StatusFilter = 'all' | 'active' | 'inactive'
+
+const STATUS_OPTIONS: Array<{ value: StatusFilter; label: string }> = [
+	{ value: 'all', label: 'Todos' },
+	{ value: 'active', label: 'Activos' },
+	{ value: 'inactive', label: 'Inactivos' },
+]
+
+interface MembershipFiltersProps {
+	statusFilter: StatusFilter
+	minPrice: number
+	maxPrice: number
+
+	onStatusChange: (value: StatusFilter) => void
+	onMinPriceChange: (value: number) => void
+	onMaxPriceChange: (value: number) => void
+	onReset: () => void
+
+	total: number
+	filtered: number
 }
 
 export function MembershipFilters({
-  search,
-  setSearch,
-  estado,
-  setEstado,
-  minPrecio,
-  setMinPrecio,
-  maxPrecio,
-  setMaxPrecio,
-  onReset,
-}: FiltersProps) {
-  return (
-    <Card className="p-6 border-none bg-default-50/50 rounded-3xl shadow-sm sticky top-8">
-      <h3 className="font-bold text-lg mb-6 text-black">Filtrar membresías</h3>
+	statusFilter,
+	minPrice,
+	maxPrice,
+	onStatusChange,
+	onMinPriceChange,
+	onMaxPriceChange,
+	onReset,
+	total,
+	filtered,
+}: MembershipFiltersProps) {
+	const handleMinPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = Number(e.target.value)
+		if (value <= maxPrice) onMinPriceChange(value)
+	}
 
-      <div className="flex flex-col gap-6">
-        <div>
-          <Label className="mb-1.5 block">Nombre del plan</Label>
-          <Input
-            placeholder="Buscar por nombre..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+	const handleMaxPrice = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = Number(e.target.value)
+		if (value >= minPrice) onMaxPriceChange(value)
+	}
 
-        <div>
-          <Label className="mb-1.5 block">Estado</Label>
-          <Select
-            placeholder="Todos los estados"
-            className="w-full"
-            value={estado}
-            onChange={(key) => setEstado((key as string) ?? 'all')}
-          >
-            <Select.Trigger className="px-3 py-2 flex justify-between items-center">
-              <Select.Value />
-              <Select.Indicator />
-            </Select.Trigger>
-            <Select.Popover>
-              <ListBox className="bg-white border border-default-200 shadow-xl">
-                <ListBox.Item id="all" textValue="Todos">Todos</ListBox.Item>
-                <ListBox.Item id="Activo" textValue="Activo">Activo</ListBox.Item>
-                <ListBox.Item id="Inactivo" textValue="Inactivo">Inactivo</ListBox.Item>
-              </ListBox>
-            </Select.Popover>
-          </Select>
-        </div>
+	const hasActiveFilters = statusFilter !== 'all' || minPrice !== 0 || maxPrice !== 500
 
-        <div>
-          <Label className="mb-2 block">Rango de Precio (S/)</Label>
+	return (
+		<Card className="p-5 border border-gray-100 shadow-sm rounded-3xl sticky top-6">
+			<div className="flex items-center justify-between mb-5">
+				<div className="flex items-center gap-2">
+					<SlidersHorizontal size={15} className="text-gray-400" />
+					<span className="font-bold text-gray-800 text-sm">Filtros</span>
+				</div>
 
-          <div className="flex items-center justify-between text-sm mb-1">
-            <span className="font-medium text-primary">S/ {minPrecio}</span>
-            <span className="font-medium text-primary">S/ {maxPrecio}</span>
-          </div>
+				<span className="text-xs text-gray-400 font-medium tabular-nums">
+					{filtered} de {total}
+				</span>
+			</div>
+			<div className="flex flex-col gap-5">
+				{/* ── Filtro de estado ─────────────────────────────────────────── */}
+				<div>
+					<p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+						Estado
+					</p>
 
-          <div className="flex flex-col gap-4">
-            <input
-              type="range"
-              min={0}
-              max={500}
-              step={5}
-              value={minPrecio}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (val <= maxPrecio) setMinPrecio(val);
-              }}
-              className="w-full accent-primary"
-            />
+					<div className="flex flex-col gap-1">
+						{STATUS_OPTIONS.map((option) => (
+							<button
+								key={option.value}
+								onClick={() => onStatusChange(option.value)}
+								className={`
+                  w-full text-left px-3.5 py-2.5 rounded-xl text-sm
+                  font-medium transition-all duration-150
+                  ${
+										statusFilter === option.value
+											? 'bg-blue-600 text-white shadow-sm'
+											: 'text-gray-600 hover:bg-gray-50'
+									}
+                `}
+							>
+								{option.label}
+							</button>
+						))}
+					</div>
+				</div>
 
-            <input
-              type="range"
-              min={0}
-              max={500}
-              step={5}
-              value={maxPrecio}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (val >= minPrecio) setMaxPrecio(val);
-              }}
-              className="w-full accent-primary"
-            />
-          </div>
+				<div className="h-px bg-gray-100" />
 
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>Min</span>
-            <span>Max</span>
-          </div>
-        </div>
+				<div>
+					<p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+						Rango de precio (S/)
+					</p>
 
-        <Button
-          onPress={onReset}
-          className="w-full mt-2 font-medium bg-primary/10 text-primary"
-        >
-          <RotateCcw size={18} className="mr-2" />
-          Resetear filtros
-        </Button>
-      </div>
-    </Card>
-  );
+					<div className="flex flex-col gap-3">
+						<div>
+							<label className="text-xs text-gray-400 mb-1.5 block">Mínimo</label>
+
+							<div className="flex items-center gap-2">
+								<span className="text-xs text-gray-400 font-semibold select-none">S/</span>
+
+								<Input
+									className="w-64"
+									type="number"
+									min={0}
+									max={maxPrice}
+									value={String(minPrice)}
+									onChange={handleMinPrice}
+									placeholder="0"
+								/>
+							</div>
+						</div>
+
+						<div>
+							<label className="text-xs text-gray-400 mb-1.5 block">Máximo</label>
+
+							<div className="flex items-center gap-2">
+								<span className="text-xs text-gray-400 font-semibold select-none">S/</span>
+
+								<Input
+									className="w-64"
+									type="number"
+									min={minPrice}
+									value={String(maxPrice)}
+									onChange={handleMaxPrice}
+									placeholder="500"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{hasActiveFilters && (
+					<Button
+						variant="ghost"
+						size="sm"
+						onPress={onReset}
+						className="w-full border border-gray-200 text-gray-500 hover:bg-gray-50"
+					>
+						<RotateCcw size={13} />
+						Limpiar filtros
+					</Button>
+				)}
+			</div>
+		</Card>
+	)
 }
