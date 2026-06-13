@@ -25,6 +25,7 @@ const CreateForm = ({ onClose }: { onClose: () => void }) => {
 			specialty: null,
 			role: null,
 			password: '',
+			avatar: null,
 		},
 	})
 

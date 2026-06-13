@@ -1,51 +1,41 @@
-import { useEffect } from 'react'
 import { Button, Modal } from '@heroui/react'
 import { UserPen } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { parseDate } from '@internationalized/date'
 import { editSchema, type EditInput, type EditOutput } from '../schema/employeeSchema'
-import { useUpdateEmployee, useGetEmployee } from '../hooks/useEmployees'
+import { useUpdateEmployee } from '../hooks/useEmployees'
 import EmployeeForm from './EmployeeForm'
 
-const EditForm = ({ id, onClose }: { id: number; onClose: () => void }) => {
-	const { mutate } = useUpdateEmployee()
-	const { data: employee } = useGetEmployee(id)
+interface Item {
+	dni: string
+	firstName: string
+	lastName: string
+	phoneNumber: string
+	email: string
+	gender: 'Masculino' | 'Femenino' | 'Otro'
+	birthDate: string
+	hireDate: string
+	salary: number
+	contractType: 'Tiempo completo' | 'Medio tiempo'
+	specialty: 'Brazos' | 'Piernas' | 'Danzas' | 'Biceps'
+	role: 'Admin' | 'Entrenador' | 'Recepcionista'
+	id: number
+	avatar?: string | File | null | undefined
+}
+interface EditFormProps {
+	item: Item
+	onClose: () => void
+}
 
+const EditForm = ({ item, onClose }: EditFormProps) => {
+	const { mutate } = useUpdateEmployee()
 	const form = useForm<EditInput, unknown, EditOutput>({
 		resolver: zodResolver(editSchema),
-		defaultValues: {
-			id,
-			dni: '',
-			firstName: '',
-			lastName: '',
-			phoneNumber: '',
-			email: '',
-			avatar: null,
-			gender: null,
-			birthDate: null,
-			hireDate: null,
-			salary: 0,
-			contractType: null,
-			specialty: null,
-			role: null,
-		},
+		defaultValues: item,
 	})
 
-	useEffect(() => {
-		if (employee) {
-			console.log('employee:', employee)
-
-			form.reset({
-				...employee,
-				birthDate: parseDate(employee.birthDate),
-				hireDate: parseDate(employee.hireDate),
-			})
-		}
-	}, [employee, form])
-
 	const onSubmit = (data: EditOutput) => {
-		mutate({ id, payload: data })
+		mutate({ id: data.id, payload: data })
 		console.log(data)
 		onClose()
 	}

@@ -1,10 +1,10 @@
 // src/components/EmployeeCard.tsx
 import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
 import { Edit3, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
-import type { EmployeeResponse } from '../types'
+import type { EmployeeDetailResponse } from '../types'
 import defult from '@/assets/global/default.png'
 interface Props {
-	employees: EmployeeResponse[]
+	employees: EmployeeDetailResponse[]
 	onEdit: (id: number) => void
 	onDelete: (id: number) => void
 	onChangePassword: (id: number) => void
@@ -35,7 +35,7 @@ export function EmployeeCard({
 					{/* Imagen */}
 					<div className="w-full aspect-4/3 relative">
 						<img
-							alt={`${employee.firstName} ${employee.lastName}`}
+							alt={`${employee.avatar}`}
 							className="w-full h-full object-cover"
 							src={employee.avatar || defult}
 							onError={(e) => {

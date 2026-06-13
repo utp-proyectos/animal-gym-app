@@ -5,14 +5,15 @@ import { toFormData } from '@/shared/util'
 import type { CreateOutput, EditOutput } from '../schema/employeeSchema'
 
 export const employeeService = {
-	getAll: () => api.get<ApiResponse<EmployeeResponse[]>>('/employees').then((res) => res.data.data),
+	getAll: () =>
+		api.get<ApiResponse<EmployeeDetailResponse[]>>('/employees').then((res) => res.data.data),
 
 	getById: (id: number) =>
 		api.get<ApiResponse<EmployeeDetailResponse>>(`/employees/${id}`).then((res) => res.data.data),
 
 	save: (payload: CreateOutput) =>
 		api
-			.post<ApiResponse<EmployeeResponse>>('/employees', toFormData(payload))
+			.post<ApiResponse<EmployeeDetailResponse>>('/employees', toFormData(payload))
 			.then((res) => res.data.data),
 
 	update: (id: number, payload: EditOutput) =>

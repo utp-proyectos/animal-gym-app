@@ -1,31 +1,24 @@
-import { Description, FieldError, Input, Label, TextField } from '@heroui/react'
+import { Input } from '@heroui/react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { CustomSelect } from '@/shared/components/ui/CustomSelect'
 import { CustomDateField } from '@/shared/components/ui/CustomDateField'
-import { useState } from 'react'
 import type { Role } from '@/shared/types'
-import defult from '@/assets/global/default.png'
-
-const GENDER_OPTIONS = ['Masculino', 'Femenino', 'Otro']
-const CONTRACT_OPTIONS = ['FULL_TIME', 'PART_TIME', 'TEMPORARY']
-const SPECIALTY_OPTIONS = ['Brazos', 'Piernas', 'Danzas', 'Biceps']
-const ROLE_OPTIONS: Role[] = ['ADMIN', 'ENTRENADOR', 'RECEPCIONISTA']
+import preview from '@/assets/global/preview.png'
+import CustomField from '@/shared/components/ui/CustomField'
+import FileField from '@/shared/components/ui/FileField'
+import { CustomNumberField } from '../../../shared/components/ui/CustomNumberField'
 
 interface EmployeeFormProps {
 	isEditing?: boolean
 }
-
+const ROLE_OPTIONS: Role[] = ['ADMIN', 'ENTRENADOR', 'RECEPCIONISTA']
+const SPECIALITY_OPTIONS = ['Biceps', 'Brazos', 'Danzas', 'Piernas']
+const CONTRACT_TYPE_OPTIONS = ['Medio tiempo', 'Tiempo completo']
+const GENDER_OPTIONS = ['Masculino', 'Femenino', 'Otro']
 const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
-	const { control, setValue } = useFormContext()
-	const avatarValue = useWatch({ control, name: 'avatar' })
-	const [newPreview, setNewPreview] = useState<string | null>(null)
-
-	//image
-	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0]
-		if (file) setNewPreview(URL.createObjectURL(file))
-		setValue('avatar', file)
-	}
+	const { control } = useFormContext()
+	const avatarValue = useWatch({ control, name: 'avatar' }) as FileList | null
+	const previewSrc = avatarValue ? URL.createObjectURL(avatarValue[0]) : preview
 
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-10 h-full items-stretch">
@@ -39,22 +32,18 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						name="dni"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<TextField isInvalid={!!error}>
-								<Label>DNI</Label>
-								<Input {...field} placeholder="Ej. 00000000" variant="secondary" maxLength={8} />
-								<FieldError>{error?.message}</FieldError>
-							</TextField>
+							<CustomField label="Dni" errorMessage={error?.message}>
+								<Input {...field} placeholder="Ingrese su email" maxLength={8}></Input>
+							</CustomField>
 						)}
 					/>
 					<Controller
 						name="firstName"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<TextField isInvalid={!!error}>
-								<Label>Nombre</Label>
-								<Input {...field} placeholder="Ej. Juan" variant="secondary" />
-								<FieldError>{error?.message}</FieldError>
-							</TextField>
+							<CustomField label="Nombre" errorMessage={error?.message}>
+								<Input {...field} placeholder="Ingrese su nombre"></Input>
+							</CustomField>
 						)}
 					/>
 				</div>
@@ -65,22 +54,18 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						name="lastName"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<TextField isInvalid={!!error}>
-								<Label>Apellido</Label>
-								<Input {...field} placeholder="Ej. Pérez" variant="secondary" />
-								<FieldError>{error?.message}</FieldError>
-							</TextField>
+							<CustomField label="Apellido" errorMessage={error?.message}>
+								<Input {...field} placeholder="Ingrese su apellido"></Input>
+							</CustomField>
 						)}
 					/>
 					<Controller
 						name="phoneNumber"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<TextField isInvalid={!!error}>
-								<Label>Teléfono</Label>
-								<Input {...field} placeholder="Ej. 999888777" variant="secondary" maxLength={9} />
-								<FieldError>{error?.message}</FieldError>
-							</TextField>
+							<CustomField label="Telefono" errorMessage={error?.message}>
+								<Input {...field} placeholder="Ingrese su telefono" maxLength={9}></Input>
+							</CustomField>
 						)}
 					/>
 				</div>
@@ -91,11 +76,9 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						name="email"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<TextField isInvalid={!!error}>
-								<Label>Email</Label>
-								<Input {...field} placeholder="Ej. xx@gmail.com" variant="secondary" />
-								<FieldError>{error?.message}</FieldError>
-							</TextField>
+							<CustomField label="Email" errorMessage={error?.message}>
+								<Input {...field} placeholder="Ingrese su email"></Input>
+							</CustomField>
 						)}
 					/>
 					<Controller
@@ -128,29 +111,26 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 							/>
 						)}
 					/>
-					<div className="flex flex-col gap-2">
-						<Label>Imagen</Label>
-						<input
-							type="file"
-							accept="image/*"
-							className="cursor-pointer bg-surface-secondary p-2 rounded-xl file:cursor-pointer"
-							onChange={handleImageChange}
-						/>
-					</div>
+
+					<Controller
+						name="avatar"
+						control={control}
+						render={({ field: { onChange, value }, fieldState: { error } }) => (
+							<FileField
+								label="Imagen"
+								accept="image/jpeg,image/png"
+								value={value}
+								onChange={onChange}
+								errorMessage={error?.message}
+							/>
+						)}
+					/>
 				</div>
 
 				{/* PREVIEW */}
-				{(newPreview || (typeof avatarValue === 'string' && avatarValue)) && (
-					<div className="mt-5 rounded-xl overflow-hidden">
-						<img
-							src={newPreview || (typeof avatarValue === 'string' ? avatarValue : undefined)}
-							alt="preview"
-							onError={(e) => {
-								e.currentTarget.src = defult
-							}}
-						/>
-					</div>
-				)}
+				<div className="mt-5 rounded-xl overflow-hidden">
+					<img src={previewSrc} alt="preview" />
+				</div>
 			</section>
 
 			{/* DATOS LABORALES */}
@@ -173,17 +153,16 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						name="salary"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<TextField isInvalid={!!error}>
-								<Label>Salario</Label>
-								<Input
-									{...field}
-									onChange={(e) => field.onChange(e.target.valueAsNumber)}
-									placeholder="Ej. 1000"
-									variant="secondary"
-									type="number"
-								/>
-								<FieldError>{error?.message}</FieldError>
-							</TextField>
+							<CustomNumberField
+								label="Ingrese el salario"
+								value={field.value}
+								onChange={field.onChange}
+								errorMessage={error?.message}
+								formatOptions={{
+									style: 'currency',
+									currency: 'PEN',
+								}}
+							/>
 						)}
 					/>
 					<Controller
@@ -193,7 +172,7 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 							<CustomSelect
 								label="Tipo de contrato"
 								placeholder="Selecciona contrato"
-								options={CONTRACT_OPTIONS}
+								options={CONTRACT_TYPE_OPTIONS}
 								value={field.value}
 								onChange={field.onChange}
 								errorMessage={error?.message}
@@ -207,7 +186,7 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 							<CustomSelect
 								label="Especialidad"
 								placeholder="Selecciona especialidad"
-								options={SPECIALTY_OPTIONS}
+								options={SPECIALITY_OPTIONS}
 								value={field.value}
 								onChange={field.onChange}
 								errorMessage={error?.message}
@@ -239,18 +218,9 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						name="password"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<TextField isInvalid={!!error}>
-								<Label>Contraseña</Label>
-								<Input
-									{...field}
-									type="password"
-									placeholder="Mínimo 8 caracteres"
-									variant="secondary"
-									autoComplete="new-password"
-								/>
-								<Description>La contraseña debe tener al menos 8 caracteres.</Description>
-								<FieldError>{error?.message}</FieldError>
-							</TextField>
+							<CustomField label="Contraseña" errorMessage={error?.message}>
+								<Input {...field} placeholder="Ingrese su contraseña" type="password"></Input>
+							</CustomField>
 						)}
 					/>
 				</section>
