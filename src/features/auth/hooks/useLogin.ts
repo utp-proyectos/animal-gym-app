@@ -2,7 +2,9 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store'
 import { loginService } from '../services/authService'
-import type { Role } from '@/shared/types'
+import type { ApiResponse, Role } from '@/shared/types'
+import { AxiosError, isAxiosError } from 'axios'
+import { toast } from '@heroui/react'
 
 const ROLE_REDIRECT: Record<Role, string> = {
 	ADMIN: '/',
@@ -24,6 +26,14 @@ export const useLogin = () => {
 			login(user, token)
 
 			navigate(ROLE_REDIRECT[user.role] ?? '/')
+		},
+		onError: (error) => {
+			if (!isAxiosError(error)) return
+			const axiosError = error as AxiosError<ApiResponse<null>>
+
+			toast.danger('Error al iniciar sesion', {
+				description: axiosError.response?.data.message,
+			})
 		},
 	})
 }
