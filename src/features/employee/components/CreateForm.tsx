@@ -36,9 +36,12 @@ const CreateForm = ({ isOpen, onOpenChange }: Props) => {
 
 	const onSubmit = (data: CreateOutput) => {
 		mutate(data, {
-			onSuccess: () => {
-				form.reset()
+			onSuccess: (response) => {
+				console.log('Registro creado exitosamente ' + response)
 				onOpenChange(false)
+			},
+			onError: (error) => {
+				console.error('Error al guardar el backend' + error)
 			},
 		})
 	}
