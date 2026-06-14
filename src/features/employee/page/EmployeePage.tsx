@@ -8,7 +8,7 @@ import { useEmployees, useDeleteEmployee } from '../hooks/useEmployees'
 import CreateForm from '../components/CreateForm'
 import EditForm from '../components/EditForm'
 import type { EmployeeDetailResponse } from '../types'
-import { EmployeeDeleteModal } from '../components/EmployeeDeleteModal'
+import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 
 interface ModalState<T> {
 	isOpen: boolean
@@ -166,12 +166,10 @@ export function EmployeePage() {
 				employee={passwordModal.data}
 			/>
 
-			<EmployeeDeleteModal
+			<DeleteModal
 				isOpen={deleteModal.isOpen}
 				onOpenChange={(open) => setDeleteModal({ isOpen: open, data: null })}
-				employee={deleteModal.data}
-				title="Eliminar empleado"
-				description="¿Estás seguro de que deseas eliminar a este empleado?"
+				title="Empleado"
 				onConfirm={() => {
 					if (deleteModal.data) deleteEmployee(deleteModal.data.id)
 					setDeleteModal(CLOSED)
