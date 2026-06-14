@@ -26,18 +26,19 @@ export function SessionCard({ sessions, onEdit, onDelete, onViewDetail }: Props)
 					className="p-0 border-none bg-white hover:-translate-y-1 transition-all duration-300 shadow-md overflow-hidden flex flex-col"
 				>
 					{/* Imagen de la sesión */}
-					<div className="w-full aspect-video relative">
+					<div className="w-full aspect-video relative overflow-hidden rounded-t-3xl bg-default-100">
 						<img
 							alt={session.name}
-							className="w-full h-full object-cover"
 							src={session.image || defaultImg}
+							className="absolute inset-0 w-full h-full object-cover object-center"
 							onError={(e) => {
 								e.currentTarget.src = defaultImg
 							}}
 						/>
+
 						{/* Badge de Estado flotante */}
-						<div className="absolute top-4 left-5">
-							<span className="bg-white/90 backdrop-blur-md text-primary text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+						<div className="absolute top-4 left-5 z-10">
+							<span className="bg-white/90 backdrop-blur-md text-primary text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
 								{session.status}
 							</span>
 						</div>
