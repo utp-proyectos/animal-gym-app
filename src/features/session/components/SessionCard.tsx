@@ -5,17 +5,17 @@ import defaultImg from '@/assets/global/default.png'
 
 interface Props {
 	sessions: SessionResponse[]
-	onEdit: (id: number) => void
-	onDelete: (id: number) => void
-	onViewDetail: (id: number) => void
+	onEdit: (session: SessionResponse) => void
+	onDelete: (session: SessionResponse) => void
+	onViewDetail: (session: SessionResponse) => void
 }
 
 export function SessionCard({ sessions, onEdit, onDelete, onViewDetail }: Props) {
 	// Manejo de acciones centralizado tal cual lo estructuró tu amigo
-	const handleAction = (key: string, id: number) => {
-		if (key === 'edit') onEdit(id)
-		if (key === 'delete') onDelete(id)
-		if (key === 'detail') onViewDetail(id)
+	const handleAction = (key: string, session: SessionResponse) => {
+		if (key === 'edit') onEdit(session)
+		if (key === 'delete') onDelete(session)
+		if (key === 'detail') onViewDetail(session)
 	}
 
 	return (
@@ -65,7 +65,7 @@ export function SessionCard({ sessions, onEdit, onDelete, onViewDetail }: Props)
 								</Button>
 								<Dropdown.Popover>
 									<Dropdown.Menu
-										onAction={(key) => handleAction(String(key), session.id)}
+										onAction={(key) => handleAction(String(key), session)}
 										className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl"
 									>
 										<Dropdown.Item id="edit" textValue="Editar clase">
@@ -92,7 +92,7 @@ export function SessionCard({ sessions, onEdit, onDelete, onViewDetail }: Props)
 								<span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
 									Clase ID: #{session.id}
 								</span>
-								<Button variant="outline" size="sm" onPress={() => onViewDetail(session.id)}>
+								<Button variant="outline" size="sm" onPress={() => onViewDetail(session)}>
 									Ver detalles
 								</Button>
 							</div>

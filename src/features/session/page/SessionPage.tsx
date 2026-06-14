@@ -1,14 +1,4 @@
-import {
-	Card,
-	Input,
-	Button,
-	ListBox,
-	Select,
-	Skeleton,
-	Label,
-	useOverlayState,
-	Modal,
-} from '@heroui/react'
+import { Card, Input, Button, ListBox, Select, Skeleton, Label, Modal } from '@heroui/react'
 import { Plus, RotateCcw, Frown, UserPlus } from 'lucide-react'
 import { SessionCard } from '../components/SessionCard'
 import { useSessions } from '../hooks/useSessions'
@@ -17,36 +7,20 @@ import CreateForm from '../components/CreateForm'
 import EditForm from '../components/EditForm'
 import type { SessionResponse } from '../types'
 
+interface ModalState {
+	isOpen: boolean
+	data: SessionResponse | null
+}
+
 export function SessionPage() {
 	const { data: sessions = [], isLoading, error } = useSessions()
 
-	const modal = useOverlayState()
-	const [currentSession, setCurrentSession] = useState<SessionResponse | null>(null)
-	const isEditing = currentSession !== null
+	const [formModal, setFormModal] = useState<ModalState>({
+		isOpen: false,
+		data: null,
+	})
 
-	const openCreateForm = () => {
-		setCurrentSession(null)
-		modal.open()
-	}
-
-	const handleEdit = (id: number) => {
-		const sessionToEdit = sessions.find((session) => session.id === id)
-
-		console.log('Editar sesión con ID:', sessionToEdit)
-
-		if (sessionToEdit) {
-			setCurrentSession(sessionToEdit)
-			modal.open()
-		}
-	}
-
-	const handleDelete = (id: number) => {
-		console.log('Eliminar sesión con ID:', id)
-	}
-
-	const handleViewDetail = (id: number) => {
-		console.log('Ver detalles de la sesión con ID:', id)
-	}
+	const isEditing = formModal.data !== null
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
@@ -60,7 +34,12 @@ export function SessionPage() {
 				</div>
 				<Button
 					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
-					onPress={openCreateForm}
+					onPress={() =>
+						setFormModal({
+							isOpen: true,
+							data: null,
+						})
+					}
 				>
 					<Plus size={20} className="mr-2" />
 					Crear clase
@@ -155,15 +134,23 @@ export function SessionPage() {
 					) : (
 						<SessionCard
 							sessions={sessions}
-							onEdit={handleEdit}
-							onDelete={handleDelete}
-							onViewDetail={handleViewDetail}
+							onEdit={(session) =>
+								setFormModal({
+									isOpen: true,
+									data: session,
+								})
+							}
+							onDelete={(session) => console.log('Eliminar sesión:', session.id)}
+							onViewDetail={(session) => console.log('Ver detalle de:', session.name)}
 						/>
 					)}
 				</main>
 			</div>
 
-			<Modal.Backdrop isOpen={modal.isOpen} onOpenChange={modal.setOpen}>
+			<Modal.Backdrop
+				isOpen={formModal.isOpen}
+				onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
+			>
 				<Modal.Container>
 					<Modal.Dialog className="max-w-4xl">
 						<Modal.CloseTrigger />
@@ -180,10 +167,13 @@ export function SessionPage() {
 						</Modal.Header>
 
 						<Modal.Body className="p-6">
-							{isEditing ? (
-								<EditForm item={currentSession} onClose={modal.close} />
+							{isEditing && formModal.data ? (
+								<EditForm
+									item={formModal.data}
+									onClose={() => setFormModal({ isOpen: false, data: null })}
+								/>
 							) : (
-								<CreateForm onClose={modal.close} />
+								<CreateForm onClose={() => setFormModal({ isOpen: false, data: null })} />
 							)}
 						</Modal.Body>
 
