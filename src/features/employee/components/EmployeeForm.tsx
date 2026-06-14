@@ -18,8 +18,11 @@ const GENDER_OPTIONS = ['Masculino', 'Femenino', 'Otro']
 const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 	const { control } = useFormContext()
 	const avatarValue = useWatch({ control, name: 'avatar' }) as FileList | null
-	const previewSrc = avatarValue ? URL.createObjectURL(avatarValue[0]) : preview
-
+	const avatarUrl = useWatch({ control, name: 'avatarUrl' }) as string | null
+	const previewSrc =
+		avatarValue && avatarValue.length > 0
+			? URL.createObjectURL(avatarValue[0])
+			: avatarUrl || preview
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-10 h-full items-stretch">
 			{/* DATOS PERSONALES */}

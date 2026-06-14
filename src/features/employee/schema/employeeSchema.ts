@@ -66,10 +66,6 @@ export const createSchema = baseSchema.extend({
 
 export const editSchema = baseSchema.extend({
 	id: z.number(),
-	avatar: z
-		.union([z.instanceof(File), z.string()])
-		.nullable()
-		.optional(),
 })
 
 export type CreateInput = z.input<typeof createSchema>

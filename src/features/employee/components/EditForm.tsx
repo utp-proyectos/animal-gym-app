@@ -2,56 +2,59 @@ import { Button, Modal } from '@heroui/react'
 import { UserPen } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { parseDate } from '@internationalized/date'
 import { editSchema, type EditInput, type EditOutput } from '../schema/employeeSchema'
 import { useUpdateEmployee } from '../hooks/useEmployees'
 import EmployeeForm from './EmployeeForm'
+import type { EmployeeDetailResponse } from '../types'
 
-interface Item {
-	dni: string
-	firstName: string
-	lastName: string
-	phoneNumber: string
-	email: string
-	gender: 'Masculino' | 'Femenino' | 'Otro'
-	birthDate: string
-	hireDate: string
-	salary: number
-	contractType: 'Tiempo completo' | 'Medio tiempo'
-	specialty: 'Brazos' | 'Piernas' | 'Danzas' | 'Biceps'
-	role: 'Admin' | 'Entrenador' | 'Recepcionista'
-	id: number
-	avatar?: string | File | null | undefined
-}
-interface EditFormProps {
-	item: Item
-	onClose: () => void
+interface Props {
+	isOpen: boolean
+	onOpenChange: (open: boolean) => void
+	employee: EmployeeDetailResponse | null
 }
 
-const EditForm = ({ item, onClose }: EditFormProps) => {
+const formatInitialValues = (
+	employee: EmployeeDetailResponse,
+): EditInput & { avatarUrl?: string | null } => {
+	return {
+		id: employee.id,
+		dni: employee.dni,
+		firstName: employee.firstName,
+		lastName: employee.lastName,
+		phoneNumber: employee.phoneNumber,
+		email: employee.email,
+		gender: employee.gender,
+		contractType: employee.contractType,
+		specialty: employee.specialty,
+		role: employee.role,
+		birthDate: employee.birthDate ? parseDate(employee.birthDate) : null,
+		hireDate: employee.hireDate ? parseDate(employee.hireDate) : null,
+		salary: employee.salary,
+		avatar: null,
+		avatarUrl: employee.avatar,
+	}
+}
+
+const EditForm = ({ isOpen, onOpenChange, employee }: Props) => {
 	const { mutate } = useUpdateEmployee()
+
 	const form = useForm<EditInput, unknown, EditOutput>({
 		resolver: zodResolver(editSchema),
-		defaultValues: item,
+		defaultValues: employee ? formatInitialValues(employee) : undefined,
 	})
 
 	const onSubmit = (data: EditOutput) => {
-		mutate({ id: data.id, payload: data })
-		console.log(data)
-		onClose()
+		mutate({ id: data.id, payload: data }, { onSuccess: () => onOpenChange(false) })
 	}
-	console.log('form errors', form.formState.errors)
 
 	return (
-		<Modal
-			defaultOpen
-			onOpenChange={(isOpen) => {
-				if (!isOpen) onClose()
-			}}
-		>
-			<Modal.Backdrop>
+		<Modal>
+			<Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
 				<Modal.Container size="cover">
 					<Modal.Dialog>
 						<Modal.CloseTrigger />
+
 						<Modal.Header className="pb-4">
 							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
 								Editar empleado

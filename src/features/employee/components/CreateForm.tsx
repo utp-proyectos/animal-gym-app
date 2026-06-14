@@ -6,7 +6,12 @@ import { createSchema, type CreateInput, type CreateOutput } from '../schema/emp
 import { useCreateEmployee } from '../hooks/useEmployees'
 import EmployeeForm from './EmployeeForm'
 
-const CreateForm = ({ onClose }: { onClose: () => void }) => {
+interface Props {
+	isOpen: boolean
+	onOpenChange: (open: boolean) => void
+}
+
+const CreateForm = ({ isOpen, onOpenChange }: Props) => {
 	const { mutate } = useCreateEmployee()
 
 	const form = useForm<CreateInput, unknown, CreateOutput>({
@@ -30,22 +35,21 @@ const CreateForm = ({ onClose }: { onClose: () => void }) => {
 	})
 
 	const onSubmit = (data: CreateOutput) => {
-		mutate(data)
-		console.log(data)
-		onClose()
+		mutate(data, {
+			onSuccess: () => {
+				form.reset()
+				onOpenChange(false)
+			},
+		})
 	}
 
 	return (
-		<Modal
-			defaultOpen
-			onOpenChange={(isOpen) => {
-				if (!isOpen) onClose()
-			}}
-		>
-			<Modal.Backdrop>
+		<Modal>
+			<Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
 				<Modal.Container size="cover">
 					<Modal.Dialog>
 						<Modal.CloseTrigger />
+
 						<Modal.Header className="pb-4">
 							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
 								Nuevo empleado

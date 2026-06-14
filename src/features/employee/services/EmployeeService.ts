@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
 import type { ApiResponse } from '@/shared/types'
-import type { EmployeeDetailResponse, EmployeeResponse } from '../types'
+import type { EmployeeDetailResponse } from '../types'
 import { toFormData } from '@/shared/util'
 import type { CreateOutput, EditOutput } from '../schema/employeeSchema'
 
@@ -18,7 +18,7 @@ export const employeeService = {
 
 	update: (id: number, payload: EditOutput) =>
 		api
-			.put<ApiResponse<EmployeeResponse>>(`/employees/${id}`, toFormData(payload))
+			.put<ApiResponse<EmployeeDetailResponse>>(`/employees/${id}`, toFormData(payload))
 			.then((res) => res.data.data),
 
 	delete: (id: number) => api.delete<ApiResponse<void>>(`/employees/${id}`).then((res) => res.data),
