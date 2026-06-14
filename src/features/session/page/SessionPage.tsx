@@ -1,11 +1,12 @@
-import { Card, Input, Button, ListBox, Select, Skeleton, Label, Modal } from '@heroui/react'
+import { Card, Input, Button, ListBox, Select, Skeleton, Label, Modal, toast } from '@heroui/react'
 import { Plus, RotateCcw, Frown, UserPlus } from 'lucide-react'
 import { SessionCard } from '../components/SessionCard'
-import { useSessions } from '../hooks/useSessions'
+import { useSessions, useDeleteSession } from '../hooks/useSessions'
 import { useState } from 'react'
 import CreateForm from '../components/CreateForm'
 import EditForm from '../components/EditForm'
 import type { SessionResponse } from '../types'
+import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 
 interface ModalState {
 	isOpen: boolean
@@ -14,8 +15,14 @@ interface ModalState {
 
 export function SessionPage() {
 	const { data: sessions = [], isLoading, error } = useSessions()
+	const { mutate: deleteSession } = useDeleteSession()
 
 	const [formModal, setFormModal] = useState<ModalState>({
+		isOpen: false,
+		data: null,
+	})
+
+	const [deleteModal, setDeleteModal] = useState<ModalState>({
 		isOpen: false,
 		data: null,
 	})
@@ -140,7 +147,7 @@ export function SessionPage() {
 									data: session,
 								})
 							}
-							onDelete={(session) => console.log('Eliminar sesión:', session.id)}
+							onDelete={(session) => setDeleteModal({ isOpen: true, data: session })}
 							onViewDetail={(session) => console.log('Ver detalle de:', session.name)}
 						/>
 					)}
@@ -189,6 +196,29 @@ export function SessionPage() {
 					</Modal.Dialog>
 				</Modal.Container>
 			</Modal.Backdrop>
+
+			<DeleteModal
+				isOpen={deleteModal.isOpen}
+				onOpenChange={(open) => setDeleteModal({ isOpen: open, data: null })}
+				title="Clase"
+				onConfirm={() => {
+					if (!deleteModal.data) return
+					deleteSession(deleteModal.data.id, {
+						onSuccess: () => {
+							toast.success('Clase eliminada', {
+								description: `La clase "${deleteModal.data?.name}" fue removida del sistema con éxito.`,
+							})
+
+							setDeleteModal({ isOpen: false, data: null })
+						},
+						onError: () => {
+							toast.danger('Error al eliminar', {
+								description: `No se pudo eliminar la clase. Inténtalo de nuevo.`,
+							})
+						},
+					})
+				}}
+			/>
 		</div>
 	)
 }

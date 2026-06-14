@@ -65,18 +65,18 @@ const SessionForm = () => {
 					render={({ field, fieldState: { error } }) => (
 						<NumberField
 							variant="secondary"
-							minValue={0}
 							name={field.name}
 							value={field.value}
 							onChange={field.onChange}
+							isInvalid={!!error}
 						>
 							<Label>Capacidad</Label>
 							<NumberField.Group>
 								<NumberField.DecrementButton />
 								<NumberField.Input />
 								<NumberField.IncrementButton />
-								<FieldError>{error?.message}</FieldError>
 							</NumberField.Group>
+							<FieldError>{error?.message}</FieldError>
 						</NumberField>
 					)}
 				/>
