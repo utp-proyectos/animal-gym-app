@@ -1,14 +1,14 @@
-// src/components/EmployeeCard.tsx
 import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
 import { Edit3, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
-import type { EmployeeResponse } from '../types'
+import type { EmployeeDetailResponse } from '../types'
 import defult from '@/assets/global/default.png'
+
 interface Props {
-	employees: EmployeeResponse[]
-	onEdit: (id: number) => void
-	onDelete: (id: number) => void
-	onChangePassword: (id: number) => void
-	onViewDetail: (id: number) => void
+	employees: EmployeeDetailResponse[]
+	onEdit: (employee: EmployeeDetailResponse) => void
+	onDelete: (employee: EmployeeDetailResponse) => void
+	onChangePassword: (employee: EmployeeDetailResponse) => void
+	onViewDetail: (employee: EmployeeDetailResponse) => void
 }
 
 export function EmployeeCard({
@@ -18,11 +18,11 @@ export function EmployeeCard({
 	onChangePassword,
 	onViewDetail,
 }: Props) {
-	const handleAction = (key: string, id: number) => {
-		if (key === 'edit') onEdit(id)
-		if (key === 'delete') onDelete(id)
-		if (key === 'password') onChangePassword(id)
-		if (key === 'detail') onViewDetail(id)
+	const handleAction = (key: string, employee: EmployeeDetailResponse) => {
+		if (key === 'edit') onEdit(employee)
+		if (key === 'delete') onDelete(employee)
+		if (key === 'password') onChangePassword(employee)
+		if (key === 'detail') onViewDetail(employee)
 	}
 
 	return (
@@ -32,7 +32,6 @@ export function EmployeeCard({
 					key={employee.id}
 					className="p-0 border-none bg-white hover:-translate-y-1 transition-all duration-300 shadow-md overflow-hidden flex flex-col"
 				>
-					{/* Imagen */}
 					<div className="w-full aspect-4/3 relative">
 						<img
 							alt={`${employee.firstName} ${employee.lastName}`}
@@ -49,7 +48,6 @@ export function EmployeeCard({
 						</div>
 					</div>
 
-					{/* Contenido */}
 					<div className="p-4 flex flex-col gap-3 flex-1 justify-between">
 						<div className="flex justify-between items-start gap-2">
 							<div className="flex flex-col">
@@ -70,7 +68,7 @@ export function EmployeeCard({
 								</Button>
 								<Dropdown.Popover>
 									<Dropdown.Menu
-										onAction={(key) => handleAction(String(key), employee.id)}
+										onAction={(key) => handleAction(String(key), employee)}
 										className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl"
 									>
 										<Dropdown.Item id="edit" textValue="Editar">
@@ -100,7 +98,7 @@ export function EmployeeCard({
 						<div>
 							<div className="h-px w-full bg-default-100 mb-3" />
 							<div className="flex items-center justify-between">
-								<Button variant="outline" size="sm" onPress={() => onViewDetail(employee.id)}>
+								<Button variant="outline" size="sm" onPress={() => onViewDetail(employee)}>
 									Ver detalles
 								</Button>
 							</div>

@@ -4,48 +4,27 @@ import { useState } from 'react'
 import { EmployeeCard } from '../components/EmployeeCard'
 import { EmployeeDetailModal } from '../components/EmployeeDetailModal'
 import { EmployeePasswordModal } from '../components/EmployeePasswordModal'
-import { DeleteModal } from '@/features/bill/components/DeleteModal'
 import { useEmployees, useDeleteEmployee } from '../hooks/useEmployees'
 import CreateForm from '../components/CreateForm'
 import EditForm from '../components/EditForm'
+import type { EmployeeDetailResponse } from '../types'
+import { EmployeeDeleteModal } from '../components/EmployeeDeleteModal'
+
+interface ModalState<T> {
+	isOpen: boolean
+	data: T | null
+}
+
+const CLOSED = { isOpen: false, data: null }
 
 export function EmployeePage() {
 	const { mutate: deleteEmployee } = useDeleteEmployee()
 	const { data: employees = [], isLoading, error } = useEmployees()
 
-	const [isModalOpen, setIsModalOpen] = useState(false)
-	const [editId, setEditId] = useState<number | null>(null)
-	const isEditing = editId !== null
-
-	const [selectedId, setSelectedId] = useState<number | null>(null)
-	const [openDetail, setOpenDetail] = useState(false)
-	const [openPassword, setOpenPassword] = useState(false)
-	const [openDelete, setOpenDelete] = useState(false)
-
-	const handleCreate = () => {
-		setEditId(null)
-		setIsModalOpen(true)
-	}
-
-	const handleEdit = (id: number) => {
-		setEditId(id)
-		setIsModalOpen(true)
-	}
-
-	const handleClose = () => {
-		setIsModalOpen(false)
-		setEditId(null)
-	}
-
-	const handleDelete = (id: number) => {
-		setSelectedId(id)
-		setOpenDelete(true)
-	}
-
-	const handleViewDetail = (id: number) => {
-		setSelectedId(id)
-		setOpenDetail(true)
-	}
+	const [formModal, setFormModal] = useState<ModalState<EmployeeDetailResponse>>(CLOSED)
+	const [detailModal, setDetailModal] = useState<ModalState<EmployeeDetailResponse>>(CLOSED)
+	const [passwordModal, setPasswordModal] = useState<ModalState<EmployeeDetailResponse>>(CLOSED)
+	const [deleteModal, setDeleteModal] = useState<ModalState<EmployeeDetailResponse>>(CLOSED)
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
@@ -57,7 +36,7 @@ export function EmployeePage() {
 					<p className="text-default-500 text-sm">Administra y organiza tus empleados</p>
 				</div>
 				<Button
-					onPress={handleCreate}
+					onPress={() => setFormModal({ isOpen: true, data: null })}
 					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
 				>
 					<Plus size={20} className="mr-2" />
@@ -110,7 +89,7 @@ export function EmployeePage() {
 								Resetear filtros
 							</Button>
 						</div>
-					</Card>
+					</Card>{' '}
 				</aside>
 
 				<main className="flex-1">
@@ -153,62 +132,51 @@ export function EmployeePage() {
 					) : (
 						<EmployeeCard
 							employees={employees}
-							onEdit={handleEdit}
-							onDelete={handleDelete}
-							onChangePassword={(id) => {
-								setSelectedId(id)
-								setOpenPassword(true)
-							}}
-							onViewDetail={handleViewDetail}
+							onEdit={(employee) => setFormModal({ isOpen: true, data: employee })}
+							onDelete={(employee) => setDeleteModal({ isOpen: true, data: employee })}
+							onChangePassword={(employee) => setPasswordModal({ isOpen: true, data: employee })}
+							onViewDetail={(employee) => setDetailModal({ isOpen: true, data: employee })}
 						/>
 					)}
 				</main>
 			</div>
 
-			{/* MODALES */}
-			{isModalOpen &&
-				(isEditing ? (
-					<EditForm id={editId!} onClose={handleClose} />
-				) : (
-					<CreateForm onClose={handleClose} />
-				))}
+			<CreateForm
+				isOpen={formModal.isOpen && !formModal.data}
+				onOpenChange={(open) => setFormModal({ isOpen: open, data: null })}
+			/>
 
-			{openDetail && selectedId !== null && (
-				<EmployeeDetailModal
-					id={selectedId}
-					onClose={() => {
-						setOpenDetail(false)
-						setSelectedId(null)
-					}}
+			{formModal.data && (
+				<EditForm
+					isOpen={formModal.isOpen}
+					onOpenChange={(open) => setFormModal({ isOpen: open, data: null })}
+					employee={formModal.data}
 				/>
 			)}
 
-			{openPassword && selectedId !== null && (
-				<EmployeePasswordModal
-					id={selectedId}
-					onClose={() => {
-						setOpenPassword(false)
-						setSelectedId(null)
-					}}
-				/>
-			)}
+			<EmployeeDetailModal
+				isOpen={detailModal.isOpen}
+				onOpenChange={(open) => setDetailModal({ isOpen: open, data: null })}
+				employee={detailModal.data}
+			/>
 
-			{openDelete && selectedId !== null && (
-				<DeleteModal
-					id={selectedId}
-					title="Eliminar empleado"
-					description="¿Estás seguro de que deseas eliminar a este empleado?"
-					onConfirm={(id) => {
-						deleteEmployee(id)
-						setOpenDelete(false)
-						setSelectedId(null)
-					}}
-					onClose={() => {
-						setOpenDelete(false)
-						setSelectedId(null)
-					}}
-				/>
-			)}
+			<EmployeePasswordModal
+				isOpen={passwordModal.isOpen}
+				onOpenChange={(open) => setPasswordModal({ isOpen: open, data: null })}
+				employee={passwordModal.data}
+			/>
+
+			<EmployeeDeleteModal
+				isOpen={deleteModal.isOpen}
+				onOpenChange={(open) => setDeleteModal({ isOpen: open, data: null })}
+				employee={deleteModal.data}
+				title="Eliminar empleado"
+				description="¿Estás seguro de que deseas eliminar a este empleado?"
+				onConfirm={() => {
+					if (deleteModal.data) deleteEmployee(deleteModal.data.id)
+					setDeleteModal(CLOSED)
+				}}
+			/>
 		</div>
 	)
 }

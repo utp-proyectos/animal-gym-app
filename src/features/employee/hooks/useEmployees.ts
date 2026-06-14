@@ -32,10 +32,10 @@ export function usePrefetchEmployee() {
 		})
 	}
 }
-export function useGetEmployee(id: number) {
+export function useGetEmployee(id: number | undefined) {
 	return useQuery({
 		queryKey: [EMPLOYEE_KEY, id],
-		queryFn: () => employeeService.getById(id),
+		queryFn: () => employeeService.getById(id!),
 		enabled: !!id,
 	})
 }

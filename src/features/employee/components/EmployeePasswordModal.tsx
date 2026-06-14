@@ -1,4 +1,3 @@
-// src/components/EmployeePasswordModal.tsx
 import { Button, FieldError, InputGroup, Label, Modal, TextField } from '@heroui/react'
 import { KeyRound, Eye, EyeClosed, Lock } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -6,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
 import { useChangePassword } from '@/features/user/hook/UseUser'
+import type { EmployeeDetailResponse } from '../types'
 
 const schema = z
 	.object({
@@ -20,13 +20,13 @@ const schema = z
 type PasswordSchema = z.infer<typeof schema>
 
 interface Props {
-	id: number
-	onClose: () => void
+	isOpen: boolean
+	onOpenChange: (open: boolean) => void
+	employee: EmployeeDetailResponse | null
 }
 
-export function EmployeePasswordModal({ id, onClose }: Props) {
+export function EmployeePasswordModal({ isOpen, onOpenChange, employee }: Props) {
 	const { mutate: changePassword, isPending } = useChangePassword()
-
 	const [isNewVisible, setIsNewVisible] = useState(false)
 	const [isConfirmVisible, setIsConfirmVisible] = useState(false)
 
@@ -34,22 +34,27 @@ export function EmployeePasswordModal({ id, onClose }: Props) {
 		register,
 		handleSubmit,
 		formState: { errors },
+		reset,
 	} = useForm<PasswordSchema>({
 		resolver: zodResolver(schema),
 	})
 
 	const onSubmit = (data: PasswordSchema) => {
-		changePassword({ personId: id, newPassword: data.newPassword }, { onSuccess: () => onClose() })
+		if (!employee) return
+		changePassword(
+			{ personId: employee.id, newPassword: data.newPassword },
+			{
+				onSuccess: () => {
+					reset()
+					onOpenChange(false)
+				},
+			},
+		)
 	}
 
 	return (
-		<Modal
-			defaultOpen
-			onOpenChange={(isOpen) => {
-				if (!isOpen) onClose()
-			}}
-		>
-			<Modal.Backdrop>
+		<Modal>
+			<Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
 				<Modal.Container>
 					<Modal.Dialog className="sm:max-w-md">
 						<Modal.CloseTrigger />
@@ -88,7 +93,6 @@ export function EmployeePasswordModal({ id, onClose }: Props) {
 											<Button
 												type="button"
 												isIconOnly
-												aria-label={isNewVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
 												size="sm"
 												variant="ghost"
 												onPress={() => setIsNewVisible(!isNewVisible)}
@@ -120,7 +124,6 @@ export function EmployeePasswordModal({ id, onClose }: Props) {
 											<Button
 												type="button"
 												isIconOnly
-												aria-label={isConfirmVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
 												size="sm"
 												variant="ghost"
 												onPress={() => setIsConfirmVisible(!isConfirmVisible)}
@@ -137,7 +140,7 @@ export function EmployeePasswordModal({ id, onClose }: Props) {
 								</TextField>
 
 								<div className="flex justify-end gap-2 border-t pt-4">
-									<Button type="button" variant="secondary" onPress={onClose}>
+									<Button type="button" variant="secondary" slot="close">
 										Cancelar
 									</Button>
 									<Button type="submit" isPending={isPending}>
