@@ -45,7 +45,18 @@ const EditForm = ({ isOpen, onOpenChange, employee }: Props) => {
 	})
 
 	const onSubmit = (data: EditOutput) => {
-		mutate({ id: data.id, payload: data }, { onSuccess: () => onOpenChange(false) })
+		mutate(
+			{ id: data.id, payload: data },
+			{
+				onSuccess: (response) => {
+					console.log('Editado correctamente', response)
+					onOpenChange(false)
+				},
+				onError: (error) => {
+					console.error('Error al guardar en el backend' + error)
+				},
+			},
+		)
 	}
 
 	return (
