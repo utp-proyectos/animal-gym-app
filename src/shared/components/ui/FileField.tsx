@@ -2,6 +2,7 @@ import { Button, FieldError, InputGroup, Label, TextField } from '@heroui/react'
 import { Picture } from '@gravity-ui/icons'
 import { useEffect, useRef } from 'react'
 
+type InputVariant = 'primary' | 'secondary'
 interface FileFieldProps {
 	label?: string
 	placeholder?: string
@@ -9,6 +10,7 @@ interface FileFieldProps {
 	value?: FileList | null
 	onChange?: (file: FileList | null) => void
 	errorMessage?: string
+	variant?: InputVariant
 }
 
 type FileInput = EventTarget & HTMLInputElement
@@ -20,6 +22,7 @@ const FileField = ({
 	value,
 	onChange,
 	errorMessage,
+	variant = 'primary',
 }: FileFieldProps) => {
 	const isInvalid = !!errorMessage
 	const fileInput = useRef<HTMLInputElement>(null)
@@ -42,7 +45,7 @@ const FileField = ({
 
 	return (
 		<>
-			<TextField isInvalid={isInvalid}>
+			<TextField isInvalid={isInvalid} variant={variant}>
 				<Label>{label}</Label>
 				<InputGroup>
 					<InputGroup.Input
