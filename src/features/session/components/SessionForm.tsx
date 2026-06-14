@@ -168,6 +168,7 @@ const SessionForm = () => {
 							value={value}
 							onChange={onChange}
 							errorMessage={error?.message}
+							variant="secondary"
 						/>
 					)}
 				/>
