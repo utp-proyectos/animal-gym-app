@@ -17,12 +17,9 @@ const baseSchema = z.object({
 	intensity: z.custom<IntensityOption | null>().refine((val) => val !== null, {
 		message: 'Selecciona una intensidad',
 	}),
-	employeeId: z
-		.number({ message: 'Selecciona un entrenador' })
-		.nullable()
-		.refine((val) => val !== null, {
-			message: 'Selecciona un entrenador',
-		}),
+	employeeId: z.custom<number | null>().refine((val) => val !== null, {
+		message: 'Selecciona un empleado',
+	}),
 	date: z
 		.custom<DateValue | null>()
 		.refine((val) => val !== null, {
