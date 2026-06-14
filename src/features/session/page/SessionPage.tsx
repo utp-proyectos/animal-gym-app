@@ -7,6 +7,7 @@ import CreateForm from '../components/CreateForm'
 import EditForm from '../components/EditForm'
 import type { SessionResponse } from '../types'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
+import { SessionDetailModal } from '../components/SessionDetailModal'
 
 interface ModalState {
 	isOpen: boolean
@@ -23,6 +24,11 @@ export function SessionPage() {
 	})
 
 	const [deleteModal, setDeleteModal] = useState<ModalState>({
+		isOpen: false,
+		data: null,
+	})
+
+	const [detailModal, setDetailModal] = useState<ModalState>({
 		isOpen: false,
 		data: null,
 	})
@@ -148,7 +154,7 @@ export function SessionPage() {
 								})
 							}
 							onDelete={(session) => setDeleteModal({ isOpen: true, data: session })}
-							onViewDetail={(session) => console.log('Ver detalle de:', session.name)}
+							onViewDetail={(session) => setDetailModal({ isOpen: true, data: session })}
 						/>
 					)}
 				</main>
@@ -197,12 +203,21 @@ export function SessionPage() {
 				</Modal.Container>
 			</Modal.Backdrop>
 
+			<SessionDetailModal
+				isOpen={detailModal.isOpen}
+				onOpenChange={(open) => setDetailModal({ isOpen: open, data: null })}
+				session={detailModal.data}
+			/>
+
 			<DeleteModal
 				isOpen={deleteModal.isOpen}
 				onOpenChange={(open) => setDeleteModal({ isOpen: open, data: null })}
 				title="Clase"
 				onConfirm={() => {
 					if (!deleteModal.data) return
+
+					console.log(deleteModal.data)
+
 					deleteSession(deleteModal.data.id, {
 						onSuccess: () => {
 							toast.success('Clase eliminada', {

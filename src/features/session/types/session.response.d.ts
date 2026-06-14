@@ -1,3 +1,5 @@
+import type { EmployeeResponse } from '@/features/employee/types'
+
 export interface SessionResponse {
 	id: number
 	name: string
@@ -9,6 +11,6 @@ export interface SessionResponse {
 	goal: string | null
 	intensity: string
 	image: string | null
-	employeeId: number | null
+	employee: EmployeeResponse | null
 	status: string
 }
