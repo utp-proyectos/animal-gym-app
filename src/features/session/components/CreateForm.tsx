@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createSchema, type CreateInput, type CreateOutput } from '../schemas/sessionSchema'
 import SessionForm from './SessionForm'
 import { useCreateSession } from '../hooks/useSessions'
+import { toast } from '@heroui/react'
 
 interface CreateFormProps {
 	onClose: () => void
@@ -19,7 +20,7 @@ const CreateForm = ({ onClose }: CreateFormProps) => {
 			goal: '',
 			capacity: 0,
 			intensity: null,
-			employeeId: 0,
+			employeeId: null,
 			date: null,
 			startTime: null,
 			endTime: null,
@@ -30,11 +31,16 @@ const CreateForm = ({ onClose }: CreateFormProps) => {
 	const onSubmit = (data: CreateOutput) => {
 		mutate(data, {
 			onSuccess: () => {
-				console.log('Clase creado con éxito', data)
+				toast.success('Clase creada', {
+					description: `La clase "${data?.name}" fue creada con éxito.`,
+				})
+
 				onClose()
 			},
-			onError: (error) => {
-				console.error('Error al guardar en el backend:', error)
+			onError: () => {
+				toast.danger('Error al crear clase', {
+					description: `No se pudo crear la clase. Inténtalo de nuevo.`,
+				})
 			},
 		})
 	}

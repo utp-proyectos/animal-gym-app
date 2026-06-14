@@ -5,6 +5,7 @@ import SessionForm from './SessionForm'
 import { useUpdateSession } from '../hooks/useSessions'
 import type { SessionResponse } from '../types'
 import { parseDate, parseTime } from '@internationalized/date'
+import { toast } from '@heroui/react'
 
 interface EditFormProps {
 	item: SessionResponse
@@ -45,11 +46,16 @@ const EditForm = ({ item, onClose }: EditFormProps) => {
 			{ id: data.id, payload: data },
 			{
 				onSuccess: () => {
-					console.log('Clase actualizada con éxito:', data)
+					toast.success('Clase editada', {
+						description: `La clase "${data?.name}" fue editada con éxito.`,
+					})
+
 					onClose()
 				},
-				onError: (error) => {
-					console.error('Error al actualizar en el backend:', error)
+				onError: () => {
+					toast.danger('Error al editar clase', {
+						description: `No se pudo editar la clase. Inténtalo de nuevo.`,
+					})
 				},
 			},
 		)

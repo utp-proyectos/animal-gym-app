@@ -13,11 +13,13 @@ const baseSchema = z.object({
 		.min(1, 'El nombre de la clase es requerido'),
 	description: z.string().nullable(),
 	goal: z.string().nullable(),
-	capacity: z.number({ message: 'La capacidad es requerida' }),
+	capacity: z.number({ message: 'La capacidad es requerida' }).min(1, 'El valor minimo es 1'),
 	intensity: z.custom<IntensityOption | null>().refine((val) => val !== null, {
-		message: 'Selecciona una intensidad para la clase',
+		message: 'Selecciona una intensidad',
 	}),
-	employeeId: z.number({ message: 'El empleado es requerido' }),
+	employeeId: z.custom<number | null>().refine((val) => val !== null, {
+		message: 'Selecciona un empleado',
+	}),
 	date: z
 		.custom<DateValue | null>()
 		.refine((val) => val !== null, {
