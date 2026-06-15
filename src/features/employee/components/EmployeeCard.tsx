@@ -1,5 +1,5 @@
 import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
-import { Edit3, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
+import { Edit3, IdCard, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
 import type { EmployeeDetailResponse } from '../types'
 import defult from '@/assets/global/default.png'
 
@@ -26,16 +26,16 @@ export function EmployeeCard({
 	}
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 			{employees.map((employee) => (
 				<Card
 					key={employee.id}
 					className="p-0 border-none bg-white hover:-translate-y-1 transition-all duration-300 shadow-md overflow-hidden flex flex-col"
 				>
-					<div className="w-full aspect-4/3 relative">
+					<div className="w-full aspect-video relative overflow-hidden">
 						<img
 							alt={`${employee.firstName} ${employee.lastName}`}
-							className="w-full h-full object-cover"
+							className="w-full h-full object-cover object-center"
 							src={employee.avatar || defult}
 							onError={(e) => {
 								e.currentTarget.src = defult
@@ -48,17 +48,11 @@ export function EmployeeCard({
 						</div>
 					</div>
 
-					<div className="p-4 flex flex-col gap-3 flex-1 justify-between">
-						<div className="flex justify-between items-start gap-2">
-							<div className="flex flex-col">
-								<h4 className="font-bold text-lg text-black tracking-tight leading-tight">
-									{employee.firstName} {employee.lastName}
-								</h4>
-								<p className="text-default-400 text-[11px] font-semibold uppercase mt-0.5">
-									{employee.dni}
-								</p>
-							</div>
-
+					<div className="p-6 flex flex-col gap-3 flex-1 justify-between">
+						<div className="flex">
+							<h4 className="font-bold text-lg text-black tracking-tight leading-tight">
+								{employee.firstName} {employee.lastName}
+							</h4>
 							<Dropdown>
 								<Button
 									aria-label="Opciones"
@@ -95,13 +89,14 @@ export function EmployeeCard({
 							</Dropdown>
 						</div>
 
-						<div>
-							<div className="h-px w-full bg-default-100 mb-3" />
-							<div className="flex items-center justify-between">
-								<Button variant="outline" size="sm" onPress={() => onViewDetail(employee)}>
-									Ver detalles
-								</Button>
+						<div className="flex items-center justify-between">
+							<div className="flex items-center gap-1.5">
+								<IdCard />
+								<p className="text-default-500 font-semibold mt-0.5">{employee.dni}</p>
 							</div>
+							<Button variant="outline" size="sm" onPress={() => onViewDetail(employee)}>
+								Ver detalles
+							</Button>
 						</div>
 					</div>
 				</Card>
