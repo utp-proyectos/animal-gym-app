@@ -4,6 +4,7 @@ import { editSchema, type EditInput, type EditOutput } from '../schema/exerciseS
 import ExerciseForm from './ExerciseForm'
 import { useUpdateExercise } from '../hooks/useExercises'
 import type { ExerciseResponse } from '../types'
+import { toast } from '@heroui/react'
 
 interface EditFormProps {
 	item: ExerciseResponse
@@ -23,11 +24,16 @@ const EditForm = ({ item, onClose }: EditFormProps) => {
 			{ id: data.id, payload: data },
 			{
 				onSuccess: () => {
-					console.log('Ejercicio actualizado con éxito en Spring Boot:', data)
+					toast.success('Ejericio editado', {
+						description: `El ejercicio "${data?.name}" fue editado con éxito.`,
+					})
+
 					onClose()
 				},
-				onError: (error) => {
-					console.error('Error al actualizar en el backend:', error)
+				onError: () => {
+					toast.danger('Error al editar ejercicio', {
+						description: `No se pudo editar el ejercicio. Inténtalo de nuevo.`,
+					})
 				},
 			},
 		)
