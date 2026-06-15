@@ -1,15 +1,5 @@
-import {
-	Button,
-	Card,
-	Label,
-	ListBox,
-	Modal,
-	SearchField,
-	Select,
-	Skeleton,
-	toast,
-} from '@heroui/react'
-import { Plus, RotateCcw, Frown, UserPlus } from 'lucide-react'
+import { Button, Card, Modal, Skeleton, toast, type RangeValue } from '@heroui/react'
+import { Plus, Frown, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { EmployeeCard } from '../components/EmployeeCard'
 import { EmployeeDetailModal } from '../components/EmployeeDetailModal'
@@ -19,6 +9,8 @@ import CreateForm from '../components/CreateForm'
 import EditForm from '../components/EditForm'
 import type { EmployeeDetailResponse } from '../types'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
+import { parseDate, type DateValue } from '@internationalized/date'
+import { Filters } from '@/shared/components/ui/Filters'
 
 interface ModalState {
 	isOpen: boolean
@@ -27,15 +19,43 @@ interface ModalState {
 
 const CLOSED = { isOpen: false, data: null }
 
+const ROLE_OPTIONS = ['Todos', 'ADMIN', 'ENTRENADOR', 'RECEPCIONISTA']
+
+const INITIAL_FILTERS = {
+	search: '',
+	role: '',
+	dateRange: null as RangeValue<DateValue> | null,
+}
+
 export function EmployeePage() {
 	const { mutate: deleteEmployee } = useDeleteEmployee()
 	const { data: employees = [], isLoading, error } = useEmployees()
 
+	const [filters, setFilters] = useState(INITIAL_FILTERS)
 	const [formModal, setFormModal] = useState<ModalState>(CLOSED)
 	const [detailModal, setDetailModal] = useState<ModalState>(CLOSED)
 	const [passwordModal, setPasswordModal] = useState<ModalState>(CLOSED)
 	const [deleteModal, setDeleteModal] = useState<ModalState>(CLOSED)
+
 	const isEditing = formModal.data !== null
+
+	const filtered = employees.filter((emp) => {
+		const matchSearch =
+			filters.search === '' || emp.firstName.toLowerCase().includes(filters.search.toLowerCase())
+
+		const matchRole =
+			filters.role === '' ||
+			filters.role === 'Todos' ||
+			emp.role.toLowerCase() === filters.role.toLowerCase()
+
+		const hireDate = emp.hireDate ? parseDate(emp.hireDate) : null
+		const matchDate =
+			!filters.dateRange ||
+			!hireDate ||
+			(hireDate >= filters.dateRange.start && hireDate <= filters.dateRange.end)
+
+		return matchSearch && matchRole && matchDate
+	})
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
@@ -56,52 +76,25 @@ export function EmployeePage() {
 			</header>
 
 			<div className="flex flex-col md:flex-row gap-8">
-				<aside className="w-full md:w-72 flex flex-col gap-4">
-					<Card className="p-6 border-none bg-default-50/50 rounded-3xl shadow-sm">
-						<h3 className="font-bold text-lg mb-3 text-black">Filtrar empleados</h3>
-						<div className="flex flex-col gap-7">
-							<div className="flex flex-col gap-1">
-								<SearchField name="Buscador" variant="secondary">
-									<Label>Buscador</Label>
-									<SearchField.Group>
-										<SearchField.SearchIcon />
-										<SearchField.Input placeholder="Search..." />
-										<SearchField.ClearButton />
-									</SearchField.Group>
-								</SearchField>
-							</div>
-							<div className="flex flex-col gap-2">
-								<label className="text-sm font-semibold text-slate-700 ml-1">Rol</label>
-								<Select className="w-full" placeholder="Seleccionar rol" variant="secondary">
-									<Select.Trigger className="px-3 py-2 flex justify-between items-center">
-										<Select.Value />
-										<Select.Indicator />
-									</Select.Trigger>
-									<Select.Popover>
-										<ListBox className="bg-white border border-default-200 shadow-xl">
-											<ListBox.Item id="todos" textValue="Todos">
-												Todos
-											</ListBox.Item>
-											<ListBox.Item id="admin" textValue="Admin">
-												Admin
-											</ListBox.Item>
-											<ListBox.Item id="entrenador" textValue="Entrenador">
-												Entrenador
-											</ListBox.Item>
-											<ListBox.Item id="recepcionista" textValue="Recepcionista">
-												Recepcionista
-											</ListBox.Item>
-										</ListBox>
-									</Select.Popover>
-								</Select>
-							</div>
-							<Button className="w-full mt-2 font-medium bg-primary/10 text-primary">
-								<RotateCcw size={18} className="mr-2" />
-								Resetear filtros
-							</Button>
-						</div>
-					</Card>{' '}
-				</aside>
+				<Filters title="Filtrar empleados" onReset={() => setFilters(INITIAL_FILTERS)}>
+					<Filters.Search
+						value={filters.search}
+						placeholder="Buscar empleado..."
+						onChange={(v) => setFilters((p) => ({ ...p, search: v }))}
+					/>
+					<Filters.Select
+						label="Rol"
+						value={filters.role}
+						placeholder="Seleccionar rol"
+						options={ROLE_OPTIONS}
+						onChange={(v) => setFilters((p) => ({ ...p, role: v }))}
+					/>
+					<Filters.DateRange
+						label="Fecha de ingreso"
+						value={filters.dateRange}
+						onChange={(v) => setFilters((p) => ({ ...p, dateRange: v }))}
+					/>
+				</Filters>
 
 				<main className="flex-1">
 					{isLoading ? (
@@ -140,17 +133,23 @@ export function EmployeePage() {
 							<p className="font-semibold">Error al cargar los empleados</p>
 							<Frown />
 						</div>
-					) : employees.length === 0 ? (
+					) : filtered.length === 0 ? (
 						<div className="p-16 flex flex-col items-center justify-center gap-3 bg-default-50 text-default-400 rounded-3xl border border-dashed border-default-300">
 							<Frown size={40} strokeWidth={1.5} />
-							<p className="font-bold text-xl text-default-500">No hay empleados registradas</p>
+							<p className="font-bold text-xl text-default-500">
+								{employees.length === 0
+									? 'No hay empleados registrados'
+									: 'No se encontraron resultados'}
+							</p>
 							<p className="text-sm text-default-400">
-								Aún no se han creado empleados en la base de datos.
+								{employees.length === 0
+									? 'Aún no se han creado empleados en la base de datos.'
+									: 'Intenta con otros filtros o reinicia la búsqueda.'}
 							</p>
 						</div>
 					) : (
 						<EmployeeCard
-							employees={employees}
+							employees={filtered}
 							onEdit={(employee) => setFormModal({ isOpen: true, data: employee })}
 							onDelete={(employee) => setDeleteModal({ isOpen: true, data: employee })}
 							onChangePassword={(employee) => setPasswordModal({ isOpen: true, data: employee })}
@@ -167,7 +166,6 @@ export function EmployeePage() {
 				<Modal.Container size="cover">
 					<Modal.Dialog>
 						<Modal.CloseTrigger />
-
 						<Modal.Header className="pb-4">
 							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
 								{isEditing ? 'Editar Empleado' : 'Nuevo Empleado'}
@@ -178,15 +176,13 @@ export function EmployeePage() {
 									: 'Completa la información para registrar un nuevo empleado.'}
 							</p>
 						</Modal.Header>
-
-						<Modal.Body className="">
+						<Modal.Body>
 							{isEditing && formModal.data ? (
 								<EditForm onClose={() => setFormModal(CLOSED)} employee={formModal.data} />
 							) : (
 								<CreateForm onClose={() => setFormModal(CLOSED)} />
 							)}
 						</Modal.Body>
-
 						<Modal.Footer className="pt-4">
 							<Button variant="secondary" slot="close">
 								Cancelar
@@ -227,7 +223,7 @@ export function EmployeePage() {
 							},
 							onError: () => {
 								toast.danger('Error al eliminar', {
-									description: `Nose pudo eliminar al empleado. Intentelo de nuevo`,
+									description: `No se pudo eliminar al empleado. Intentelo de nuevo`,
 								})
 							},
 						})
