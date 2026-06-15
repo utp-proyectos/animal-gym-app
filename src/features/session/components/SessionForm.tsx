@@ -3,11 +3,12 @@ import { useFormContext, Controller, useWatch } from 'react-hook-form'
 import CustomField from '@/shared/components/ui/CustomField'
 import { CustomSelect } from '@/shared/components/ui/CustomSelect'
 import { useEmployees } from '@/features/employee/hooks/useEmployees'
-import { CustomDateField } from '@/shared/components/ui/CustomDateField'
 import { CustomTimeField } from '@/shared/components/ui/CustomTimeField'
 import FileField from '@/shared/components/ui/FileField'
 import defult from '@/assets/global/default.png'
 import preview from '@/assets/global/preview.png'
+import { getLocalTimeZone, today } from '@internationalized/date'
+import { CustomDatePicker } from '@/shared/components/ui/CustomDatePicker'
 
 const SessionForm = () => {
 	const { control } = useFormContext()
@@ -121,11 +122,12 @@ const SessionForm = () => {
 					name="date"
 					control={control}
 					render={({ field, fieldState: { error } }) => (
-						<CustomDateField
+						<CustomDatePicker
 							label="Fecha"
 							value={field.value}
 							onChange={field.onChange}
 							errorMessage={error?.message}
+							minValue={today(getLocalTimeZone())}
 						/>
 					)}
 				/>
