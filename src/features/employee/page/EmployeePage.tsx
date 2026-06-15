@@ -1,5 +1,15 @@
-import { Button, Card, Label, ListBox, SearchField, Select, Skeleton } from '@heroui/react'
-import { Plus, RotateCcw, Frown } from 'lucide-react'
+import {
+	Button,
+	Card,
+	Label,
+	ListBox,
+	Modal,
+	SearchField,
+	Select,
+	Skeleton,
+	toast,
+} from '@heroui/react'
+import { Plus, RotateCcw, Frown, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { EmployeeCard } from '../components/EmployeeCard'
 import { EmployeeDetailModal } from '../components/EmployeeDetailModal'
@@ -25,6 +35,8 @@ export function EmployeePage() {
 	const [detailModal, setDetailModal] = useState<ModalState>(CLOSED)
 	const [passwordModal, setPasswordModal] = useState<ModalState>(CLOSED)
 	const [deleteModal, setDeleteModal] = useState<ModalState>(CLOSED)
+	const isEditing = formModal.data !== null
+
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
 			<header className="flex justify-between items-end mb-10">
@@ -148,38 +160,77 @@ export function EmployeePage() {
 				</main>
 			</div>
 
-			<CreateForm
-				isOpen={formModal.isOpen && !formModal.data}
+			<Modal.Backdrop
+				isOpen={formModal.isOpen}
 				onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
-			/>
+			>
+				<Modal.Container size="cover">
+					<Modal.Dialog>
+						<Modal.CloseTrigger />
 
-			{formModal.data && (
-				<EditForm
-					isOpen={formModal.isOpen}
-					onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
-					employee={formModal.data}
-				/>
-			)}
+						<Modal.Header className="pb-4">
+							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
+								{isEditing ? 'Editar Empleado' : 'Nuevo Empleado'}
+							</Modal.Heading>
+							<p className="text-sm text-default-500">
+								{isEditing
+									? 'Modifica los campos necesarios para actualizar al empleado'
+									: 'Completa la información para registrar un nuevo empleado.'}
+							</p>
+						</Modal.Header>
+
+						<Modal.Body className="">
+							{isEditing && formModal.data ? (
+								<EditForm onClose={() => setFormModal(CLOSED)} employee={formModal.data} />
+							) : (
+								<CreateForm onClose={() => setFormModal(CLOSED)} />
+							)}
+						</Modal.Body>
+
+						<Modal.Footer className="pt-4">
+							<Button variant="secondary" slot="close">
+								Cancelar
+							</Button>
+							<Button type="submit" form="form-modal-s">
+								<UserPlus className="size-4" />
+								Guardar empleado
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
+			</Modal.Backdrop>
 
 			<EmployeeDetailModal
 				isOpen={detailModal.isOpen}
-				onOpenChange={(isOpen) => setDetailModal({ isOpen, data: null })}
+				onOpenChange={(open) => setDetailModal({ isOpen: open, data: null })}
 				employee={detailModal.data}
 			/>
 
 			<EmployeePasswordModal
 				isOpen={passwordModal.isOpen}
-				onOpenChange={(isOpen) => setPasswordModal({ isOpen, data: null })}
+				onOpenChange={(open) => setPasswordModal({ isOpen: open, data: null })}
 				employee={passwordModal.data}
 			/>
 
 			<DeleteModal
 				isOpen={deleteModal.isOpen}
-				onOpenChange={(isOpen) => setDeleteModal({ isOpen, data: null })}
+				onOpenChange={(open) => setDeleteModal({ isOpen: open, data: null })}
 				title="Empleado"
 				onConfirm={() => {
-					if (deleteModal.data) deleteEmployee(deleteModal.data.id)
-					setDeleteModal(CLOSED)
+					if (deleteModal.data)
+						deleteEmployee(deleteModal.data.id, {
+							onSuccess: () => {
+								toast.success(`Empleado eliminado`, {
+									description: `El empleado ${deleteModal.data?.firstName} fue removido con exito`,
+								})
+								setDeleteModal(CLOSED)
+							},
+							onError: () => {
+								toast.danger('Error al eliminar', {
+									description: `Nose pudo eliminar al empleado. Intentelo de nuevo`,
+								})
+							},
+						})
 				}}
 			/>
 		</div>

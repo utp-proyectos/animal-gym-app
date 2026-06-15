@@ -1,5 +1,5 @@
-import { Button, Modal } from '@heroui/react'
-import { UserPen } from 'lucide-react'
+import { toast } from '@heroui/react'
+
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { parseDate } from '@internationalized/date'
@@ -9,8 +9,7 @@ import EmployeeForm from './EmployeeForm'
 import type { EmployeeDetailResponse } from '../types'
 
 interface Props {
-	isOpen: boolean
-	onOpenChange: (open: boolean) => void
+	onClose: () => void
 	employee: EmployeeDetailResponse | null
 }
 
@@ -36,7 +35,7 @@ const formatInitialValues = (
 	}
 }
 
-const EditForm = ({ isOpen, onOpenChange, employee }: Props) => {
+const EditForm = ({ onClose, employee }: Props) => {
 	const { mutate } = useUpdateEmployee()
 
 	const form = useForm<EditInput, unknown, EditOutput>({
@@ -49,10 +48,16 @@ const EditForm = ({ isOpen, onOpenChange, employee }: Props) => {
 			{ id: data.id, payload: data },
 			{
 				onSuccess: (response) => {
+					toast.success(`Empleado editado`, {
+						description: `El empleado ${data.firstName} fue editado con exito`,
+					})
 					console.log('Editado correctamente', response)
-					onOpenChange(false)
+					onClose()
 				},
 				onError: (error) => {
+					toast.danger('Error al editar empleado', {
+						description: `No se pudo editar el empleado. Intentelo denuevo`,
+					})
 					console.error('Error al guardar en el backend' + error)
 				},
 			},
@@ -60,44 +65,11 @@ const EditForm = ({ isOpen, onOpenChange, employee }: Props) => {
 	}
 
 	return (
-		<Modal>
-			<Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
-				<Modal.Container size="cover">
-					<Modal.Dialog>
-						<Modal.CloseTrigger />
-
-						<Modal.Header className="pb-4">
-							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
-								Editar empleado
-							</Modal.Heading>
-							<p className="text-sm text-default-500">Modifica la información del empleado.</p>
-						</Modal.Header>
-
-						<Modal.Body className="overflow-y-auto py-4 h-[calc(100vh-120px)] md:h-full">
-							<FormProvider {...form}>
-								<form
-									className="space-y-8 h-full"
-									id="form-modal-s"
-									onSubmit={form.handleSubmit(onSubmit)}
-								>
-									<EmployeeForm isEditing />
-								</form>
-							</FormProvider>
-						</Modal.Body>
-
-						<Modal.Footer className="pt-4">
-							<Button type="reset" variant="secondary" slot="close">
-								Cancelar
-							</Button>
-							<Button type="submit" form="form-modal-s">
-								<UserPen className="size-4" />
-								Guardar cambios
-							</Button>
-						</Modal.Footer>
-					</Modal.Dialog>
-				</Modal.Container>
-			</Modal.Backdrop>
-		</Modal>
+		<FormProvider {...form}>
+			<form className="space-y-8 h-full" id="form-modal-s" onSubmit={form.handleSubmit(onSubmit)}>
+				<EmployeeForm isEditing />
+			</form>
+		</FormProvider>
 	)
 }
 
