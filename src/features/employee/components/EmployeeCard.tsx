@@ -2,6 +2,7 @@ import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
 import { Edit3, IdCard, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
 import type { EmployeeDetailResponse } from '../types'
 import defult from '@/assets/global/default.png'
+import { size } from 'zod'
 
 interface Props {
 	employees: EmployeeDetailResponse[]
@@ -92,7 +93,7 @@ export function EmployeeCard({
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-1.5">
 								<IdCard />
-								<p className="text-default-500 font-semibold mt-0.5">{employee.dni}</p>
+								<p className="font-semibold mt-0.5">{employee.dni}</p>
 							</div>
 							<Button variant="outline" size="sm" onPress={() => onViewDetail(employee)}>
 								Ver detalles
