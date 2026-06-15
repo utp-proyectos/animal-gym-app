@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createSchema, type CreateInput, type CreateOutput } from '../schema/exerciseSchema'
 import ExerciseForm from './ExerciseForm'
 import { useCreateExercise } from '../hooks/useExercises'
+import { toast } from '@heroui/react'
 
 interface CreateFormProps {
 	onClose: () => void
@@ -24,11 +25,16 @@ const CreateForm = ({ onClose }: CreateFormProps) => {
 	const onSubmit = (data: CreateOutput) => {
 		mutate(data, {
 			onSuccess: () => {
-				console.log('Ejercicio creado con éxito en Spring Boot', data)
+				toast.success('Ejercicio creada', {
+					description: `El ejercicio "${data?.name}" fue creada con éxito.`,
+				})
+
 				onClose()
 			},
-			onError: (error) => {
-				console.error('Error al guardar en el backend:', error)
+			onError: () => {
+				toast.danger('Error al crear ejercicio', {
+					description: `No se pudo crear el ejercicio. Inténtalo de nuevo.`,
+				})
 			},
 		})
 	}

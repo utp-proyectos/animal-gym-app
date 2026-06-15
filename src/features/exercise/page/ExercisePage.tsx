@@ -1,37 +1,44 @@
-import { Button, Dropdown, Label, Modal, Separator, Table, useOverlayState } from '@heroui/react'
-import { Edit3, Loader2, MoreVertical, Plus, Trash2, UserPlus } from 'lucide-react'
+import { Button, Dropdown, Label, Modal, Separator, Table, toast } from '@heroui/react'
+import {
+	Activity,
+	AlignLeft,
+	Dumbbell,
+	Edit3,
+	Loader2,
+	MoreVertical,
+	Plus,
+	Settings,
+	Trash2,
+	UserPlus,
+	Wrench,
+} from 'lucide-react'
 import { useState } from 'react'
-import { useExercise } from '../hooks/useExercises'
+import { useDeleteExercise, useExercise } from '../hooks/useExercises'
 import type { ExerciseResponse } from '../types'
 import EditForm from '../components/EditForm'
 import CreateForm from '../components/CreateForm'
-import { DeleteForm } from '../components/DeleteForm'
+import { DeleteModal } from '@/shared/components/ui/DeleteModal'
+
+interface ModalState {
+	isOpen: boolean
+	data: ExerciseResponse | null
+}
 
 export function ExercisePage() {
-	const modal = useOverlayState()
-	const modalDelete = useOverlayState()
-	const [currentExercise, setCurrentExercise] = useState<ExerciseResponse | null>(null)
-	const isEditing = currentExercise !== null
-
 	const { data: exercises = [], isLoading, isError, error } = useExercise()
+	const { mutate: deleteExercise } = useDeleteExercise()
 
-	// Función para abrir en Modo Crear
-	const openCreateForm = () => {
-		setCurrentExercise(null)
-		modal.open()
-	}
+	const [formModal, setFormModal] = useState<ModalState>({
+		isOpen: false,
+		data: null,
+	})
 
-	// Función para abrir en Modo Editar
-	const openEditForm = (exercise: ExerciseResponse) => {
-		setCurrentExercise(exercise)
-		modal.open()
-	}
+	const [deleteModal, setDeleteModal] = useState<ModalState>({
+		isOpen: false,
+		data: null,
+	})
 
-	// Función para abrir Eliminar
-	const openDeleteForm = (exercise: ExerciseResponse) => {
-		setCurrentExercise(exercise)
-		modalDelete.open()
-	}
+	const isEditing = formModal.data !== null
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
@@ -47,7 +54,12 @@ export function ExercisePage() {
 				</div>
 				<Button
 					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
-					onPress={openCreateForm}
+					onPress={() =>
+						setFormModal({
+							isOpen: true,
+							data: null,
+						})
+					}
 				>
 					<Plus size={20} className="mr-2" />
 					Crear ejercicio
@@ -61,11 +73,40 @@ export function ExercisePage() {
 						<Table.ScrollContainer>
 							<Table.Content aria-label="Gestión de sesiones deportivas" className="min-w-150">
 								<Table.Header>
-									<Table.Column isRowHeader>Nombre</Table.Column>
-									<Table.Column>Descripción</Table.Column>
-									<Table.Column>Grupo muscular</Table.Column>
-									<Table.Column>Equipo</Table.Column>
-									<Table.Column>Acciones</Table.Column>
+									<Table.Column isRowHeader>
+										<div className="flex items-center gap-2">
+											<Dumbbell size={16} className="text-default-500" />
+											<span>Nombre</span>
+										</div>
+									</Table.Column>
+
+									<Table.Column>
+										<div className="flex items-center gap-2">
+											<AlignLeft size={16} className="text-default-500" />
+											<span>Descripción</span>
+										</div>
+									</Table.Column>
+
+									<Table.Column>
+										<div className="flex items-center gap-2">
+											<Activity size={16} className="text-default-500" />
+											<span>Grupo muscular</span>
+										</div>
+									</Table.Column>
+
+									<Table.Column>
+										<div className="flex items-center gap-2">
+											<Wrench size={16} className="text-default-500" />
+											<span>Equipo</span>
+										</div>
+									</Table.Column>
+
+									<Table.Column>
+										<div className="flex items-center gap-2 justify-end pr-4">
+											<Settings size={16} className="text-default-500" />
+											<span>Acciones</span>
+										</div>
+									</Table.Column>
 								</Table.Header>
 
 								<Table.Body
@@ -88,7 +129,6 @@ export function ExercisePage() {
 										</div>
 									)}
 								>
-									{/* Si no está cargando ni hay error, iteramos con un */}
 									{!isLoading &&
 										!isError &&
 										exercises.map((exercise) => (
@@ -112,54 +152,60 @@ export function ExercisePage() {
 
 												{/* Celda: Grupo muscular */}
 												<Table.Cell>
-													<p>{exercise.muscleGroup}</p>
+													<p className="text-sm text-default-600">{exercise.muscleGroup}</p>
 												</Table.Cell>
 
 												{/* Celda: Equipo */}
 												<Table.Cell>
-													<p>{exercise.equipment}</p>
+													<p className="text-sm text-default-600">{exercise.equipment}</p>
 												</Table.Cell>
 
-												{/* Celda: Acciones (Dropdown) */}
-												<Table.Cell className="text-right pr-4">
-													<Dropdown>
-														<Button
-															aria-label="Opciones"
-															className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
-														>
-															<MoreVertical size={20} className="text-black" strokeWidth={3} />
-														</Button>
-														<Dropdown.Popover>
-															<Dropdown.Menu className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl">
-																{/* Opcion Editar */}
-																<Dropdown.Item
-																	id="edit"
-																	textValue="Editar"
-																	onPress={() => openEditForm(exercise)}
-																>
-																	<div className="flex items-center gap-2 py-1">
-																		<Edit3 size={16} className="text-black" />
-																		<Label className="font-semibold text-black">Editar</Label>
-																	</div>
-																</Dropdown.Item>
+												{/* Celda: Acciones (Alineación corregida y emparejada con la cabecera) */}
+												<Table.Cell>
+													<div className="flex items-center justify-end pr-4">
+														<Dropdown>
+															<Button
+																aria-label="Opciones"
+																className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
+															>
+																<MoreVertical size={20} className="text-black" strokeWidth={3} />
+															</Button>
+															<Dropdown.Popover>
+																<Dropdown.Menu className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl">
+																	{/* Opción Editar */}
+																	<Dropdown.Item
+																		id="edit"
+																		textValue="Editar"
+																		onPress={() => setFormModal({ isOpen: true, data: exercise })}
+																	>
+																		<div className="flex items-center gap-2 py-1">
+																			<Edit3 size={16} className="text-black" />
+																			<Label className="font-semibold text-black cursor-pointer">
+																				Editar
+																			</Label>
+																		</div>
+																	</Dropdown.Item>
 
-																<Separator />
+																	<Separator />
 
-																{/* Opcion Eliminar */}
-																<Dropdown.Item
-																	id="delete"
-																	textValue="Eliminar"
-																	className="text-danger"
-																	onPress={() => openDeleteForm(exercise)}
-																>
-																	<div className="flex items-center gap-2 py-1">
-																		<Trash2 size={16} />
-																		<Label className="font-semibold">Eliminar</Label>
-																	</div>
-																</Dropdown.Item>
-															</Dropdown.Menu>
-														</Dropdown.Popover>
-													</Dropdown>
+																	{/* Opción Eliminar */}
+																	<Dropdown.Item
+																		id="delete"
+																		textValue="Eliminar"
+																		className="text-danger"
+																		onPress={() => setDeleteModal({ isOpen: true, data: exercise })}
+																	>
+																		<div className="flex items-center gap-2 py-1">
+																			<Trash2 size={16} />
+																			<Label className="font-semibold cursor-pointer">
+																				Eliminar
+																			</Label>
+																		</div>
+																	</Dropdown.Item>
+																</Dropdown.Menu>
+															</Dropdown.Popover>
+														</Dropdown>
+													</div>
 												</Table.Cell>
 											</Table.Row>
 										))}
@@ -170,7 +216,10 @@ export function ExercisePage() {
 				</main>
 			</div>
 
-			<Modal.Backdrop isOpen={modal.isOpen} onOpenChange={modal.setOpen}>
+			<Modal.Backdrop
+				isOpen={formModal.isOpen}
+				onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
+			>
 				<Modal.Container>
 					<Modal.Dialog className="max-w-xl">
 						<Modal.CloseTrigger />
@@ -187,10 +236,13 @@ export function ExercisePage() {
 						</Modal.Header>
 
 						<Modal.Body className="p-6">
-							{isEditing ? (
-								<EditForm item={currentExercise!} onClose={modal.close} />
+							{isEditing && formModal.data ? (
+								<EditForm
+									item={formModal.data}
+									onClose={() => setFormModal({ isOpen: false, data: null })}
+								/>
 							) : (
-								<CreateForm onClose={modal.close} />
+								<CreateForm onClose={() => setFormModal({ isOpen: false, data: null })} />
 							)}
 						</Modal.Body>
 
@@ -207,11 +259,28 @@ export function ExercisePage() {
 				</Modal.Container>
 			</Modal.Backdrop>
 
-			<DeleteForm
-				exercise={currentExercise}
-				isOpen={modalDelete.isOpen}
-				onOpenChange={modalDelete.setOpen}
-				onClose={modalDelete.close}
+			<DeleteModal
+				isOpen={deleteModal.isOpen}
+				onOpenChange={(open) => setDeleteModal({ isOpen: open, data: null })}
+				title="Ejercicio"
+				onConfirm={() => {
+					if (!deleteModal.data) return
+
+					deleteExercise(deleteModal.data.id, {
+						onSuccess: () => {
+							toast.success('Ejercicio eliminado', {
+								description: `El ejercicio "${deleteModal.data?.name}" fue removida del sistema con éxito.`,
+							})
+
+							setDeleteModal({ isOpen: false, data: null })
+						},
+						onError: () => {
+							toast.danger('Error al eliminar', {
+								description: `No se pudo eliminar el ejercicio. Inténtalo de nuevo.`,
+							})
+						},
+					})
+				}}
 			/>
 		</div>
 	)

@@ -26,7 +26,7 @@ const EditForm = ({ item, onClose }: EditFormProps) => {
 			description: session.description,
 			goal: session.goal,
 			capacity: session.capacity,
-			employeeId: session.employeeId ?? 0,
+			employeeId: session.employee?.id ?? 0,
 			intensity: session.intensity as IntensityOption,
 			date: session.date ? parseDate(session.date) : null,
 			startTime: session.startTime ? parseTime(session.startTime.substring(0, 5)) : null,
