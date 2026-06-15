@@ -2,7 +2,6 @@ import { Button, Card, Dropdown, Label, Separator } from '@heroui/react'
 import { Edit3, IdCard, KeyRound, MoreVertical, Trash2 } from 'lucide-react'
 import type { EmployeeDetailResponse } from '../types'
 import defult from '@/assets/global/default.png'
-import { size } from 'zod'
 
 interface Props {
 	employees: EmployeeDetailResponse[]
