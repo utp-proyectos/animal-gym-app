@@ -10,9 +10,9 @@ import EditForm from '../components/EditForm'
 import type { EmployeeDetailResponse } from '../types'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 
-interface ModalState<T> {
+interface ModalState {
 	isOpen: boolean
-	data: T | null
+	data: EmployeeDetailResponse | null
 }
 
 const CLOSED = { isOpen: false, data: null }
@@ -21,11 +21,10 @@ export function EmployeePage() {
 	const { mutate: deleteEmployee } = useDeleteEmployee()
 	const { data: employees = [], isLoading, error } = useEmployees()
 
-	const [formModal, setFormModal] = useState<ModalState<EmployeeDetailResponse>>(CLOSED)
-	const [detailModal, setDetailModal] = useState<ModalState<EmployeeDetailResponse>>(CLOSED)
-	const [passwordModal, setPasswordModal] = useState<ModalState<EmployeeDetailResponse>>(CLOSED)
-	const [deleteModal, setDeleteModal] = useState<ModalState<EmployeeDetailResponse>>(CLOSED)
-
+	const [formModal, setFormModal] = useState<ModalState>(CLOSED)
+	const [detailModal, setDetailModal] = useState<ModalState>(CLOSED)
+	const [passwordModal, setPasswordModal] = useState<ModalState>(CLOSED)
+	const [deleteModal, setDeleteModal] = useState<ModalState>(CLOSED)
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
 			<header className="flex justify-between items-end mb-10">
@@ -129,6 +128,14 @@ export function EmployeePage() {
 							<p className="font-semibold">Error al cargar los empleados</p>
 							<Frown />
 						</div>
+					) : employees.length === 0 ? (
+						<div className="p-16 flex flex-col items-center justify-center gap-3 bg-default-50 text-default-400 rounded-3xl border border-dashed border-default-300">
+							<Frown size={40} strokeWidth={1.5} />
+							<p className="font-bold text-xl text-default-500">No hay empleados registradas</p>
+							<p className="text-sm text-default-400">
+								Aún no se han creado empleados en la base de datos.
+							</p>
+						</div>
 					) : (
 						<EmployeeCard
 							employees={employees}
@@ -143,32 +150,32 @@ export function EmployeePage() {
 
 			<CreateForm
 				isOpen={formModal.isOpen && !formModal.data}
-				onOpenChange={(open) => setFormModal({ isOpen: open, data: null })}
+				onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
 			/>
 
 			{formModal.data && (
 				<EditForm
 					isOpen={formModal.isOpen}
-					onOpenChange={(open) => setFormModal({ isOpen: open, data: null })}
+					onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
 					employee={formModal.data}
 				/>
 			)}
 
 			<EmployeeDetailModal
 				isOpen={detailModal.isOpen}
-				onOpenChange={(open) => setDetailModal({ isOpen: open, data: null })}
+				onOpenChange={(isOpen) => setDetailModal({ isOpen, data: null })}
 				employee={detailModal.data}
 			/>
 
 			<EmployeePasswordModal
 				isOpen={passwordModal.isOpen}
-				onOpenChange={(open) => setPasswordModal({ isOpen: open, data: null })}
+				onOpenChange={(isOpen) => setPasswordModal({ isOpen, data: null })}
 				employee={passwordModal.data}
 			/>
 
 			<DeleteModal
 				isOpen={deleteModal.isOpen}
-				onOpenChange={(open) => setDeleteModal({ isOpen: open, data: null })}
+				onOpenChange={(isOpen) => setDeleteModal({ isOpen, data: null })}
 				title="Empleado"
 				onConfirm={() => {
 					if (deleteModal.data) deleteEmployee(deleteModal.data.id)

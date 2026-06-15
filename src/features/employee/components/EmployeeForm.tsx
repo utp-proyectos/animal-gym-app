@@ -3,11 +3,11 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { CustomSelect } from '@/shared/components/ui/CustomSelect'
 import { CustomDateField } from '@/shared/components/ui/CustomDateField'
 import type { Role } from '@/shared/types'
-import preview from '@/assets/global/preview.png'
 import CustomField from '@/shared/components/ui/CustomField'
 import FileField from '@/shared/components/ui/FileField'
-import { CustomNumberField } from '../../../shared/components/ui/CustomNumberField'
-
+import { CustomNumberField } from '@/shared/components/ui/CustomNumberField'
+import defult from '@/assets/global/default.png'
+import preview from '@/assets/global/preview.png'
 interface EmployeeFormProps {
 	isEditing?: boolean
 }
@@ -132,7 +132,13 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 
 				{/* PREVIEW */}
 				<div className="mt-5 rounded-xl overflow-hidden">
-					<img src={previewSrc} alt="preview" />
+					<img
+						src={previewSrc}
+						alt="preview"
+						onError={(e) => {
+							e.currentTarget.src = defult
+						}}
+					/>
 				</div>
 			</section>
 
