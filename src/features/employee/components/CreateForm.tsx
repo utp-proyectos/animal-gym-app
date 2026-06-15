@@ -1,5 +1,4 @@
-import { Button, Modal } from '@heroui/react'
-import { UserPlus } from 'lucide-react'
+import { toast } from '@heroui/react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createSchema, type CreateInput, type CreateOutput } from '../schema/employeeSchema'
@@ -7,11 +6,10 @@ import { useCreateEmployee } from '../hooks/useEmployees'
 import EmployeeForm from './EmployeeForm'
 
 interface Props {
-	isOpen: boolean
-	onOpenChange: (open: boolean) => void
+	onClose: () => void
 }
 
-const CreateForm = ({ isOpen, onOpenChange }: Props) => {
+const CreateForm = ({ onClose }: Props) => {
 	const { mutate } = useCreateEmployee()
 
 	const form = useForm<CreateInput, unknown, CreateOutput>({
@@ -37,56 +35,27 @@ const CreateForm = ({ isOpen, onOpenChange }: Props) => {
 	const onSubmit = (data: CreateOutput) => {
 		mutate(data, {
 			onSuccess: (response) => {
+				toast.success('Empleado creado', {
+					description: `El empleado ${data.lastName} fue creado con exito`,
+				})
 				console.log('Registro creado exitosamente ' + response)
-				onOpenChange(false)
+				onClose()
 			},
 			onError: (error) => {
+				toast.danger(`Error al crear el empleado`, {
+					description: `Nose puede creado el empleado. Intenelo denuevo`,
+				})
 				console.error('Error al guardar el backend' + error)
 			},
 		})
 	}
 
 	return (
-		<Modal>
-			<Modal.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
-				<Modal.Container size="cover">
-					<Modal.Dialog>
-						<Modal.CloseTrigger />
-
-						<Modal.Header className="pb-4">
-							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
-								Nuevo empleado
-							</Modal.Heading>
-							<p className="text-sm text-default-500">
-								Completa la información para registrar un nuevo empleado.
-							</p>
-						</Modal.Header>
-
-						<Modal.Body className="overflow-y-auto py-4 h-[calc(100vh-120px)] md:h-full">
-							<FormProvider {...form}>
-								<form
-									className="space-y-8 h-full"
-									id="form-modal-s"
-									onSubmit={form.handleSubmit(onSubmit)}
-								>
-									<EmployeeForm />
-								</form>
-							</FormProvider>
-						</Modal.Body>
-
-						<Modal.Footer className="pt-4">
-							<Button type="reset" variant="secondary" slot="close">
-								Cancelar
-							</Button>
-							<Button type="submit" form="form-modal-s">
-								<UserPlus className="size-4" />
-								Guardar empleado
-							</Button>
-						</Modal.Footer>
-					</Modal.Dialog>
-				</Modal.Container>
-			</Modal.Backdrop>
-		</Modal>
+		<FormProvider {...form}>
+			<form id="form-modal-s" onSubmit={form.handleSubmit(onSubmit)}>
+				<EmployeeForm />
+			</form>
+		</FormProvider>
 	)
 }
 

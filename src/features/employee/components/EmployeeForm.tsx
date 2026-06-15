@@ -3,11 +3,12 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { CustomSelect } from '@/shared/components/ui/CustomSelect'
 import { CustomDateField } from '@/shared/components/ui/CustomDateField'
 import type { Role } from '@/shared/types'
-import preview from '@/assets/global/preview.png'
 import CustomField from '@/shared/components/ui/CustomField'
 import FileField from '@/shared/components/ui/FileField'
-import { CustomNumberField } from '../../../shared/components/ui/CustomNumberField'
-
+import { CustomNumberField } from '@/shared/components/ui/CustomNumberField'
+import defult from '@/assets/global/default.png'
+import preview from '@/assets/global/preview.png'
+import { LockKeyhole } from 'lucide-react'
 interface EmployeeFormProps {
 	isEditing?: boolean
 }
@@ -15,6 +16,7 @@ const ROLE_OPTIONS: Role[] = ['ADMIN', 'ENTRENADOR', 'RECEPCIONISTA']
 const SPECIALITY_OPTIONS = ['Biceps', 'Brazos', 'Danzas', 'Piernas']
 const CONTRACT_TYPE_OPTIONS = ['Medio tiempo', 'Tiempo completo']
 const GENDER_OPTIONS = ['Masculino', 'Femenino', 'Otro']
+
 const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 	const { control } = useFormContext()
 	const avatarValue = useWatch({ control, name: 'avatar' }) as FileList | null
@@ -24,115 +26,139 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 			? URL.createObjectURL(avatarValue[0])
 			: avatarUrl || preview
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-10 h-full items-stretch">
+		<div className="grid  grid-cols-1 lg:grid-cols-3 gap-4">
 			{/* DATOS PERSONALES */}
-			<section className="flex flex-col p-4 rounded-xl border">
+			<section className="flex flex-col space-y-4  p-4 rounded-xl border">
 				<h3 className="font-semibold text-lg mb-3">Datos personales</h3>
 
 				{/* DNI / NOMBRE */}
-				<div className="grid gap-4 lg:grid-cols-2 grow">
-					<Controller
-						name="dni"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<CustomField label="Dni" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su email" maxLength={8}></Input>
-							</CustomField>
-						)}
-					/>
-					<Controller
-						name="firstName"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<CustomField label="Nombre" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su nombre"></Input>
-							</CustomField>
-						)}
-					/>
+				<div className="flex flex-col md:flex-row gap-4">
+					<div className="w-full">
+						<Controller
+							name="dni"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<CustomField label="Dni" errorMessage={error?.message}>
+									<Input {...field} placeholder="Ingrese su dni" maxLength={8}></Input>
+								</CustomField>
+							)}
+						/>
+					</div>
+					<div className="w-full">
+						<Controller
+							name="firstName"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<CustomField label="Nombre" errorMessage={error?.message}>
+									<Input {...field} placeholder="Ingrese su nombre"></Input>
+								</CustomField>
+							)}
+						/>
+					</div>
 				</div>
 
 				{/* APELLIDO / TELÉFONO */}
-				<div className="grid gap-4 lg:grid-cols-2 grow">
-					<Controller
-						name="lastName"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<CustomField label="Apellido" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su apellido"></Input>
-							</CustomField>
-						)}
-					/>
-					<Controller
-						name="phoneNumber"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<CustomField label="Telefono" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su telefono" maxLength={9}></Input>
-							</CustomField>
-						)}
-					/>
+				<div className="flex flex-col md:flex-row gap-4">
+					<div className="w-full">
+						{' '}
+						<Controller
+							name="lastName"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<CustomField label="Apellido" errorMessage={error?.message}>
+									<Input {...field} placeholder="Ingrese su apellido"></Input>
+								</CustomField>
+							)}
+						/>
+					</div>
+					<div className="w-full">
+						<Controller
+							name="phoneNumber"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<CustomField label="Telefono" errorMessage={error?.message}>
+									<Input {...field} placeholder="Ingrese su telefono" maxLength={9}></Input>
+								</CustomField>
+							)}
+						/>
+					</div>
 				</div>
 
 				{/* EMAIL / GÉNERO */}
-				<div className="grid gap-4 lg:grid-cols-2 grow">
-					<Controller
-						name="email"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<CustomField label="Email" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su email"></Input>
-							</CustomField>
-						)}
-					/>
-					<Controller
-						name="gender"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<CustomSelect
-								label="Género"
-								placeholder="Selecciona género"
-								options={GENDER_OPTIONS}
-								value={field.value}
-								onChange={field.onChange}
-								errorMessage={error?.message}
-							/>
-						)}
-					/>
+				<div className="flex flex-col md:flex-row gap-4">
+					<div className="w-full">
+						<Controller
+							name="email"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<CustomField label="Email" errorMessage={error?.message}>
+									<Input {...field} placeholder="Ingrese su email"></Input>
+								</CustomField>
+							)}
+						/>
+					</div>
+					<div className="w-full">
+						<Controller
+							name="gender"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<CustomSelect
+									label="Género"
+									placeholder="Selecciona género"
+									options={GENDER_OPTIONS}
+									value={field.value}
+									onChange={field.onChange}
+									errorMessage={error?.message}
+								/>
+							)}
+						/>
+					</div>
 				</div>
 
 				{/* FECHA NACIMIENTO / IMAGEN */}
 				<div className="grid gap-4 md:grid-cols-2 grow">
-					<Controller
-						name="birthDate"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<CustomDateField
-								label="Fecha de Nacimiento"
-								value={field.value}
-								onChange={field.onChange}
-								errorMessage={error?.message}
-							/>
-						)}
-					/>
-
-					<Controller
-						name="avatar"
-						control={control}
-						render={({ field: { onChange, value }, fieldState: { error } }) => (
-							<FileField
-								label="Imagen"
-								accept="image/jpeg,image/png"
-								value={value}
-								onChange={onChange}
-								errorMessage={error?.message}
-							/>
-						)}
-					/>
+					<div className="w-full">
+						<Controller
+							name="birthDate"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<CustomDateField
+									label="Fecha de Nacimiento"
+									value={field.value}
+									onChange={field.onChange}
+									errorMessage={error?.message}
+								/>
+							)}
+						/>
+					</div>
+					<div className="w-full">
+						<Controller
+							name="avatar"
+							control={control}
+							render={({ field: { onChange, value }, fieldState: { error } }) => (
+								<FileField
+									label="Imagen"
+									accept="image/jpeg,image/png"
+									value={value}
+									onChange={onChange}
+									variant="secondary"
+									errorMessage={error?.message}
+								/>
+							)}
+						/>
+					</div>
 				</div>
 
 				{/* PREVIEW */}
 				<div className="mt-5 rounded-xl overflow-hidden">
-					<img src={previewSrc} alt="preview" />
+					<img
+						src={previewSrc}
+						className="w-full"
+						alt="preview"
+						onError={(e) => {
+							e.currentTarget.src = defult
+						}}
+					/>
 				</div>
 			</section>
 
@@ -213,21 +239,32 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 				</div>
 			</section>
 
-			{/* CREDENCIALES — solo en modo crear */}
-			{!isEditing && (
-				<section className="flex flex-col p-4 rounded-xl border">
-					<h3 className="font-semibold text-lg mb-3">Credenciales</h3>
+			{/* CREDENCIALES*/}
+			<section className="flex flex-col p-4 rounded-xl border">
+				<h3 className="font-semibold text-lg mb-3">Credenciales</h3>
+
+				{!isEditing ? (
 					<Controller
 						name="password"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
 							<CustomField label="Contraseña" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su contraseña" type="password"></Input>
+								<Input {...field} placeholder="Ingrese su contraseña" type="password" />
 							</CustomField>
 						)}
 					/>
-				</section>
-			)}
+				) : (
+					<div className="flex items-center gap-3 p-4 h-18 rounded-xl border border-dashed border-default-300 bg-default-50 text-default-500 select-none">
+						<LockKeyhole />
+						<div className="flex flex-col gap-0.5">
+							<span className="text-xs font-medium text-default-500">Acceso protegido</span>
+							<p className="text-xs leading-normal">
+								La contraseña se gestiona directamente desde la tarjeta del empleado.
+							</p>
+						</div>
+					</div>
+				)}
+			</section>
 		</div>
 	)
 }
