@@ -68,7 +68,7 @@ export function MembershipCard({ membership, onEdit, onDelete }: MembershipCardP
 									</div>
 								</Dropdown.Item>
 
-								<Dropdown.Item id="delete" textValue="Eliminar" variant="danger">
+								<Dropdown.Item id="delete" textValue="Eliminar" className="text-danger">
 									<div className="flex items-center gap-2 py-0.5">
 										<Trash2 size={14} />
 										<span className="text-sm font-medium">Eliminar</span>
