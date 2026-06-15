@@ -175,9 +175,10 @@ const SessionForm = () => {
 					)}
 				/>
 
-				<div className="mt-5 rounded-xl overflow-hidden">
+				<div className="mt-5 rounded-xl overflow-hidden h-48">
 					<img
 						src={previewSrc}
+						className="w-full object-center object-cover"
 						alt="preview"
 						onError={(e) => {
 							e.currentTarget.src = defult
