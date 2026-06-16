@@ -8,6 +8,7 @@ import EditForm from '../components/EditForm'
 import type { SessionResponse } from '../types'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 import { SessionDetailModal } from '../components/SessionDetailModal'
+import { SessionEnrolledModal } from '../components/SessionEnrolledModal'
 
 interface ModalState {
 	isOpen: boolean
@@ -29,6 +30,11 @@ export function SessionPage() {
 	})
 
 	const [detailModal, setDetailModal] = useState<ModalState>({
+		isOpen: false,
+		data: null,
+	})
+
+	const [sessionEnrolledModal, setSessionEnrolledModal] = useState<ModalState>({
 		isOpen: false,
 		data: null,
 	})
@@ -155,6 +161,12 @@ export function SessionPage() {
 							}
 							onDelete={(session) => setDeleteModal({ isOpen: true, data: session })}
 							onViewDetail={(session) => setDetailModal({ isOpen: true, data: session })}
+							onSessionEnrolled={(session) =>
+								setSessionEnrolledModal({
+									isOpen: true,
+									data: session,
+								})
+							}
 						/>
 					)}
 				</main>
@@ -207,6 +219,12 @@ export function SessionPage() {
 				isOpen={detailModal.isOpen}
 				onOpenChange={(open) => setDetailModal({ isOpen: open, data: null })}
 				session={detailModal.data}
+			/>
+
+			<SessionEnrolledModal
+				isOpen={sessionEnrolledModal.isOpen}
+				onOpenChange={(open) => setSessionEnrolledModal({ isOpen: open, data: null })}
+				session={sessionEnrolledModal.data}
 			/>
 
 			<DeleteModal
