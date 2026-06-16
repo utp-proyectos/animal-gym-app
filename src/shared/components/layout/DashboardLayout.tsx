@@ -10,6 +10,7 @@ import {
 	SportShoe,
 	ReceiptSwissFranc,
 	Puzzle,
+	CalendarCheck,
 } from 'lucide-react'
 import logo from '@/assets/global/logo.png'
 import './style.css'
@@ -26,6 +27,7 @@ export function DashboardLayout() {
 		{ label: 'Inicio', path: '/', icon: <House size={20} /> },
 		{ label: 'Socios', path: '/socios', icon: <Contact size={20} /> },
 		{ label: 'Membresias', path: '/membresias', icon: <IdCard size={20} /> },
+		{ label: 'Rutinas', path: '/rutinas', icon: <CalendarCheck size={20} /> },
 		{ label: 'Empleados', path: '/empleados', icon: <Users size={20} /> },
 		{ label: 'Clases', path: '/clases', icon: <Puzzle size={20} /> },
 		{ label: 'Ejercicios', path: '/ejercicios', icon: <SportShoe size={20} /> },

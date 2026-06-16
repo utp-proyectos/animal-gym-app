@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/shared/components/layout/DashboardLayout'
 import { createBrowserRouter } from 'react-router-dom'
 import { authGuard } from './authGuard'
 import { SessionPage } from '@/features/session/page/SessionPage'
+import { RoutinePage } from '@/features/routine/page/RoutinePage'
 
 export const router = createBrowserRouter([
 	{
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
 			{
 				path: 'empleados',
 				Component: EmployeePage,
+			},
+			{
+				path: 'rutinas',
+				Component: RoutinePage,
 			},
 			{
 				path: 'clases',
