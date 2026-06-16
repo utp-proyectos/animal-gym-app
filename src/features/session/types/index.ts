@@ -1,3 +1,5 @@
 export type { SessionParticipantResponse } from './session.participant'
 export type { SessionRequest } from './session.request'
 export type { SessionResponse } from './session.response'
+export type { PartnerEnrolledResponse } from './partner.enrolled.response'
+export type { PartnerEnrolledRequest } from './partener.enrolled.request'

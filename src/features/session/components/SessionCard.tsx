@@ -1,5 +1,5 @@
 import { Button, Card, Dropdown, Label } from '@heroui/react'
-import { Edit3, MoreVertical, Trash2 } from 'lucide-react'
+import { Edit3, MoreVertical, Trash2, Users } from 'lucide-react'
 import type { SessionResponse } from '../types'
 import defaultImg from '@/assets/global/default.png'
 
@@ -8,14 +8,21 @@ interface Props {
 	onEdit: (session: SessionResponse) => void
 	onDelete: (session: SessionResponse) => void
 	onViewDetail: (session: SessionResponse) => void
+	onSessionEnrolled: (session: SessionResponse) => void
 }
 
-export function SessionCard({ sessions, onEdit, onDelete, onViewDetail }: Props) {
-	// Manejo de acciones centralizado tal cual lo estructuró tu amigo
+export function SessionCard({
+	sessions,
+	onEdit,
+	onDelete,
+	onViewDetail,
+	onSessionEnrolled,
+}: Props) {
 	const handleAction = (key: string, session: SessionResponse) => {
 		if (key === 'edit') onEdit(session)
 		if (key === 'delete') onDelete(session)
 		if (key === 'detail') onViewDetail(session)
+		if (key === 'enrolled') onSessionEnrolled(session)
 	}
 
 	return (
@@ -73,6 +80,12 @@ export function SessionCard({ sessions, onEdit, onDelete, onViewDetail }: Props)
 											<div className="flex items-center gap-2 py-1">
 												<Edit3 size={16} className="text-black" />
 												<Label className="font-semibold text-black">Editar clase</Label>
+											</div>
+										</Dropdown.Item>
+										<Dropdown.Item id="enrolled" textValue="Gestionar socios">
+											<div className="flex items-center gap-2 py-1">
+												<Users size={16} className="text-black" />
+												<Label className="font-semibold text-black">Gestionar socios</Label>
 											</div>
 										</Dropdown.Item>
 										<Dropdown.Item id="delete" textValue="Eliminar clase" className="text-danger">
