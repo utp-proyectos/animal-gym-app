@@ -58,8 +58,21 @@ export function SessionCard({
 								<h4 className="font-bold text-2xl text-black tracking-tight leading-tight">
 									{session.name}
 								</h4>
-								<p className="text-default-400 text-xs font-semibold uppercase mt-0.5">
-									Capacidad: {session.capacity} personas
+								<p className="text-default-500 text-xs font-semibold uppercase mt-1 flex items-center gap-1.5">
+									<span>Inscritos:</span>
+									<span
+										className={`font-bold ${
+											(session.bookingsCount ?? 0) >= session.capacity
+												? 'text-danger'
+												: (session.bookingsCount ?? 0) >= session.capacity * 0.8
+													? 'text-warning'
+													: 'text-primary'
+										}`}
+									>
+										{session.bookingsCount ?? 0}
+									</span>
+									<span className="text-default-400">/</span>
+									<span className="text-black font-bold">{session.capacity}</span>
 								</p>
 							</div>
 

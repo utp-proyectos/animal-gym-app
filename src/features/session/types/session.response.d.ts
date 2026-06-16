@@ -13,4 +13,5 @@ export interface SessionResponse {
 	image: string | null
 	employee: EmployeeResponse | null
 	status: string
+	bookingsCount: number
 }

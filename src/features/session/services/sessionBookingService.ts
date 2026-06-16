@@ -9,4 +9,8 @@ export const bookingService = {
 			.then((res) => res.data.data),
 	addBooking: (sessionId: number, data: PartnerEnrolledRequest) =>
 		api.post<ApiResponse<string>>(`/bookings/session/${sessionId}`, data).then((res) => res.data),
+	removeBooking: (sessionId: number, bookingId: number) =>
+		api
+			.delete<ApiResponse<string>>(`/bookings/session/${sessionId}/booking/${bookingId}`)
+			.then((res) => res.data),
 }
