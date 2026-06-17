@@ -1,6 +1,7 @@
 import { Button, Table } from '@heroui/react'
 import { CalendarDays, Eye, Loader2, Settings, Target, User } from 'lucide-react'
 import { useGetAllPartnersWithRoutines } from '@/features/partner/hooks/usePartners'
+import { useNavigate } from 'react-router-dom'
 
 // interface ModalState {
 // 	isOpen: boolean
@@ -10,10 +11,14 @@ import { useGetAllPartnersWithRoutines } from '@/features/partner/hooks/usePartn
 export function RoutinePage() {
 	const { data: partners = [], isLoading, isError, error } = useGetAllPartnersWithRoutines()
 
+	const navigate = useNavigate()
+
 	// const [manageModal, setManageModal] = useState<ModalState>({
 	// 	isOpen: false,
 	// 	data: null,
 	// })
+
+	console.log(partners)
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
@@ -139,14 +144,14 @@ export function RoutinePage() {
 
 													{/* Fecha de Inicio */}
 													<Table.Cell>
-														<span className="text-sm text-default-600 font-mono">
+														<span className="text-sm text-default-600">
 															{activeRoutine ? activeRoutine.startDate : '—'}
 														</span>
 													</Table.Cell>
 
 													{/* Fecha de Fin */}
 													<Table.Cell>
-														<span className="text-sm text-default-600 font-mono">
+														<span className="text-sm text-default-600">
 															{activeRoutine ? activeRoutine.endDate : '—'}
 														</span>
 													</Table.Cell>
@@ -157,7 +162,7 @@ export function RoutinePage() {
 															<Button
 																aria-label="Ver o Gestionar Rutinas"
 																className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full flex items-center justify-center text-slate-700"
-																onPress={() => console.log('press')}
+																onPress={() => navigate(`/rutinas/${partner.id}`)}
 															>
 																<Eye size={18} />
 															</Button>

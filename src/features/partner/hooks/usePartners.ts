@@ -5,9 +5,9 @@ const PARTNERS_KEY = 'partners'
 
 export function useGetPartnerRoutines(partnerId: number | null) {
 	return useQuery({
-		queryKey: [PARTNERS_KEY],
-		queryFn: () => partnerService.getPartnerRoutines(partnerId!),
+		queryKey: [PARTNERS_KEY, 'routines', partnerId],
 
+		queryFn: () => partnerService.getPartnerRoutines(partnerId!),
 		enabled: !!partnerId,
 	})
 }
