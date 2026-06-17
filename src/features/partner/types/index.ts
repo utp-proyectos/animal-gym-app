@@ -1,1 +1,1 @@
-export type { PartnerRoutinesResponse } from './partner.routines.response'
+export type { PartnerRoutinesResponse, RoutineInfo } from './partner.routines.response'

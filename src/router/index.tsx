@@ -32,7 +32,7 @@ export const router = createBrowserRouter([
 				Component: RoutinePage,
 			},
 			{
-				path: 'rutinas/:partnerId',
+				path: 'rutinas/partner/:partnerId',
 				Component: RoutineDetailPage,
 			},
 			{
