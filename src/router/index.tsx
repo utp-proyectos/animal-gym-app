@@ -7,6 +7,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { authGuard } from './authGuard'
 import { SessionPage } from '@/features/session/page/SessionPage'
 import { RoutinePage } from '@/features/routine/page/RoutinePage'
+import { RoutineDetailPage } from '@/features/routine/page/RoutineDetailPage'
 
 export const router = createBrowserRouter([
 	{
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
 			{
 				path: 'rutinas',
 				Component: RoutinePage,
+			},
+			{
+				path: 'rutinas/:partnerId',
+				Component: RoutineDetailPage,
 			},
 			{
 				path: 'clases',
