@@ -6,12 +6,13 @@ interface ExerciseInfo {
 	equipment: string
 }
 
-interface DetailInfo {
+export interface DetailInfo {
 	id: number
 	dayOfWeek: string
 	sets: number
 	reps: number
 	weight: number
+	calories: number
 	restTime: number
 	exercise: ExerciseInfo
 }

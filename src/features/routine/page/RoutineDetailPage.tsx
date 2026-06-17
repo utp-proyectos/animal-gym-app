@@ -1,19 +1,36 @@
-import { Button, Modal, Spinner, Table, Tabs, toast } from '@heroui/react'
-import { ArrowLeft, Plus, UserPlus } from 'lucide-react'
+import {
+	Button,
+	Dropdown,
+	Label,
+	Modal,
+	Separator,
+	Spinner,
+	Table,
+	Tabs,
+	toast,
+} from '@heroui/react'
+import { ArrowLeft, Edit3, MoreVertical, Plus, Trash2, UserPlus } from 'lucide-react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useGetPartnerRoutines } from '@/features/partner/hooks/usePartners'
 import { useState } from 'react'
 import CreateForm from '../components/CreateForm'
 import { RoutineHistoryCarousel } from '../components/RoutineHistoryCarousel'
 import { useRoutineCarousel } from '../hooks/useRoutineCarousel'
-import type { RoutineInfo } from '@/features/partner/types'
+import type { DetailInfo, RoutineInfo } from '@/features/partner/types'
 import EditForm from '../components/EditForm'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
-import { useDeleteRoutine } from '../hooks/useRoutines'
+import { useDeleteRoutine, useDeleteRoutineDetail } from '../hooks/useRoutines'
+import CreateDetailForm from '../components/detailRoutine/CreateDetailForm'
+import EditDetailForm from '../components/detailRoutine/EditDetailForm'
 
-interface ModalState {
+interface RoutineModalState {
 	isOpen: boolean
 	data: RoutineInfo | null
+}
+
+interface DetailModalState {
+	isOpen: boolean
+	data: DetailInfo | null
 }
 
 export function RoutineDetailPage() {
@@ -23,20 +40,32 @@ export function RoutineDetailPage() {
 	const id = partnerId ? Number(partnerId) : null
 
 	//Modales
-	const [formModal, setFormModal] = useState<ModalState>({
+	const [formModal, setFormModal] = useState<RoutineModalState>({
 		isOpen: false,
 		data: null,
 	})
 
-	const [deleteModal, setDeleteModal] = useState<ModalState>({
+	const [deleteModal, setDeleteModal] = useState<RoutineModalState>({
+		isOpen: false,
+		data: null,
+	})
+
+	const [detailModal, setDetailModal] = useState<DetailModalState>({
+		isOpen: false,
+		data: null,
+	})
+
+	const [deleteDetailModal, setDeleteDetailModal] = useState<DetailModalState>({
 		isOpen: false,
 		data: null,
 	})
 
 	const isEditing = formModal.data !== null
+	const isEditingDetail = detailModal.data !== null
 
 	const { data: partner, isLoading, isError, error } = useGetPartnerRoutines(id)
 	const { mutate: deleteRoutine } = useDeleteRoutine()
+	const { mutate: deleteRoutineDetailMutate } = useDeleteRoutineDetail()
 
 	// Necesario para el carousel
 	const { activeId, currentActiveRoutine, setSelectedRoutineId, emblaRef, emblaApi } =
@@ -141,7 +170,7 @@ export function RoutineDetailPage() {
 								</p>
 							</div>
 
-							<Button onPress={() => console.log('press')}>
+							<Button onPress={() => setDetailModal({ isOpen: true, data: null })}>
 								<Plus size={20} className="mr-2" />
 								Nuevo Detalle rutina
 							</Button>
@@ -238,10 +267,24 @@ export function RoutineDetailPage() {
 															</div>
 														</Table.Column>
 
+														{/* Columna: Calorias estimadas */}
+														<Table.Column>
+															<div className="flex items-center gap-2">
+																<span>Calorias estimadas</span>
+															</div>
+														</Table.Column>
+
 														{/* Columna: Descanso */}
 														<Table.Column>
 															<div className="flex items-center gap-2">
 																<span>Descanso</span>
+															</div>
+														</Table.Column>
+
+														{/* Acciones */}
+														<Table.Column aria-label="Acciones">
+															<div className="flex items-center justify-end pr-4">
+																<span>Acciones</span>
 															</div>
 														</Table.Column>
 													</Table.Header>
@@ -297,11 +340,77 @@ export function RoutineDetailPage() {
 																	</span>
 																</Table.Cell>
 
+																{/* Calorias estimadas */}
+																<Table.Cell>
+																	<span className="text-default-600">{detail.calories} klas</span>
+																</Table.Cell>
+
 																{/* Tiempo de Descanso */}
 																<Table.Cell>
 																	<span className="text-default-500 font-semibold">
-																		{detail.restTime}s
+																		{detail.restTime}min
 																	</span>
+																</Table.Cell>
+
+																<Table.Cell>
+																	<div className="flex items-center justify-center pr-2">
+																		<Dropdown>
+																			<Button
+																				aria-label="Opciones de ejercicio"
+																				className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
+																			>
+																				<MoreVertical
+																					size={20}
+																					className="text-black"
+																					strokeWidth={3}
+																				/>
+																			</Button>
+
+																			<Dropdown.Popover>
+																				<Dropdown.Menu className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl">
+																					<Dropdown.Item
+																						id="edit-detail"
+																						textValue="Editar Ejercicio"
+																						onPress={() => {
+																							setDetailModal({
+																								isOpen: true,
+																								data: detail,
+																							})
+																						}}
+																					>
+																						<div className="flex items-center gap-2 py-1">
+																							<Edit3 size={16} className="text-black" />
+																							<Label className="font-semibold text-black cursor-pointer">
+																								Editar
+																							</Label>
+																						</div>
+																					</Dropdown.Item>
+
+																					<Separator />
+
+																					{/* Opción Eliminar Ejercicio */}
+																					<Dropdown.Item
+																						id="delete-detail"
+																						textValue="Eliminar Ejercicio"
+																						className="text-danger"
+																						onPress={() => {
+																							setDeleteDetailModal({
+																								isOpen: true,
+																								data: detail,
+																							})
+																						}}
+																					>
+																						<div className="flex items-center gap-2 py-1">
+																							<Trash2 size={16} />
+																							<Label className="font-semibold cursor-pointer">
+																								Eliminar
+																							</Label>
+																						</div>
+																					</Dropdown.Item>
+																				</Dropdown.Menu>
+																			</Dropdown.Popover>
+																		</Dropdown>
+																	</div>
 																</Table.Cell>
 															</Table.Row>
 														))}
@@ -397,6 +506,84 @@ export function RoutineDetailPage() {
 							onError: () => {
 								toast.danger('Error al eliminar', {
 									description: `No se pudo eliminar la rutina asignada. Inténtalo de nuevo.`,
+								})
+							},
+						},
+					)
+				}}
+			/>
+
+			<Modal.Backdrop
+				isOpen={detailModal.isOpen}
+				onOpenChange={(isOpen) => setDetailModal({ isOpen, data: null })}
+			>
+				<Modal.Container>
+					<Modal.Dialog className="max-w-xl">
+						<Modal.CloseTrigger />
+
+						<Modal.Header className="pb-4">
+							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
+								{isEditingDetail ? 'Editar detalle rutina' : 'Agregar Detalle rutina'}
+							</Modal.Heading>
+							<p className="text-sm text-default-500">
+								{isEditingDetail
+									? 'Modifica los parámetros del ejercicio (series, repeticiones, peso) asignado.'
+									: 'Completa los datos para asignar un nuevo ejercicio a este plan de trabajo.'}
+							</p>
+						</Modal.Header>
+
+						<Modal.Body className="p-6">
+							{isEditingDetail && detailModal.data ? (
+								<EditDetailForm
+									item={detailModal.data}
+									onClose={() => setDetailModal({ isOpen: false, data: null })}
+									routineId={Number(activeId)}
+								/>
+							) : (
+								<CreateDetailForm
+									routineId={Number(activeId)}
+									onClose={() => setDetailModal({ isOpen: false, data: null })}
+								/>
+							)}
+						</Modal.Body>
+
+						<Modal.Footer className="pt-4">
+							<Button variant="secondary" slot="close">
+								Cancelar
+							</Button>
+
+							<Button type="submit" form="routine-detail-form">
+								<UserPlus className="size-4" />
+								Guardar ejercicio
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
+			</Modal.Backdrop>
+
+			<DeleteModal
+				isOpen={deleteDetailModal.isOpen}
+				onOpenChange={(open) => setDeleteDetailModal({ isOpen: open, data: null })}
+				title="Detalle rutina"
+				onConfirm={() => {
+					if (!deleteDetailModal.data || !partnerId) return
+
+					deleteRoutineDetailMutate(
+						{
+							routineId: Number(activeId),
+							detailId: deleteDetailModal.data.id,
+							partnerId: Number(partnerId),
+						},
+						{
+							onSuccess: () => {
+								toast.success('Ejercicio eliminado', {
+									description: 'El ejercicio fue removido de este día.',
+								})
+								setDeleteDetailModal({ isOpen: false, data: null })
+							},
+							onError: () => {
+								toast.danger('Error al eliminar', {
+									description: 'No se pudo eliminar el ejercicio.',
 								})
 							},
 						},

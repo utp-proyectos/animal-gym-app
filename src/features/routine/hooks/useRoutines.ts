@@ -54,3 +54,34 @@ export function useCreateRoutineDetail() {
 		},
 	})
 }
+
+export function useUpdateRoutineDetail() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: ({ detailId, payload }: { detailId: number; payload: RoutineDetailRequest }) =>
+			routineService.updateRoutineDetail(detailId, payload),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: [PARTNER_KEY] })
+		},
+	})
+}
+
+export function useDeleteRoutineDetail() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: ({
+			routineId,
+			detailId,
+			partnerId,
+		}: {
+			routineId: number
+			detailId: number
+			partnerId: number
+		}) => routineService.deleteRoutineDetail(routineId, detailId, partnerId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: [PARTNER_KEY] })
+		},
+	})
+}

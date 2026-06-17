@@ -5,7 +5,7 @@ export interface RoutineDetailRequest {
 	weight: number
 	calories: number
 	restTime: number
-	employeeId: number
+	exerciseId: number
 	routineId: number
 	partnerId: number
 }

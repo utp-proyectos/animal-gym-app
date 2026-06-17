@@ -103,6 +103,28 @@ const RoutineDetailForm = () => {
 			/>
 
 			<Controller
+				name="calories"
+				control={control}
+				render={({ field, fieldState: { error } }) => (
+					<NumberField
+						variant="secondary"
+						name={field.name}
+						value={field.value}
+						onChange={field.onChange}
+						isInvalid={!!error}
+					>
+						<Label>Calorias estimadas</Label>
+						<NumberField.Group>
+							<NumberField.DecrementButton />
+							<NumberField.Input />
+							<NumberField.IncrementButton />
+						</NumberField.Group>
+						<FieldError>{error?.message}</FieldError>
+					</NumberField>
+				)}
+			/>
+
+			<Controller
 				name="restTime"
 				control={control}
 				render={({ field, fieldState: { error } }) => (
