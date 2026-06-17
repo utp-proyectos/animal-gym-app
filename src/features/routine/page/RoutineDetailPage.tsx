@@ -1,60 +1,62 @@
-import { Button, Spinner, Table, Tabs } from '@heroui/react'
-import { ArrowLeft, ChevronRight, Plus } from 'lucide-react'
+import { Button, Modal, Spinner, Table, Tabs, toast } from '@heroui/react'
+import { ArrowLeft, Plus, UserPlus } from 'lucide-react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useGetPartnerRoutines } from '@/features/partner/hooks/usePartners'
-import { useState, useEffect } from 'react'
-import useEmblaCarousel from 'embla-carousel-react'
+import { useState } from 'react'
+import CreateForm from '../components/CreateForm'
+import { RoutineHistoryCarousel } from '../components/RoutineHistoryCarousel'
+import { useRoutineCarousel } from '../hooks/useRoutineCarousel'
+import type { RoutineInfo } from '@/features/partner/types'
+import EditForm from '../components/EditForm'
+import { DeleteModal } from '@/shared/components/ui/DeleteModal'
+import { useDeleteRoutine } from '../hooks/useRoutines'
+
+interface ModalState {
+	isOpen: boolean
+	data: RoutineInfo | null
+}
 
 export function RoutineDetailPage() {
+	//Ruta para obtener el id del socio
 	const { partnerId } = useParams<{ partnerId: string }>()
 	const navigate = useNavigate()
-
 	const id = partnerId ? Number(partnerId) : null
-	const { data: partner, isLoading, isError, error } = useGetPartnerRoutines(id)
 
-	const [selectedRoutineId, setSelectedRoutineId] = useState<number | null>(null)
-	const [selectedDay, setSelectedDay] = useState<string>('Lunes')
-
-	const [emblaRef, emblaApi] = useEmblaCarousel({
-		align: 'center',
-		skipSnaps: false,
-		containScroll: false,
+	//Modales
+	const [formModal, setFormModal] = useState<ModalState>({
+		isOpen: false,
+		data: null,
 	})
 
-	const currentActiveRoutine =
-		partner?.routines?.find((r) => r.id === selectedRoutineId) ||
-		partner?.routines?.[partner.routines.length - 1]
+	const [deleteModal, setDeleteModal] = useState<ModalState>({
+		isOpen: false,
+		data: null,
+	})
 
-	const activeId = selectedRoutineId || currentActiveRoutine?.id || null
+	const isEditing = formModal.data !== null
 
-	useEffect(() => {
-		if (emblaApi && partner?.routines && partner.routines.length > 0 && !selectedRoutineId) {
-			const lastIndex = partner.routines.length - 1
-			emblaApi.scrollTo(lastIndex, true)
-		}
-	}, [emblaApi, partner?.routines, selectedRoutineId])
+	const { data: partner, isLoading, isError, error } = useGetPartnerRoutines(id)
+	const { mutate: deleteRoutine } = useDeleteRoutine()
 
-	useEffect(() => {
-		if (!emblaApi) return
+	// Necesario para el carousel
+	const { activeId, currentActiveRoutine, setSelectedRoutineId, emblaRef, emblaApi } =
+		useRoutineCarousel(partner?.routines)
 
-		const handleSelect = () => {
-			const routines = partner?.routines
-			if (!routines) return
-			const selectedIndex = emblaApi.selectedScrollSnap()
-			const activeRoutine = routines[selectedIndex]
-			if (activeRoutine) {
-				setSelectedRoutineId(activeRoutine.id)
-			}
-		}
+	// Necesario para los dia de la semana
+	const [selectedDay, setSelectedDay] = useState<string>('Lunes')
 
-		emblaApi.on('select', handleSelect)
-		emblaApi.on('reInit', handleSelect)
+	const exercisesByDay =
+		currentActiveRoutine?.routineDetails?.reduce<
+			Record<string, typeof currentActiveRoutine.routineDetails>
+		>((acc, detail) => {
+			const day = detail.dayOfWeek
+			if (!acc[day]) acc[day] = []
+			acc[day].push(detail)
+			return acc
+		}, {}) || {}
 
-		return () => {
-			emblaApi.off('select', handleSelect)
-			emblaApi.off('reInit', handleSelect)
-		}
-	}, [emblaApi, partner])
+	const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+	const activeDayExercises = exercisesByDay[selectedDay] || []
 
 	if (isLoading) {
 		return (
@@ -78,27 +80,10 @@ export function RoutineDetailPage() {
 		)
 	}
 
-	const exercisesByDay =
-		currentActiveRoutine?.routineDetails?.reduce<
-			Record<string, typeof currentActiveRoutine.routineDetails>
-		>((acc, detail) => {
-			const day = detail.dayOfWeek
-			if (!acc[day]) acc[day] = []
-			acc[day].push(detail)
-			return acc
-		}, {}) || {}
-
-	const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
-	const activeDayExercises = exercisesByDay[selectedDay] || []
-
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-slate-50/50 text-slate-900 animate-in fade-in duration-200">
 			{/* Botón para regresar */}
-			<Button
-				variant="primary"
-				className="mb-6 text-default-500 font-medium hover:text-black"
-				onPress={() => navigate('/rutinas')}
-			>
+			<Button variant="primary" className="mb-6" onPress={() => navigate('/rutinas')}>
 				<ArrowLeft size={18} className="mr-2" />
 				Volver a la lista
 			</Button>
@@ -118,8 +103,12 @@ export function RoutineDetailPage() {
 					</p>
 				</div>
 				<Button
-					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
-					onPress={() => console.log('Crear rutina para socio:', partner.id)}
+					onPress={() =>
+						setFormModal({
+							isOpen: true,
+							data: null,
+						})
+					}
 				>
 					<Plus size={20} className="mr-2" />
 					Nueva Rutina
@@ -127,84 +116,35 @@ export function RoutineDetailPage() {
 			</header>
 
 			{/* Sección del Carousel */}
-			<div className="mb-8">
-				<h2 className="text-xl font-bold text-black mb-4 uppercase tracking-wider">
-					Historial de Rutinas
-				</h2>
-
-				{partner.routines && partner.routines.length > 0 ? (
-					<div className="overflow-hidden pb-6 pt-1" ref={emblaRef}>
-						<div className="flex gap-5">
-							{partner.routines.map((routine, idx) => {
-								const isSelected = routine.id === activeId
-
-								return (
-									<div
-										key={routine.id}
-										className="flex-[0_0_92%] md:flex-[0_0_65%] lg:flex-[0_0_55%] min-w-0"
-									>
-										<div
-											className={`w-full p-6 rounded-3xl border transition-all duration-300 cursor-pointer flex justify-between items-center ${
-												isSelected
-													? 'bg-orange-50 border-orange-300 shadow-md shadow-orange-100/60 ring-2 ring-orange-400/20 scale-[1.01]'
-													: 'bg-white border-default-200 shadow-sm hover:shadow-md opacity-60 scale-95'
-											}`}
-											onClick={() => {
-												setSelectedRoutineId(routine.id)
-												if (emblaApi) emblaApi.scrollTo(idx)
-											}}
-										>
-											<div className="space-y-2 w-full pr-4">
-												<div className="flex items-center gap-2">
-													<h3 className="text-xl font-black text-slate-900 tracking-tight">
-														Rutina: {routine.name}
-													</h3>
-													{isSelected && (
-														<span className="text-[10px] font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">
-															Seleccionada
-														</span>
-													)}
-												</div>
-												<p className="text-sm font-medium text-slate-700">
-													<span className="font-bold text-slate-400">Vigencia:</span>{' '}
-													{routine.startDate} — {routine.endDate}
-												</p>
-												<p className="text-sm text-slate-600 line-clamp-2">
-													<span className="font-bold text-slate-400">Objetivo:</span> {routine.goal}
-												</p>
-											</div>
-											<div
-												className={`p-2 rounded-full transition-transform duration-300 ${isSelected ? 'text-orange-500 bg-orange-100 rotate-90' : 'text-slate-400'}`}
-											>
-												<ChevronRight size={20} strokeWidth={2.5} />
-											</div>
-										</div>
-									</div>
-								)
-							})}
-						</div>
-					</div>
-				) : (
-					<div className="bg-white border border-default-200 rounded-3xl p-10 text-center flex flex-col items-center justify-center gap-2">
-						<span className="text-default-400 text-sm font-medium">
-							Este socio aún no cuenta con rutinas registradas.
-						</span>
-					</div>
-				)}
-			</div>
+			<RoutineHistoryCarousel
+				routines={partner.routines}
+				activeId={activeId}
+				onSelectRoutine={setSelectedRoutineId}
+				emblaRef={emblaRef}
+				emblaApi={emblaApi}
+				onEditRoutine={(routine) => setFormModal({ isOpen: true, data: routine })}
+				onDeleteRoutine={(routine) => setDeleteModal({ isOpen: true, data: routine })}
+			/>
 
 			{/* Sección Dinámica Inferior */}
 			<div className="mt-10 animate-in fade-in slide-in-from-bottom-4 duration-300">
 				{currentActiveRoutine ? (
 					<div className="bg-white rounded-3xl p-6 md:p-8 border border-default-200 shadow-sm">
-						<div className="border-b border-default-100 pb-4 mb-6">
-							<h3 className="text-2xl font-black text-black">
-								Plan de Trabajo: {currentActiveRoutine.name}
-							</h3>
-							<p className="text-default-500 text-sm mt-1">
-								Mostrando el desglose de días y ejercicios enfocados en:{' '}
-								<strong className="text-slate-700">{currentActiveRoutine.goal}</strong>
-							</p>
+						<div className="border-b border-default-100 pb-4 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+							<div>
+								<h3 className="text-2xl font-black text-black">
+									Plan de Trabajo: {currentActiveRoutine.name}
+								</h3>
+								<p className="text-default-500 text-sm mt-1">
+									Mostrando el desglose de días y ejercicios enfocados en:{' '}
+									<strong className="text-slate-700">{currentActiveRoutine.goal}</strong>
+								</p>
+							</div>
+
+							<Button onPress={() => console.log('press')}>
+								<Plus size={20} className="mr-2" />
+								Nuevo Detalle rutina
+							</Button>
 						</div>
 
 						<Tabs
@@ -260,8 +200,8 @@ export function RoutineDetailPage() {
 
 									{activeDayExercises.length > 0 ? (
 										<Table aria-label="Tabla de ejercicios asignados">
-											<Table.ScrollContainer>
-												<Table.Content className="min-w-150">
+											<Table.ScrollContainer aria-label="Contenedor de desplazamiento de ejercicios">
+												<Table.Content className="min-w-150" aria-label="Contenido de ejercicios">
 													<Table.Header>
 														{/* Columna: Ejercicio */}
 														<Table.Column isRowHeader>
@@ -394,6 +334,75 @@ export function RoutineDetailPage() {
 					)
 				)}
 			</div>
+
+			<Modal.Backdrop
+				isOpen={formModal.isOpen}
+				onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
+			>
+				<Modal.Container>
+					<Modal.Dialog className="max-w-xl">
+						<Modal.CloseTrigger />
+
+						<Modal.Header className="pb-4">
+							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
+								{isEditing ? 'Editar Rutina' : 'Nuevo Rutina'}
+							</Modal.Heading>
+							<p className="text-sm text-default-500">
+								{isEditing
+									? 'Modifica los campos necesarios para actualizar la rutina.'
+									: 'Completa la información para registrar una nuevarutina.'}
+							</p>
+						</Modal.Header>
+
+						<Modal.Body className="p-6">
+							{isEditing && formModal.data ? (
+								<EditForm
+									item={formModal.data}
+									onClose={() => setFormModal({ isOpen: false, data: null })}
+								/>
+							) : (
+								<CreateForm onClose={() => setFormModal({ isOpen: false, data: null })} />
+							)}
+						</Modal.Body>
+
+						<Modal.Footer className="pt-4">
+							<Button variant="secondary" slot="close">
+								Cancelar
+							</Button>
+							<Button type="submit" form="routine-form">
+								<UserPlus className="size-4" />
+								Guardar rutina
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
+			</Modal.Backdrop>
+
+			<DeleteModal
+				isOpen={deleteModal.isOpen}
+				onOpenChange={(open) => setDeleteModal({ isOpen: open, data: null })}
+				title="Detalle rutina"
+				onConfirm={() => {
+					if (!deleteModal.data || !partnerId) return
+
+					deleteRoutine(
+						{ id: deleteModal.data.id, partnerId: Number(partnerId) },
+						{
+							onSuccess: () => {
+								toast.success('Rutina eliminada', {
+									description: `La rutina "${deleteModal.data?.name}" fue removida del socio con éxito.`,
+								})
+								setDeleteModal({ isOpen: false, data: null })
+							},
+							onError: () => {
+								toast.danger('Error al eliminar', {
+									description: `No se pudo eliminar la rutina asignada. Inténtalo de nuevo.`,
+								})
+							},
+						},
+					)
+				}}
+			/>
 		</div>
 	)
 }

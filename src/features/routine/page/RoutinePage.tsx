@@ -3,20 +3,10 @@ import { CalendarDays, Eye, Loader2, Settings, Target, User } from 'lucide-react
 import { useGetAllPartnersWithRoutines } from '@/features/partner/hooks/usePartners'
 import { useNavigate } from 'react-router-dom'
 
-// interface ModalState {
-// 	isOpen: boolean
-// 	data: PartnerRoutinesResponse | null
-// }
-
 export function RoutinePage() {
 	const { data: partners = [], isLoading, isError, error } = useGetAllPartnersWithRoutines()
 
 	const navigate = useNavigate()
-
-	// const [manageModal, setManageModal] = useState<ModalState>({
-	// 	isOpen: false,
-	// 	data: null,
-	// })
 
 	console.log(partners)
 
@@ -162,7 +152,7 @@ export function RoutinePage() {
 															<Button
 																aria-label="Ver o Gestionar Rutinas"
 																className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full flex items-center justify-center text-slate-700"
-																onPress={() => navigate(`/rutinas/${partner.id}`)}
+																onPress={() => navigate(`/rutinas/partner/${partner.id}`)}
 															>
 																<Eye size={18} />
 															</Button>

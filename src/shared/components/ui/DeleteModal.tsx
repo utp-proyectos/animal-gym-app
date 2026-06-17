@@ -31,7 +31,7 @@ export function DeleteModal({ isOpen, onOpenChange, title, onConfirm }: Props) {
 
 						<AlertDialog.Footer className="pt-4">
 							<Button slot="close" variant="tertiary">
-								Cancelar
+								Cancel
 							</Button>
 
 							<Button

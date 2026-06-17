@@ -16,13 +16,14 @@ interface DetailInfo {
 	exercise: ExerciseInfo
 }
 
-interface RoutineInfo {
+export interface RoutineInfo {
 	id: number
 	name: string
 	description: string
 	goal: string
 	startDate: string
 	endDate: string
+	employee: EmployeeResponse | null
 	routineDetails: DetailInfo[]
 }
 
