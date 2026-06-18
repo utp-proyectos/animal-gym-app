@@ -26,8 +26,8 @@ const baseObject = z.object({
 
 	description: z
 		.string()
-		.optional()
-		.nullable()
+		.min(1, 'El campo es requerido.')
+		.max(70, 'Maximo 70 caracteres')
 		.transform((val) => val ?? null),
 
 	duration: z
