@@ -1,6 +1,7 @@
-// src/components/BillDetailModal.tsx
 import { Button, Modal } from '@heroui/react'
-import type { BillResponse } from '../BillType'
+import { Printer, Loader2 } from 'lucide-react'
+import type { BillResponse } from '../types/bill.response'
+import { useDownloadBillPdf } from '../hooks/useBill'
 
 interface Props {
 	bill: BillResponse | null
@@ -8,6 +9,8 @@ interface Props {
 }
 
 export function BillDetailModal({ bill, onClose }: Props) {
+	const { mutate: downloadPdf, isPending } = useDownloadBillPdf()
+
 	if (!bill) return null
 
 	return (
@@ -34,7 +37,7 @@ export function BillDetailModal({ bill, onClose }: Props) {
 						<Modal.Body className="overflow-y-auto py-6">
 							{/* Membresía */}
 							<section className="space-y-4">
-								<h3 className="font-semibold text-lg  pb-2">Membresía</h3>
+								<h3 className="font-semibold text-lg pb-2">Membresía</h3>
 								<div className="grid gap-4 md:grid-cols-2">
 									<div>
 										<p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
@@ -61,7 +64,7 @@ export function BillDetailModal({ bill, onClose }: Props) {
 
 							{/* Personas */}
 							<section className="space-y-4 border-t pt-6 mt-2">
-								<h3 className="font-semibold text-lg  pb-2">Personas</h3>
+								<h3 className="font-semibold text-lg pb-2">Personas</h3>
 								<div className="grid gap-4 md:grid-cols-2">
 									<div>
 										<p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
@@ -84,7 +87,7 @@ export function BillDetailModal({ bill, onClose }: Props) {
 
 							{/* Montos */}
 							<section className="space-y-4 border-t pt-6 mt-2">
-								<h3 className="font-semibold text-lg  pb-2">Montos</h3>
+								<h3 className="font-semibold text-lg pb-2">Montos</h3>
 								<div className="grid gap-4 md:grid-cols-3">
 									<div>
 										<p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
@@ -112,7 +115,14 @@ export function BillDetailModal({ bill, onClose }: Props) {
 							<Button variant="secondary" onPress={onClose}>
 								Cerrar
 							</Button>
-							<Button variant="primary">Imprimir</Button>
+							<Button isDisabled={isPending} onPress={() => downloadPdf(bill.id)}>
+								{isPending ? (
+									<Loader2 size={16} className="animate-spin mr-2" />
+								) : (
+									<Printer size={16} className="mr-2" />
+								)}
+								{isPending ? 'Generando...' : 'Imprimir'}
+							</Button>
 						</Modal.Footer>
 					</Modal.Dialog>
 				</Modal.Container>
