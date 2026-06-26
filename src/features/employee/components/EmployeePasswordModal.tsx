@@ -1,4 +1,4 @@
-import { Button, FieldError, InputGroup, Label, Modal, TextField } from '@heroui/react'
+import { Button, FieldError, InputGroup, Label, Modal, TextField, toast } from '@heroui/react'
 import { KeyRound, Eye, EyeClosed, Lock } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -44,9 +44,19 @@ export function EmployeePasswordModal({ isOpen, onOpenChange, employee }: Props)
 		changePassword(
 			{ personId: employee.id, newPassword: data.newPassword },
 			{
-				onSuccess: () => {
+				onSuccess: (response) => {
+					toast.success('Actualizacion', {
+						description: `Se actualizo la contraseña exitosamente`,
+					})
+					console.log(response)
 					reset()
 					onOpenChange(false)
+				},
+				onError: (error) => {
+					toast.danger(`Error al actualizar la contraseña.`, {
+						description: `Nose puede actualizar la contraseña. Intentelo denuevo`,
+					})
+					console.error('Error ' + error)
 				},
 			},
 		)
