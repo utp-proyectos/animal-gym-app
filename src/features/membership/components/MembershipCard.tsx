@@ -25,7 +25,7 @@ export function MembershipCard({ membership, onEdit, onDelete }: MembershipCardP
 
 	return (
 		<Card className="overflow-hidden border border-gray-100 shadow-sm hover:-translate-y-1 transition-transform duration-200 flex flex-col">
-			<div className="relative aspect-video w-full shrink-0">
+			<div className="relative aspect-video w-full shrink-0 overflow-hidden">
 				<img
 					src={membership.image || FALLBACK_IMAGE}
 					alt={membership.name}
