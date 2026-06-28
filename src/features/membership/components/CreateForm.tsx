@@ -3,7 +3,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createSchema, type CreateInput, type CreateOutput } from '../schema/membershipSchema'
 import { useCreateMembership } from '../hooks/useMemberships'
-// import MembershipForm from './MembershipForm'
+import MembershipForm from './MembershipForm'
 
 interface Props {
 	onClose: () => void
@@ -51,7 +51,7 @@ const CreateForm = ({ onClose }: Props) => {
 				className="flex flex-col gap-4"
 				onSubmit={form.handleSubmit(onSubmit)}
 			>
-				{/* <MembershipForm /> */}
+				<MembershipForm />
 			</form>
 		</FormProvider>
 	)
