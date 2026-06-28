@@ -8,6 +8,7 @@ import { authGuard } from './authGuard'
 import { SessionPage } from '@/features/session/page/SessionPage'
 import { RoutinePage } from '@/features/routine/page/RoutinePage'
 import { RoutineDetailPage } from '@/features/routine/page/RoutineDetailPage'
+import HasRole from '@/shared/components/auth/HasRole'
 
 export const router = createBrowserRouter([
 	{
@@ -25,7 +26,11 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'empleados',
-				Component: EmployeePage,
+				element: (
+					<HasRole roles="ADMIN">
+						<EmployeePage />
+					</HasRole>
+				),
 			},
 			{
 				path: 'rutinas',
