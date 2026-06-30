@@ -49,7 +49,7 @@ export function EmployeeCard({
 					</div>
 
 					<div className="p-6 flex flex-col gap-3 flex-1 justify-between">
-						<div className="flex">
+						<div className="flex justify-between items-start gap-2">
 							<h4 className="font-bold text-lg text-black tracking-tight leading-tight">
 								{employee.firstName} {employee.lastName}
 							</h4>

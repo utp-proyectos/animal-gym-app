@@ -16,19 +16,26 @@ import logo from '@/assets/global/logo.png'
 import './style.css'
 import { useLogout } from '@/features/auth/hooks/useLogin'
 import { useAuthStore } from '@/store/authStore'
-
+import HasRole from '../auth/HasRole'
+import type { Role } from '@/shared/types'
+interface MenuItem {
+	label: string
+	path: string
+	icon: React.ReactNode
+	roles?: Role[] // 👈 opcional
+}
 export function DashboardLayout() {
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const location = useLocation()
 	const logout = useLogout()
 	const user = useAuthStore((state) => state.user)
 
-	const menuItems = [
+	const menuItems: MenuItem[] = [
 		{ label: 'Inicio', path: '/', icon: <House size={20} /> },
 		{ label: 'Socios', path: '/socios', icon: <Contact size={20} /> },
 		{ label: 'Membresias', path: '/membresias', icon: <IdCard size={20} /> },
 		{ label: 'Rutinas', path: '/rutinas', icon: <CalendarCheck size={20} /> },
-		{ label: 'Empleados', path: '/empleados', icon: <Users size={20} /> },
+		{ label: 'Empleados', path: '/empleados', icon: <Users size={20} />, roles: ['ADMIN'] },
 		{ label: 'Clases', path: '/clases', icon: <Puzzle size={20} /> },
 		{ label: 'Ejercicios', path: '/ejercicios', icon: <SportShoe size={20} /> },
 		{ label: 'Boletas', path: '/boletas', icon: <ReceiptSwissFranc size={20} /> },
@@ -46,13 +53,22 @@ export function DashboardLayout() {
 					<ul className="sidebar-items-gym">
 						{menuItems.map((item) => {
 							const isActive = location.pathname === item.path
-							return (
+
+							const menuItem = (
 								<li key={item.path} className={`sidebar-item-gym ${isActive ? 'active' : ''}`}>
 									<NavLink to={item.path} className="sidebar-link-gym">
 										<span className="sidebar-link-icon-gym">{item.icon}</span>
 										{item.label}
 									</NavLink>
 								</li>
+							)
+
+							return item.roles ? (
+								<HasRole key={item.path} roles={item.roles}>
+									{menuItem}
+								</HasRole>
+							) : (
+								menuItem
 							)
 						})}
 					</ul>

@@ -58,6 +58,10 @@ export function EmployeePage() {
 	})
 
 	return (
+		// Solo admins ven este botón
+
+		// Admins o moderadores ven este panel
+
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
 			<header className="flex justify-between items-end mb-10">
 				<div>

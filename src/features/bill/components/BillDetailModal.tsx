@@ -70,10 +70,17 @@ export function BillDetailModal({ bill, onClose }: Props) {
 										<p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
 											Empleado
 										</p>
-										<p className="font-medium text-black">
-											{bill.employeeFirstName} {bill.employeeLastName}
-										</p>
+
+										{/* Condicional en React usando el operador ternario */}
+										{bill.employeeLastName !== null ? (
+											<p className="font-medium text-black">
+												{bill.employeeFirstName} {bill.employeeLastName}
+											</p>
+										) : (
+											<p className="font-medium text-black">Compra online</p>
+										)}
 									</div>
+
 									<div>
 										<p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
 											Socio
