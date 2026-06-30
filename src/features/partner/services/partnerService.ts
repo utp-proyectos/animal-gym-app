@@ -1,6 +1,11 @@
 import { api } from '@/lib/axios'
 import type { ApiResponse } from '@/shared/types'
-import type { PartnerDetailResponse, PartnerRequest, PartnerResponse } from '../types'
+import type {
+	PartnerDetailResponse,
+	PartnerRequest,
+	PartnerResponse,
+	PartnerRoutinesResponse,
+} from '../types'
 
 export const partnerService = {
 	getAll: (): Promise<PartnerResponse[]> =>
@@ -61,5 +66,15 @@ export const partnerService = {
 			.get<ApiResponse<PartnerResponse[]>>('/partners/search', {
 				params: { name },
 			})
+			.then((res) => res.data.data),
+
+	getPartnerRoutines: (partnerId: number) =>
+		api
+			.get<ApiResponse<PartnerRoutinesResponse>>(`/partners/${partnerId}/routines`)
+			.then((res) => res.data.data),
+
+	getAllPartnersWithRoutines: () =>
+		api
+			.get<ApiResponse<PartnerRoutinesResponse[]>>(`/partners/routines`)
 			.then((res) => res.data.data),
 }

@@ -2,6 +2,7 @@ import { Button, Card, Dropdown, Label } from '@heroui/react'
 import { Edit3, MoreVertical, Trash2, Users } from 'lucide-react'
 import type { SessionResponse } from '../types'
 import defaultImg from '@/assets/global/default.png'
+import HasRole from '@/shared/components/auth/HasRole'
 
 interface Props {
 	sessions: SessionResponse[]
@@ -77,48 +78,50 @@ export function SessionCard({
 							</div>
 
 							{/* Menú de opciones desplegables */}
-							<Dropdown>
-								<Button
-									aria-label="Opciones de clase"
-									className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
-								>
-									<MoreVertical size={20} className="text-black" strokeWidth={3} />
-								</Button>
-								<Dropdown.Popover>
-									<Dropdown.Menu
-										onAction={(key) => handleAction(String(key), session)}
-										className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl"
+							<HasRole roles={['ADMIN', 'RECEPCIONISTA']}>
+								<Dropdown>
+									<Button
+										aria-label="Opciones de clase"
+										className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
 									>
-										<Dropdown.Item id="edit" textValue="Editar clase">
-											<div className="flex items-center gap-2 py-1">
-												<Edit3 size={16} className="text-black" />
-												<Label className="font-semibold text-black">Editar clase</Label>
-											</div>
-										</Dropdown.Item>
-										<Dropdown.Item id="enrolled" textValue="Gestionar socios">
-											<div className="flex items-center gap-2 py-1">
-												<Users size={16} className="text-black" />
-												<Label className="font-semibold text-black">Gestionar socios</Label>
-											</div>
-										</Dropdown.Item>
-										<Dropdown.Item id="delete" textValue="Eliminar clase" className="text-danger">
-											<div className="flex items-center gap-2 py-1">
-												<Trash2 size={16} />
-												<Label className="font-semibold">Eliminar clase</Label>
-											</div>
-										</Dropdown.Item>
-									</Dropdown.Menu>
-								</Dropdown.Popover>
-							</Dropdown>
+										<MoreVertical size={20} className="text-black" strokeWidth={3} />
+									</Button>
+									<Dropdown.Popover>
+										<Dropdown.Menu
+											onAction={(key) => handleAction(String(key), session)}
+											className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl"
+										>
+											<Dropdown.Item id="edit" textValue="Editar clase">
+												<div className="flex items-center gap-2 py-1">
+													<Edit3 size={16} className="text-black" />
+													<Label className="font-semibold text-black">Editar clase</Label>
+												</div>
+											</Dropdown.Item>
+											<Dropdown.Item id="enrolled" textValue="Gestionar socios">
+												<div className="flex items-center gap-2 py-1">
+													<Users size={16} className="text-black" />
+													<Label className="font-semibold text-black">Gestionar socios</Label>
+												</div>
+											</Dropdown.Item>
+											<Dropdown.Item id="delete" textValue="Eliminar clase" className="text-danger">
+												<div className="flex items-center gap-2 py-1">
+													<Trash2 size={16} />
+													<Label className="font-semibold">Eliminar clase</Label>
+												</div>
+											</Dropdown.Item>
+										</Dropdown.Menu>
+									</Dropdown.Popover>
+								</Dropdown>
+							</HasRole>
 						</div>
 
 						{/* Footer de la tarjeta */}
 						<div>
 							<div className="h-px w-full bg-default-100 mb-3" />
 							<div className="flex items-center justify-between">
-								<span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-									Clase ID: #{session.id}
-								</span>
+								<HasRole roles={['SOCIO']}>
+									<Button size="sm">Inscribir</Button>
+								</HasRole>
 								<Button variant="outline" size="sm" onPress={() => onViewDetail(session)}>
 									Ver detalles
 								</Button>

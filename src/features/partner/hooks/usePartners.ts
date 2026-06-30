@@ -75,3 +75,19 @@ export function useUploadPartnerAvatar() {
 		},
 	})
 }
+
+export function useGetPartnerRoutines(partnerId: number | null) {
+	return useQuery({
+		queryKey: [PARTNER_KEY, 'routines', partnerId],
+
+		queryFn: () => partnerService.getPartnerRoutines(partnerId!),
+		enabled: !!partnerId,
+	})
+}
+
+export function useGetAllPartnersWithRoutines() {
+	return useQuery({
+		queryKey: [PARTNER_KEY],
+		queryFn: partnerService.getAllPartnersWithRoutines,
+	})
+}
