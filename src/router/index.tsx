@@ -9,6 +9,9 @@ import { SessionPage } from '@/features/session/page/SessionPage'
 import { RoutinePage } from '@/features/routine/page/RoutinePage'
 import { RoutineDetailPage } from '@/features/routine/page/RoutineDetailPage'
 import HasRole from '@/shared/components/auth/HasRole'
+import { MembershipPage } from '@/features/membership/page/MembershipPage'
+import { PartnerPage } from '@/features/partner/page/PartnerPage'
+
 
 export const router = createBrowserRouter([
 	{
@@ -18,11 +21,11 @@ export const router = createBrowserRouter([
 		children: [
 			{
 				path: 'socios',
-				Component: EmployeePage,
+				Component: PartnerPage,
 			},
 			{
 				path: 'membresias',
-				Component: EmployeePage,
+				Component: MembershipPage,
 			},
 			{
 				path: 'empleados',

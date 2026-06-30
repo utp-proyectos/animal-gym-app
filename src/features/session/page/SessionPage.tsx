@@ -9,6 +9,7 @@ import type { SessionResponse } from '../types'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 import { SessionDetailModal } from '../components/SessionDetailModal'
 import { SessionEnrolledModal } from '../components/SessionEnrolledModal'
+import HasRole from '@/shared/components/auth/HasRole'
 
 interface ModalState {
 	isOpen: boolean
@@ -44,6 +45,7 @@ export function SessionPage() {
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
 			{/* Header */}
+
 			<header className="flex justify-between items-end mb-10">
 				<div>
 					<h1 className="text-4xl font-black tracking-tight uppercase text-black">
@@ -51,18 +53,21 @@ export function SessionPage() {
 					</h1>
 					<p className="text-default-500 text-sm">Administra y organiza tus sesiones deportivas</p>
 				</div>
-				<Button
-					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
-					onPress={() =>
-						setFormModal({
-							isOpen: true,
-							data: null,
-						})
-					}
-				>
-					<Plus size={20} className="mr-2" />
-					Crear clase
-				</Button>
+
+				<HasRole roles={['ADMIN', 'RECEPCIONISTA']}>
+					<Button
+						className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
+						onPress={() =>
+							setFormModal({
+								isOpen: true,
+								data: null,
+							})
+						}
+					>
+						<Plus size={20} className="mr-2" />
+						Crear clase
+					</Button>
+				</HasRole>
 			</header>
 
 			<div className="flex flex-col md:flex-row gap-8">
