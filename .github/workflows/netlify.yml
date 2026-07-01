@@ -32,7 +32,7 @@ jobs:
         run: pnpm build
 
       - name: Deploy to Netlify
-        run: pnpm dlx netlify-cli deploy --prod --dir=dist
+        run: pnpm --package=netlify-cli dlx netlify deploy --prod --dir=dist
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
