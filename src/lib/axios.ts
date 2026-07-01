@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/authStore'
 import { config } from '@/config'
 
 export const api = axios.create({
-	baseURL: config.apiUrl,
+	baseURL: config.API_URL,
 })
 
 api.interceptors.request.use((config) => {

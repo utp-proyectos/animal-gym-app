@@ -1,0 +1,16 @@
+name: Frontend CD - Deploy to Netlify
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-deploy:
+    name: Trigger Netlify Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Netlify Build Hook
+        run: |
+          curl -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK_URL }}"
