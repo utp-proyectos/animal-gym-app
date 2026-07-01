@@ -7,10 +7,32 @@ on:
 
 jobs:
   trigger-deploy:
-    name: Trigger Netlify Build
+    name: Verify & Deploy to Netlify
     runs-on: ubuntu-latest
 
     steps:
-      - name: Trigger Netlify Build Hook
-        run: |
-          curl -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK_URL }}"
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.9
+        with:
+          version: 11.6.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 24.16.0
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Application
+        run: pnpm build
+
+      - name: Deploy to Netlify
+        run: pnpm dlx netlify-cli deploy --prod --dir=dist
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
