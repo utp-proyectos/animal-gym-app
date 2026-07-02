@@ -1,4 +1,4 @@
-import { Button, Card, Modal, Skeleton, toast, type RangeValue } from '@heroui/react'
+import { Button, Card, Modal, Skeleton, Spinner, toast, type RangeValue } from '@heroui/react'
 import { Plus, Frown, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { EmployeeCard } from '../components/EmployeeCard'
@@ -11,7 +11,7 @@ import type { EmployeeDetailResponse } from '../types'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 import { parseDate, type DateValue } from '@internationalized/date'
 import { Filters } from '@/shared/components/ui/Filters'
-
+import { useIsMutating } from '@tanstack/react-query'
 interface ModalState {
 	isOpen: boolean
 	data: EmployeeDetailResponse | null
@@ -30,6 +30,7 @@ const INITIAL_FILTERS = {
 export function EmployeePage() {
 	const { mutate: deleteEmployee } = useDeleteEmployee()
 	const { data: employees = [], isLoading, error } = useEmployees()
+	const isSaving = useIsMutating({ mutationKey: ['employees', 'save'] }) > 0
 
 	const [filters, setFilters] = useState(INITIAL_FILTERS)
 	const [formModal, setFormModal] = useState<ModalState>(CLOSED)
@@ -167,8 +168,8 @@ export function EmployeePage() {
 				isOpen={formModal.isOpen}
 				onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
 			>
-				<Modal.Container size="cover">
-					<Modal.Dialog>
+				<Modal.Container size="lg" scroll="inside">
+					<Modal.Dialog className="max-h-[88vh]">
 						<Modal.CloseTrigger />
 						<Modal.Header className="pb-4">
 							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
@@ -191,9 +192,17 @@ export function EmployeePage() {
 							<Button variant="secondary" slot="close">
 								Cancelar
 							</Button>
-							<Button type="submit" form="form-modal-s">
-								<UserPlus className="size-4" />
-								Guardar empleado
+							<Button type="submit" form="form-modal-s" isPending={isSaving} isDisabled={isSaving}>
+								{({ isPending }) => (
+									<>
+										{isPending ? (
+											<Spinner color="current" size="sm" />
+										) : (
+											<UserPlus className="size-4" />
+										)}
+										{isPending ? 'Guardando...' : 'Guardar empleado'}
+									</>
+								)}
 							</Button>
 						</Modal.Footer>
 					</Modal.Dialog>
