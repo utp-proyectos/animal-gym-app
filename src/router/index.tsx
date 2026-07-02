@@ -3,15 +3,13 @@ import { BillPage } from '@/features/bill/page/BillPage'
 import { EmployeePage } from '@/features/employee/page/EmployeePage'
 import { ExercisePage } from '@/features/exercise/page/ExercisePage'
 import { DashboardLayout } from '@/shared/components/layout/DashboardLayout'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { authGuard } from './authGuard'
 import { SessionPage } from '@/features/session/page/SessionPage'
 import { RoutinePage } from '@/features/routine/page/RoutinePage'
 import { RoutineDetailPage } from '@/features/routine/page/RoutineDetailPage'
-import HasRole from '@/shared/components/auth/HasRole'
 import { MembershipPage } from '@/features/membership/page/MembershipPage'
 import { PartnerPage } from '@/features/partner/page/PartnerPage'
-
 
 export const router = createBrowserRouter([
 	{
@@ -20,8 +18,13 @@ export const router = createBrowserRouter([
 		loader: (args) => authGuard(args),
 		children: [
 			{
+				index: true,
+				element: <Navigate to="/clases" replace />,
+			},
+			{
 				path: 'socios',
 				Component: PartnerPage,
+				loader: (args) => authGuard(args, ['ADMIN']),
 			},
 			{
 				path: 'membresias',
@@ -29,11 +32,8 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'empleados',
-				element: (
-					<HasRole roles="ADMIN">
-						<EmployeePage />
-					</HasRole>
-				),
+				loader: (args) => authGuard(args, ['ADMIN']),
+				Component: EmployeePage,
 			},
 			{
 				path: 'rutinas',

@@ -3,7 +3,6 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { Button, Dropdown, Label } from '@heroui/react'
 import {
 	Menu,
-	House,
 	Users,
 	Contact,
 	IdCard,
@@ -31,8 +30,8 @@ export function DashboardLayout() {
 	const user = useAuthStore((state) => state.user)
 
 	const menuItems: MenuItem[] = [
-		{ label: 'Inicio', path: '/', icon: <House size={20} /> },
-		{ label: 'Socios', path: '/socios', icon: <Contact size={20} /> },
+		// { label: 'Inicio', path: '/', icon: <House size={20} /> },
+		{ label: 'Socios', path: '/socios', icon: <Contact size={20} />, roles: ['ADMIN'] },
 		{ label: 'Membresias', path: '/membresias', icon: <IdCard size={20} /> },
 		{ label: 'Rutinas', path: '/rutinas', icon: <CalendarCheck size={20} /> },
 		{ label: 'Empleados', path: '/empleados', icon: <Users size={20} />, roles: ['ADMIN'] },
@@ -55,7 +54,10 @@ export function DashboardLayout() {
 							const isActive = location.pathname === item.path
 
 							const menuItem = (
-								<li key={item.path} className={`sidebar-item-gym ${isActive ? 'active' : ''}`}>
+								<li
+									key={item.path}
+									className={`sidebar-item-gym ${isActive ? 'active' : ''} ${item.roles && user ? (item.roles.includes(user.role) ? '' : 'hidden') : ''}`}
+								>
 									<NavLink to={item.path} className="sidebar-link-gym">
 										<span className="sidebar-link-icon-gym">{item.icon}</span>
 										{item.label}
