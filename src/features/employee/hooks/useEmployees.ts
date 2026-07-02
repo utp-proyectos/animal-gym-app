@@ -15,6 +15,8 @@ export function useUpdateEmployee() {
 	const queryClient = useQueryClient()
 
 	return useMutation({
+		mutationKey: ['employees', 'save'],
+
 		mutationFn: ({ id, payload }: { id: number; payload: EditOutput }) =>
 			employeeService.update(id, payload),
 		onSuccess: () => {
@@ -44,6 +46,8 @@ export function useCreateEmployee() {
 	const queryClient = useQueryClient()
 
 	return useMutation({
+		mutationKey: ['employees', 'save'],
+
 		mutationFn: employeeService.save,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: [EMPLOYEE_KEY] })
