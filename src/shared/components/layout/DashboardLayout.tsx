@@ -37,7 +37,12 @@ export function DashboardLayout() {
 		{ label: 'Empleados', path: '/empleados', icon: <Users size={20} />, roles: ['ADMIN'] },
 		{ label: 'Clases', path: '/clases', icon: <Puzzle size={20} /> },
 		{ label: 'Ejercicios', path: '/ejercicios', icon: <SportShoe size={20} /> },
-		{ label: 'Boletas', path: '/boletas', icon: <ReceiptSwissFranc size={20} /> },
+		{
+			label: 'Boletas',
+			path: '/boletas',
+			icon: <ReceiptSwissFranc size={20} />,
+			roles: ['ADMIN', 'SOCIO', 'RECEPCIONISTA'],
+		},
 	]
 
 	return (

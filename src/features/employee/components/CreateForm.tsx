@@ -4,13 +4,19 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createSchema, type CreateInput, type CreateOutput } from '../schema/employeeSchema'
 import { useCreateEmployee } from '../hooks/useEmployees'
 import EmployeeForm from './EmployeeForm'
+import type { AxiosError } from 'axios'
+import { useEffect } from 'react'
 
 interface Props {
 	onClose: () => void
+	onPendingChange?: (pending: boolean) => void
 }
 
-const CreateForm = ({ onClose }: Props) => {
-	const { mutate } = useCreateEmployee()
+const CreateForm = ({ onClose, onPendingChange }: Props) => {
+	const { mutate, isPending } = useCreateEmployee()
+	useEffect(() => {
+		onPendingChange?.(isPending)
+	}, [isPending, onPendingChange])
 
 	const form = useForm<CreateInput, unknown, CreateOutput>({
 		resolver: zodResolver(createSchema),
@@ -36,16 +42,33 @@ const CreateForm = ({ onClose }: Props) => {
 		mutate(data, {
 			onSuccess: (response) => {
 				toast.success('Empleado creado', {
-					description: `El empleado ${data.lastName} fue creado con exito`,
+					description: `El empleado ${data.lastName} fue creado con éxito`,
 				})
-				console.log('Registro creado exitosamente ' + response)
 				onClose()
+				console.log(response)
 			},
 			onError: (error) => {
-				toast.danger(`Error al crear el empleado`, {
-					description: `Nose puede creado el empleado. Intenelo denuevo`,
-				})
-				console.error('Error al guardar el backend' + error)
+				const axiosError = error as AxiosError<{ message?: string }>
+				const status = axiosError.response?.status
+				const message = axiosError.response?.data?.message
+
+				if (status === 409 && message) {
+					const lower = message.toLowerCase()
+
+					if (lower.includes('dni')) {
+						form.setError('dni', { type: 'manual', message })
+					} else if (lower.includes('correo')) {
+						form.setError('email', { type: 'manual', message })
+					} else if (lower.includes('teléfono')) {
+						form.setError('phoneNumber', { type: 'manual', message })
+					} else {
+						toast.danger('No se pudo crear el empleado', { description: message })
+					}
+				} else {
+					toast.danger('Error al crear el empleado', {
+						description: message ?? 'No se pudo crear el empleado. Inténtelo de nuevo',
+					})
+				}
 			},
 		})
 	}
