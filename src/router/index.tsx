@@ -53,6 +53,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'boletas',
+				loader: (args) => authGuard(args, ['ADMIN', 'SOCIO', 'RECEPCIONISTA']),
 				Component: BillPage,
 			},
 		],

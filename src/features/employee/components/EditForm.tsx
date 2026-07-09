@@ -7,10 +7,13 @@ import { editSchema, type EditInput, type EditOutput } from '../schema/employeeS
 import { useUpdateEmployee } from '../hooks/useEmployees'
 import EmployeeForm from './EmployeeForm'
 import type { EmployeeDetailResponse } from '../types'
+import type { AxiosError } from 'axios'
+import { useEffect } from 'react'
 
 interface Props {
 	onClose: () => void
 	employee: EmployeeDetailResponse | null
+	onPendingChange?: (pending: boolean) => void
 }
 
 const formatInitialValues = (
@@ -35,8 +38,11 @@ const formatInitialValues = (
 	}
 }
 
-const EditForm = ({ onClose, employee }: Props) => {
-	const { mutate } = useUpdateEmployee()
+const EditForm = ({ onClose, employee, onPendingChange }: Props) => {
+	const { mutate, isPending } = useUpdateEmployee()
+	useEffect(() => {
+		onPendingChange?.(isPending)
+	}, [isPending, onPendingChange])
 
 	const form = useForm<EditInput, unknown, EditOutput>({
 		resolver: zodResolver(editSchema),
@@ -55,10 +61,31 @@ const EditForm = ({ onClose, employee }: Props) => {
 					onClose()
 				},
 				onError: (error) => {
-					toast.danger('Error al editar empleado', {
-						description: `No se pudo editar el empleado. Intentelo denuevo`,
-					})
-					console.error('Error al guardar en el backend' + error)
+					const axiosError = error as AxiosError<{ message?: string }>
+					const status = axiosError.response?.status
+					const message = axiosError.response?.data?.message
+
+					if (status === 409 && message) {
+						const lower = message.toLowerCase()
+
+						if (lower.includes('dni')) {
+							form.setError('dni', { type: 'manual', message })
+						} else if (lower.includes('correo')) {
+							form.setError('email', { type: 'manual', message })
+						} else if (lower.includes('teléfono')) {
+							form.setError('phoneNumber', { type: 'manual', message })
+						} else {
+							toast.danger('No se pudo actualizar el empleado', { description: message })
+						}
+					} else if (status === 404) {
+						toast.danger('Empleado no encontrado', {
+							description: 'Es posible que el registro haya sido eliminado',
+						})
+					} else {
+						toast.danger('Error al actualizar el empleado', {
+							description: message ?? 'No se pudo actualizar. Inténtelo de nuevo',
+						})
+					}
 				},
 			},
 		)
