@@ -61,7 +61,7 @@ const PartnerEditForm = ({ partner, onClose }: Props) => {
 
 	const onSubmit = async (data: EditPartnerOutput) => {
 		const { id, avatar, ...rest } = data
-		const request = { ...rest, image: partner.image }
+		const request = { ...rest, image: partner.avatar }
 
 		try {
 			await updatePartner({ id, payload: request })
@@ -89,7 +89,7 @@ const PartnerEditForm = ({ partner, onClose }: Props) => {
 				className="flex flex-col gap-4"
 				onSubmit={form.handleSubmit(onSubmit)}
 			>
-				<PartnerForm isEditing currentImageUrl={partner.image} />
+				<PartnerForm isEditing currentImageUrl={partner.avatar} />
 			</form>
 		</FormProvider>
 	)

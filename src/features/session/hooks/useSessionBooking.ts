@@ -50,3 +50,31 @@ export function useRemoveBookingFromSession() {
 		},
 	})
 }
+
+export function useSubscribeToSession() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: ({ partnerId, sessionId }: { partnerId: number; sessionId: number }) =>
+			bookingService.subscribe(partnerId, sessionId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: [SESSIONS_KEY],
+			})
+		},
+	})
+}
+
+export function useCancelSubscription() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: ({ partnerId, sessionId }: { partnerId: number; sessionId: number }) =>
+			bookingService.cancel(partnerId, sessionId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: [SESSIONS_KEY],
+			})
+		},
+	})
+}

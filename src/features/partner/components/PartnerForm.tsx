@@ -10,9 +10,9 @@ import defaultImg from '@/assets/global/default.png'
 import previewImg from '@/assets/global/preview.png'
 
 const GENDER_OPTIONS = [
-	{ label: 'Masculino', value: 'M' },
-	{ label: 'Femenino', value: 'F' },
-	{ label: 'Prefiero no especificar', value: 'NO_ESPECIFICADO' },
+	{ label: 'Masculino', value: 'Masculino' },
+	{ label: 'Femenino', value: 'Femenino' },
+	{ label: 'Otro', value: 'Otro' },
 ]
 
 interface PartnerFormProps {

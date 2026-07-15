@@ -14,6 +14,7 @@ interface CustomSelectProps {
 	options: (string | SelectOption)[]
 	className?: string
 	errorMessage?: string | undefined
+	disabled?: boolean
 }
 
 export function CustomSelect({
@@ -24,6 +25,7 @@ export function CustomSelect({
 	options,
 	errorMessage,
 	className = 'w-full',
+	disabled = false,
 }: CustomSelectProps) {
 	const isInvalid = !!errorMessage
 
@@ -35,6 +37,7 @@ export function CustomSelect({
 			onChange={(val) => onChange(val)}
 			isInvalid={isInvalid}
 			variant="secondary"
+			isDisabled={disabled}
 		>
 			<Label>{label}</Label>
 			<Select.Trigger>

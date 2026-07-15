@@ -20,3 +20,17 @@ export interface PartnerRequest {
 
 	image?: string | null
 }
+
+export interface UpdatePartnerProfileRequest {
+	firstName: string
+
+	lastName: string
+
+	email: string
+
+	phoneNumber: string
+
+	gender: 'Masculino' | 'Femenino' | 'Otro'
+
+	birthDate: string
+}

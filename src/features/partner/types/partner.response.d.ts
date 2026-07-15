@@ -5,7 +5,7 @@ export interface PartnerResponse {
 	lastName: string
 	phoneNumber: string
 	email: string
-	image: string | null
+	avatar: string | null
 	status: boolean
 	hireDate: string
 	expirationDate: string | null

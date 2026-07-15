@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { employeeService } from '../services/EmployeeService'
 import type { EditOutput } from '../schema/employeeSchema'
+import type { UpdatePartnerProfileRequest } from '@/features/partner/types'
 
 const EMPLOYEE_KEY = 'employees'
 
@@ -24,6 +25,26 @@ export function useUpdateEmployee() {
 		},
 	})
 }
+
+export function useUpdateEmployeeProfile() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: ({ id, payload }: { id: number; payload: UpdatePartnerProfileRequest }) =>
+			employeeService.updateProfile(id, payload),
+
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: [EMPLOYEE_KEY],
+			})
+
+			queryClient.invalidateQueries({
+				queryKey: [EMPLOYEE_KEY, variables.id, 'detail'],
+			})
+		},
+	})
+}
+
 export function usePrefetchEmployee() {
 	const queryClient = useQueryClient()
 

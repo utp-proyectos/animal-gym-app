@@ -10,6 +10,7 @@ import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 import { SessionDetailModal } from '../components/SessionDetailModal'
 import { SessionEnrolledModal } from '../components/SessionEnrolledModal'
 import HasRole from '@/shared/components/auth/HasRole'
+import { useAuthStore } from '@/store'
 
 interface ModalState {
 	isOpen: boolean
@@ -17,8 +18,13 @@ interface ModalState {
 }
 
 export function SessionPage() {
-	const { data: sessions = [], isLoading, error } = useSessions()
+	const { user } = useAuthStore()
+	const currentPartnerId = user?.personId
+
+	const { data: sessions = [], isLoading, error } = useSessions(Number(currentPartnerId))
 	const { mutate: deleteSession } = useDeleteSession()
+
+	console.log(sessions)
 
 	const [formModal, setFormModal] = useState<ModalState>({
 		isOpen: false,
@@ -172,6 +178,7 @@ export function SessionPage() {
 									data: session,
 								})
 							}
+							currentPartnerId={Number(currentPartnerId)}
 						/>
 					)}
 				</main>
