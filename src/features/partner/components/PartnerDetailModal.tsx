@@ -59,9 +59,9 @@ export function PartnerDetailModal({ isOpen, onOpenChange, partner }: Props) {
 								<div className="flex items-center gap-5">
 									{/* Avatar */}
 									<div className="w-20 h-20 rounded-full overflow-hidden bg-default-100 border-2 border-default-200 shrink-0 flex items-center justify-center">
-										{detail.image ? (
+										{detail.avatar ? (
 											<img
-												src={detail.image}
+												src={detail.avatar}
 												alt={`${detail.firstName} ${detail.lastName}`}
 												className="w-full h-full object-cover"
 												onError={(e) => {
