@@ -2,6 +2,7 @@ import { ChevronRight, Edit3, MoreVertical, Trash2 } from 'lucide-react'
 import type { UseEmblaCarouselType } from 'embla-carousel-react'
 import { Button, Card, Chip, Dropdown, Label, Separator } from '@heroui/react'
 import type { RoutineInfo } from '@/features/partner/types'
+import HasRole from '@/shared/components/auth/HasRole'
 
 interface RoutineHistoryCarouselProps {
 	routines: RoutineInfo[] | undefined
@@ -73,47 +74,49 @@ export function RoutineHistoryCarousel({
 
 										{/* Acciones del Dropdown y Chevron lateral */}
 										<div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-											<Dropdown>
-												<Button
-													aria-label="Opciones"
-													className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
-												>
-													<MoreVertical size={20} className="text-black" strokeWidth={3} />
-												</Button>
+											<HasRole roles={['ADMIN', 'RECEPCIONISTA', 'ENTRENADOR']}>
+												<Dropdown>
+													<Button
+														aria-label="Opciones"
+														className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
+													>
+														<MoreVertical size={20} className="text-black" strokeWidth={3} />
+													</Button>
 
-												<Dropdown.Popover>
-													<Dropdown.Menu className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl">
-														{/* Opción Editar */}
-														<Dropdown.Item
-															id="edit"
-															textValue="Editar"
-															onPress={() => onEditRoutine(routine)}
-														>
-															<div className="flex items-center gap-2 py-1">
-																<Edit3 size={16} className="text-black" />
-																<Label className="font-semibold text-black cursor-pointer">
-																	Editar
-																</Label>
-															</div>
-														</Dropdown.Item>
+													<Dropdown.Popover>
+														<Dropdown.Menu className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl">
+															{/* Opción Editar */}
+															<Dropdown.Item
+																id="edit"
+																textValue="Editar"
+																onPress={() => onEditRoutine(routine)}
+															>
+																<div className="flex items-center gap-2 py-1">
+																	<Edit3 size={16} className="text-black" />
+																	<Label className="font-semibold text-black cursor-pointer">
+																		Editar
+																	</Label>
+																</div>
+															</Dropdown.Item>
 
-														<Separator />
+															<Separator />
 
-														{/* Opción Eliminar */}
-														<Dropdown.Item
-															id="delete"
-															textValue="Eliminar"
-															className="text-danger"
-															onPress={() => onDeleteRoutine(routine)}
-														>
-															<div className="flex items-center gap-2 py-1">
-																<Trash2 size={16} />
-																<Label className="font-semibold cursor-pointer">Eliminar</Label>
-															</div>
-														</Dropdown.Item>
-													</Dropdown.Menu>
-												</Dropdown.Popover>
-											</Dropdown>
+															{/* Opción Eliminar */}
+															<Dropdown.Item
+																id="delete"
+																textValue="Eliminar"
+																className="text-danger"
+																onPress={() => onDeleteRoutine(routine)}
+															>
+																<div className="flex items-center gap-2 py-1">
+																	<Trash2 size={16} />
+																	<Label className="font-semibold cursor-pointer">Eliminar</Label>
+																</div>
+															</Dropdown.Item>
+														</Dropdown.Menu>
+													</Dropdown.Popover>
+												</Dropdown>
+											</HasRole>
 
 											{/* Chevron Indicador visual */}
 											<div

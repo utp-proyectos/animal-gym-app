@@ -232,9 +232,9 @@ export function PartnerPage() {
 													{/* Avatar */}
 													<Table.Cell>
 														<div className="w-9 h-9 rounded-full overflow-hidden bg-default-100 border border-default-200 shrink-0 flex items-center justify-center">
-															{partner.image ? (
+															{partner.avatar ? (
 																<img
-																	src={partner.image}
+																	src={partner.avatar}
 																	alt={`${partner.firstName} ${partner.lastName}`}
 																	className="w-full h-full object-cover"
 																	onError={(e) => {

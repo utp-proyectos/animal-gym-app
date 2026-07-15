@@ -7,6 +7,7 @@ interface CustomDateFieldProps {
 	onChange: (value: DateValue | null) => void
 	className?: string
 	errorMessage?: string | undefined
+	disabled?: boolean
 }
 
 export function CustomDateField({
@@ -15,11 +16,18 @@ export function CustomDateField({
 	onChange,
 	errorMessage,
 	className = 'w-full',
+	disabled = false,
 }: CustomDateFieldProps) {
 	const isInvalid = !!errorMessage
 
 	return (
-		<DateField className={className} value={value} onChange={onChange} isInvalid={isInvalid}>
+		<DateField
+			className={className}
+			value={value}
+			onChange={onChange}
+			isInvalid={isInvalid}
+			isDisabled={disabled}
+		>
 			<Label>{label}</Label>
 			<DateField.Group variant="secondary">
 				<DateField.Input>{(segment) => <DateField.Segment segment={segment} />}</DateField.Input>

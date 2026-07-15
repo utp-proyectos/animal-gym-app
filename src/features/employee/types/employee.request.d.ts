@@ -14,3 +14,12 @@ export interface EmployeeRequest {
 	role: 'Admin' | 'Entrenador' | 'Recepcionista'
 	password: string
 }
+
+export interface UpdateEmployeeProfileRequest {
+	firstName: string
+	lastName: string
+	email: string
+	phoneNumber: string
+	gender: 'Masculino' | 'Femenino' | 'Otro'
+	birthDate: string
+}

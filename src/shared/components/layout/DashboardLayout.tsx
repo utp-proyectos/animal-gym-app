@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Button, Dropdown, Label } from '@heroui/react'
 import {
 	Menu,
@@ -21,13 +21,14 @@ interface MenuItem {
 	label: string
 	path: string
 	icon: React.ReactNode
-	roles?: Role[] // 👈 opcional
+	roles?: Role[]
 }
 export function DashboardLayout() {
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const location = useLocation()
 	const logout = useLogout()
 	const user = useAuthStore((state) => state.user)
+	const navigate = useNavigate()
 
 	const menuItems: MenuItem[] = [
 		// { label: 'Inicio', path: '/', icon: <House size={20} /> },
@@ -45,6 +46,14 @@ export function DashboardLayout() {
 		},
 	]
 
+	const handleUserAction = (key: string | number) => {
+		if (key === 'profile') {
+			navigate('/perfil')
+		} else if (key === 'logout') {
+			logout()
+		}
+	}
+
 	return (
 		<div className={`app-gym ${sidebarOpen ? 'sidebar-open' : ''}`}>
 			{/* SIDEBAR */}
@@ -56,7 +65,10 @@ export function DashboardLayout() {
 				<nav className="sidebar-body-gym">
 					<ul className="sidebar-items-gym">
 						{menuItems.map((item) => {
-							const isActive = location.pathname === item.path
+							const isActive =
+								item.path === '/'
+									? location.pathname === '/'
+									: location.pathname.startsWith(item.path)
 
 							const menuItem = (
 								<li
@@ -124,11 +136,11 @@ export function DashboardLayout() {
 									</Button>
 									<Dropdown.Popover>
 										<Dropdown.Menu
-											onAction={(key) => console.log(key)}
-											className="bg-white border shadow-xl rounded-xl p-2 min-w-150px"
+											onAction={(key) => handleUserAction(key)}
+											className="bg-white border shadow-xl rounded-xl p-2 min-w-37.5"
 										>
 											<Dropdown.Item id="profile" textValue="Ver Perfil">
-												<Label className="text-black font-medium cursor-pointer">Ver Perfil</Label>
+												<Label className="text-black font-medium cursor-pointer">Ver perfil</Label>
 											</Dropdown.Item>
 											<Dropdown.Item
 												id="logout"

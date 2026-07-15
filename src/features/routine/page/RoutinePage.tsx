@@ -94,7 +94,6 @@ export function RoutinePage() {
 									{!isLoading &&
 										!isError &&
 										partners.map((partner) => {
-											// 💡 Obtenemos la rutina más reciente si el socio tiene una asignada
 											const activeRoutine =
 												partner.routines && partner.routines.length > 0
 													? partner.routines[partner.routines.length - 1]

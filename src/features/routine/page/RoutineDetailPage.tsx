@@ -10,7 +10,7 @@ import {
 	toast,
 } from '@heroui/react'
 import { ArrowLeft, Edit3, MoreVertical, Plus, Trash2, UserPlus } from 'lucide-react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { useGetPartnerRoutines } from '@/features/partner/hooks/usePartners'
 import { useState } from 'react'
 import CreateForm from '../components/CreateForm'
@@ -22,6 +22,8 @@ import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 import { useDeleteRoutine, useDeleteRoutineDetail } from '../hooks/useRoutines'
 import CreateDetailForm from '../components/detailRoutine/CreateDetailForm'
 import EditDetailForm from '../components/detailRoutine/EditDetailForm'
+import HasRole from '@/shared/components/auth/HasRole'
+import { useAuthStore } from '@/store'
 
 interface RoutineModalState {
 	isOpen: boolean
@@ -38,6 +40,8 @@ export function RoutineDetailPage() {
 	const { partnerId } = useParams<{ partnerId: string }>()
 	const navigate = useNavigate()
 	const id = partnerId ? Number(partnerId) : null
+
+	const user = useAuthStore((state) => state.user)
 
 	//Modales
 	const [formModal, setFormModal] = useState<RoutineModalState>({
@@ -97,25 +101,33 @@ export function RoutineDetailPage() {
 	}
 
 	if (isError || !partner) {
+		if (user?.role === 'SOCIO') {
+			return <Navigate to="/clases" replace />
+		}
+
 		return (
-			<div className="p-8 text-center bg-slate-50/50 min-h-screen flex flex-col items-center justify-center gap-4">
-				<p className="text-danger font-medium">
-					{error?.message || 'No se pudo encontrar la información del socio.'}
-				</p>
-				<Button variant="primary" onPress={() => navigate('/rutinas')}>
-					Volver a la lista
-				</Button>
-			</div>
+			<HasRole roles={['ADMIN', 'RECEPCIONISTA', 'ENTRENADOR']}>
+				<div className="p-8 text-center bg-slate-50/50 min-h-screen flex flex-col items-center justify-center gap-4">
+					<p className="text-danger font-medium">
+						{error?.message || 'No se pudo encontrar la información del socio.'}
+					</p>
+					<Button variant="primary" onPress={() => navigate('/rutinas')}>
+						Volver a la lista
+					</Button>
+				</div>
+			</HasRole>
 		)
 	}
 
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-slate-50/50 text-slate-900 animate-in fade-in duration-200">
 			{/* Botón para regresar */}
-			<Button variant="primary" className="mb-6" onPress={() => navigate('/rutinas')}>
-				<ArrowLeft size={18} className="mr-2" />
-				Volver a la lista
-			</Button>
+			<HasRole roles={['ADMIN', 'RECEPCIONISTA', 'ENTRENADOR']}>
+				<Button variant="primary" className="mb-6" onPress={() => navigate('/rutinas')}>
+					<ArrowLeft size={18} className="mr-2" />
+					Volver a la lista
+				</Button>
+			</HasRole>
 
 			{/* Heading */}
 			<header className="flex justify-between items-center mb-10">
@@ -131,17 +143,19 @@ export function RoutineDetailPage() {
 						Visualiza el historial completo de entrenamientos asignados
 					</p>
 				</div>
-				<Button
-					onPress={() =>
-						setFormModal({
-							isOpen: true,
-							data: null,
-						})
-					}
-				>
-					<Plus size={20} className="mr-2" />
-					Nueva Rutina
-				</Button>
+				<HasRole roles={['ADMIN', 'RECEPCIONISTA', 'ENTRENADOR']}>
+					<Button
+						onPress={() =>
+							setFormModal({
+								isOpen: true,
+								data: null,
+							})
+						}
+					>
+						<Plus size={20} className="mr-2" />
+						Nueva Rutina
+					</Button>
+				</HasRole>
 			</header>
 
 			{/* Sección del Carousel */}
@@ -170,10 +184,12 @@ export function RoutineDetailPage() {
 								</p>
 							</div>
 
-							<Button onPress={() => setDetailModal({ isOpen: true, data: null })}>
-								<Plus size={20} className="mr-2" />
-								Nuevo Detalle rutina
-							</Button>
+							<HasRole roles={['ADMIN', 'RECEPCIONISTA', 'ENTRENADOR']}>
+								<Button onPress={() => setDetailModal({ isOpen: true, data: null })}>
+									<Plus size={20} className="mr-2" />
+									Nuevo Detalle rutina
+								</Button>
+							</HasRole>
 						</div>
 
 						<Tabs
@@ -280,13 +296,14 @@ export function RoutineDetailPage() {
 																<span>Descanso</span>
 															</div>
 														</Table.Column>
-
 														{/* Acciones */}
-														<Table.Column aria-label="Acciones">
-															<div className="flex items-center justify-end pr-4">
-																<span>Acciones</span>
-															</div>
-														</Table.Column>
+														<HasRole roles={['ADMIN', 'RECEPCIONISTA', 'ENTRENADOR']}>
+															<Table.Column aria-label="Acciones">
+																<div className="flex items-center justify-end pr-4">
+																	<span>Acciones</span>
+																</div>
+															</Table.Column>
+														</HasRole>
 													</Table.Header>
 
 													<Table.Body>
@@ -352,66 +369,68 @@ export function RoutineDetailPage() {
 																	</span>
 																</Table.Cell>
 
-																<Table.Cell>
-																	<div className="flex items-center justify-center pr-2">
-																		<Dropdown>
-																			<Button
-																				aria-label="Opciones de ejercicio"
-																				className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
-																			>
-																				<MoreVertical
-																					size={20}
-																					className="text-black"
-																					strokeWidth={3}
-																				/>
-																			</Button>
+																<HasRole roles={['ADMIN', 'RECEPCIONISTA', 'ENTRENADOR']}>
+																	<Table.Cell>
+																		<div className="flex items-center justify-center pr-2">
+																			<Dropdown>
+																				<Button
+																					aria-label="Opciones de ejercicio"
+																					className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
+																				>
+																					<MoreVertical
+																						size={20}
+																						className="text-black"
+																						strokeWidth={3}
+																					/>
+																				</Button>
 
-																			<Dropdown.Popover>
-																				<Dropdown.Menu className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl">
-																					<Dropdown.Item
-																						id="edit-detail"
-																						textValue="Editar Ejercicio"
-																						onPress={() => {
-																							setDetailModal({
-																								isOpen: true,
-																								data: detail,
-																							})
-																						}}
-																					>
-																						<div className="flex items-center gap-2 py-1">
-																							<Edit3 size={16} className="text-black" />
-																							<Label className="font-semibold text-black cursor-pointer">
-																								Editar
-																							</Label>
-																						</div>
-																					</Dropdown.Item>
+																				<Dropdown.Popover>
+																					<Dropdown.Menu className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl">
+																						<Dropdown.Item
+																							id="edit-detail"
+																							textValue="Editar Ejercicio"
+																							onPress={() => {
+																								setDetailModal({
+																									isOpen: true,
+																									data: detail,
+																								})
+																							}}
+																						>
+																							<div className="flex items-center gap-2 py-1">
+																								<Edit3 size={16} className="text-black" />
+																								<Label className="font-semibold text-black cursor-pointer">
+																									Editar
+																								</Label>
+																							</div>
+																						</Dropdown.Item>
 
-																					<Separator />
+																						<Separator />
 
-																					{/* Opción Eliminar Ejercicio */}
-																					<Dropdown.Item
-																						id="delete-detail"
-																						textValue="Eliminar Ejercicio"
-																						className="text-danger"
-																						onPress={() => {
-																							setDeleteDetailModal({
-																								isOpen: true,
-																								data: detail,
-																							})
-																						}}
-																					>
-																						<div className="flex items-center gap-2 py-1">
-																							<Trash2 size={16} />
-																							<Label className="font-semibold cursor-pointer">
-																								Eliminar
-																							</Label>
-																						</div>
-																					</Dropdown.Item>
-																				</Dropdown.Menu>
-																			</Dropdown.Popover>
-																		</Dropdown>
-																	</div>
-																</Table.Cell>
+																						{/* Opción Eliminar Ejercicio */}
+																						<Dropdown.Item
+																							id="delete-detail"
+																							textValue="Eliminar Ejercicio"
+																							className="text-danger"
+																							onPress={() => {
+																								setDeleteDetailModal({
+																									isOpen: true,
+																									data: detail,
+																								})
+																							}}
+																						>
+																							<div className="flex items-center gap-2 py-1">
+																								<Trash2 size={16} />
+																								<Label className="font-semibold cursor-pointer">
+																									Eliminar
+																								</Label>
+																							</div>
+																						</Dropdown.Item>
+																					</Dropdown.Menu>
+																				</Dropdown.Popover>
+																			</Dropdown>
+																		</div>
+																	</Table.Cell>
+																</HasRole>
 															</Table.Row>
 														))}
 													</Table.Body>

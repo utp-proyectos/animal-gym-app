@@ -4,10 +4,10 @@ import type { SessionRequest } from '../types'
 
 const SESSION_KEY = 'sessions'
 
-export function useSessions() {
+export function useSessions(partnerId?: number | null) {
 	return useQuery({
-		queryKey: [SESSION_KEY],
-		queryFn: sessionService.getAll,
+		queryKey: [SESSION_KEY, { partnerId }],
+		queryFn: () => sessionService.getAll(partnerId),
 	})
 }
 
