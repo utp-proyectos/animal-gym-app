@@ -12,6 +12,8 @@ import {
 	CalendarCheck,
 } from 'lucide-react'
 import logo from '@/assets/global/logo.png'
+import defaultAvatar from '@/assets/global/default.png'
+import { usePartnerDetail } from '@/features/partner/hooks/usePartners'
 import './style.css'
 import { useLogout } from '@/features/auth/hooks/useLogin'
 import { useAuthStore } from '@/store/authStore'
@@ -29,6 +31,13 @@ export function DashboardLayout() {
 	const logout = useLogout()
 	const user = useAuthStore((state) => state.user)
 	const navigate = useNavigate()
+
+	const partnerId = user?.role === 'SOCIO' && user.personId ? Number(user.personId) : null
+	const { data: partnerProfile } = usePartnerDetail(partnerId)
+	const displayedUser = partnerProfile ?? user
+	const displayedAvatar = displayedUser?.avatar?.trim() || defaultAvatar
+	const displayedName =
+		[displayedUser?.firstName, displayedUser?.lastName].filter(Boolean).join(' ') || 'Usuario'
 
 	const menuItems: MenuItem[] = [
 		// { label: 'Inicio', path: '/', icon: <House size={20} /> },
@@ -138,11 +147,14 @@ export function DashboardLayout() {
 										className="flex items-center gap-2 px-3 py-1 bg-zinc-50 hover:bg-zinc-100 rounded-full text-black font-semibold"
 									>
 										<img
-											src="https://i.pravatar.cc/150?u=admin"
-											alt="user avatar"
+											src={displayedAvatar}
+											alt={`Foto de perfil de ${displayedName}`}
 											className="navbar-user-image-gym"
+											onError={(event) => {
+												event.currentTarget.src = defaultAvatar
+											}}
 										/>
-										<span>{user?.firstName}</span>
+										<span>{displayedName}</span>
 									</Button>
 									<Dropdown.Popover>
 										<Dropdown.Menu
