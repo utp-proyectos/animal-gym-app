@@ -6,5 +6,5 @@ export type {
 	ExerciseItem,
 	EmployeeBasic,
 } from './partner.detail'
-export type { PartnerRequest } from './partner.request'
+export type { PartnerRequest, UpdatePartnerProfileRequest } from './partner.request'
 export type { PartnerRoutinesResponse, RoutineInfo, DetailInfo } from './partner.routines.response'

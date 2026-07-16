@@ -5,6 +5,7 @@ import type {
 	PartnerRequest,
 	PartnerResponse,
 	PartnerRoutinesResponse,
+	UpdatePartnerProfileRequest,
 } from '../types'
 
 export const partnerService = {
@@ -24,6 +25,11 @@ export const partnerService = {
 
 	update: (id: number, payload: PartnerRequest): Promise<PartnerResponse> =>
 		api.put<ApiResponse<PartnerResponse>>(`/partners/${id}`, payload).then((res) => res.data.data),
+
+	updateProfile: (id: number, payload: UpdatePartnerProfileRequest): Promise<PartnerResponse> =>
+		api
+			.put<ApiResponse<PartnerResponse>>(`/partners/${id}/profile`, payload)
+			.then((res) => res.data.data),
 
 	delete: (id: number): Promise<void> =>
 		api.delete<ApiResponse<void>>(`/partners/${id}`).then(() => undefined),

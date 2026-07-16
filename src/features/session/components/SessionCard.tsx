@@ -1,8 +1,10 @@
-import { Button, Card, Dropdown, Label } from '@heroui/react'
+import { Button, Card, Dropdown, Label, Modal } from '@heroui/react'
 import { Edit3, MoreVertical, Trash2, Users } from 'lucide-react'
 import type { SessionResponse } from '../types'
 import defaultImg from '@/assets/global/default.png'
 import HasRole from '@/shared/components/auth/HasRole'
+import { useCancelSubscription, useSubscribeToSession } from '../hooks/useSessionBooking'
+import { useState } from 'react'
 
 interface Props {
 	sessions: SessionResponse[]
@@ -10,6 +12,13 @@ interface Props {
 	onDelete: (session: SessionResponse) => void
 	onViewDetail: (session: SessionResponse) => void
 	onSessionEnrolled: (session: SessionResponse) => void
+	currentPartnerId: number
+}
+
+interface ConfirmModalState {
+	isOpen: boolean
+	session: SessionResponse | null
+	action: 'subscribe' | 'cancel' | null
 }
 
 export function SessionCard({
@@ -18,12 +27,49 @@ export function SessionCard({
 	onDelete,
 	onViewDetail,
 	onSessionEnrolled,
+	currentPartnerId,
 }: Props) {
+	// Mutaciones de React Query
+	const { mutate: subscribe, isPending: isSubscribing } = useSubscribeToSession()
+	const { mutate: cancelSubscription, isPending: isCanceling } = useCancelSubscription()
+
+	// Estado único para controlar el modal de Confirmación
+	const [confirmModal, setConfirmModal] = useState<ConfirmModalState>({
+		isOpen: false,
+		session: null,
+		action: null,
+	})
+
 	const handleAction = (key: string, session: SessionResponse) => {
 		if (key === 'edit') onEdit(session)
 		if (key === 'delete') onDelete(session)
 		if (key === 'detail') onViewDetail(session)
 		if (key === 'enrolled') onSessionEnrolled(session)
+	}
+
+	const openConfirmModal = (session: SessionResponse, action: 'subscribe' | 'cancel') => {
+		setConfirmModal({
+			isOpen: true,
+			session,
+			action,
+		})
+	}
+
+	const handleConfirmAction = () => {
+		const { session, action } = confirmModal
+		if (!session || !currentPartnerId) return
+
+		if (action === 'subscribe') {
+			subscribe(
+				{ partnerId: currentPartnerId, sessionId: session.id },
+				{ onSettled: () => setConfirmModal({ isOpen: false, session: null, action: null }) },
+			)
+		} else if (action === 'cancel') {
+			cancelSubscription(
+				{ partnerId: currentPartnerId, sessionId: session.id },
+				{ onSettled: () => setConfirmModal({ isOpen: false, session: null, action: null }) },
+			)
+		}
 	}
 
 	return (
@@ -120,7 +166,30 @@ export function SessionCard({
 							<div className="h-px w-full bg-default-100 mb-3" />
 							<div className="flex items-center justify-between">
 								<HasRole roles={['SOCIO']}>
-									<Button size="sm">Inscribir</Button>
+									{session.enrolled ? (
+										/* Botón de Cancelar Inscripción (Suscrito) */
+										<Button
+											size="sm"
+											variant="danger"
+											onPress={() => openConfirmModal(session, 'cancel')}
+										>
+											{isCanceling ? 'Cancelando...' : 'Cancelar'}
+										</Button>
+									) : (
+										/* Botón de Inscribirse (No suscrito) */
+										<Button
+											size="sm"
+											variant="primary"
+											isDisabled={(session.bookingsCount ?? 0) >= session.capacity}
+											onPress={() => openConfirmModal(session, 'subscribe')}
+										>
+											{isSubscribing
+												? 'Inscribiendo...'
+												: (session.bookingsCount ?? 0) >= session.capacity
+													? 'Lleno'
+													: 'Inscribirse'}{' '}
+										</Button>
+									)}
 								</HasRole>
 								<Button variant="outline" size="sm" onPress={() => onViewDetail(session)}>
 									Ver detalles
@@ -130,6 +199,61 @@ export function SessionCard({
 					</div>
 				</Card>
 			))}
+
+			<Modal.Backdrop
+				isOpen={confirmModal.isOpen}
+				onOpenChange={(isOpen) =>
+					!isOpen && setConfirmModal({ isOpen: false, session: null, action: null })
+				}
+			>
+				<Modal.Container>
+					<Modal.Dialog className="max-w-md">
+						<Modal.CloseTrigger />
+
+						<Modal.Header className="pb-2">
+							<Modal.Heading className="text-2xl font-black text-black">
+								{confirmModal.action === 'subscribe'
+									? 'Confirmar Inscripción'
+									: 'Cancelar Inscripción'}
+							</Modal.Heading>
+						</Modal.Header>
+
+						<Modal.Body className="py-4">
+							<p className="text-default-600 text-sm">
+								{confirmModal.action === 'subscribe' ? (
+									<span>
+										¿Estás seguro de que deseas inscribirte en la clase de{' '}
+										<strong className="text-black">"{confirmModal.session?.name}"</strong>? Se
+										reservará un cupo a tu nombre de inmediato.
+									</span>
+								) : (
+									<span>
+										¿Estás seguro de que deseas liberar tu cupo para{' '}
+										<strong className="text-black">"{confirmModal.session?.name}"</strong>? Esta
+										acción no se puede deshacer y tu cupo quedará disponible para otros socios.
+									</span>
+								)}
+							</p>
+						</Modal.Body>
+
+						<Modal.Footer className="flex gap-2 justify-end">
+							<Button
+								variant="secondary"
+								slot="close"
+								onPress={() => setConfirmModal({ isOpen: false, session: null, action: null })}
+							>
+								Cancelar
+							</Button>
+							<Button
+								variant={confirmModal.action === 'subscribe' ? 'primary' : 'danger'}
+								onPress={handleConfirmAction}
+							>
+								{confirmModal.action === 'subscribe' ? 'Sí, inscribirme' : 'Sí, cancelar cupo'}
+							</Button>
+						</Modal.Footer>
+					</Modal.Dialog>
+				</Modal.Container>
+			</Modal.Backdrop>
 		</div>
 	)
 }

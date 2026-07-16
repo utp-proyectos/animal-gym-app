@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Button, Dropdown, Label } from '@heroui/react'
 import {
 	Menu,
@@ -12,6 +12,8 @@ import {
 	CalendarCheck,
 } from 'lucide-react'
 import logo from '@/assets/global/logo.png'
+import defaultAvatar from '@/assets/global/default.png'
+import { usePartnerDetail } from '@/features/partner/hooks/usePartners'
 import './style.css'
 import { useLogout } from '@/features/auth/hooks/useLogin'
 import { useAuthStore } from '@/store/authStore'
@@ -21,24 +23,55 @@ interface MenuItem {
 	label: string
 	path: string
 	icon: React.ReactNode
-	roles?: Role[] // 👈 opcional
+	roles?: Role[]
 }
 export function DashboardLayout() {
 	const [sidebarOpen, setSidebarOpen] = useState(true)
 	const location = useLocation()
 	const logout = useLogout()
 	const user = useAuthStore((state) => state.user)
+	const navigate = useNavigate()
+
+	const partnerId = user?.role === 'SOCIO' && user.personId ? Number(user.personId) : null
+	const { data: partnerProfile } = usePartnerDetail(partnerId)
+	const displayedUser = partnerProfile ?? user
+	const displayedAvatar = displayedUser?.avatar?.trim() || defaultAvatar
+	const displayedName =
+		[displayedUser?.firstName, displayedUser?.lastName].filter(Boolean).join(' ') || 'Usuario'
 
 	const menuItems: MenuItem[] = [
 		// { label: 'Inicio', path: '/', icon: <House size={20} /> },
-		{ label: 'Socios', path: '/socios', icon: <Contact size={20} />, roles: ['ADMIN'] },
-		{ label: 'Membresias', path: '/membresias', icon: <IdCard size={20} /> },
+		{
+			label: 'Socios',
+			path: '/socios',
+			icon: <Contact size={20} />,
+			roles: ['ADMIN', 'RECEPCIONISTA'],
+		},
+		{
+			label: 'Membresias',
+			path: '/membresias',
+			icon: <IdCard size={20} />,
+			roles: ['ADMIN', 'SOCIO', 'RECEPCIONISTA'],
+		},
 		{ label: 'Rutinas', path: '/rutinas', icon: <CalendarCheck size={20} /> },
 		{ label: 'Empleados', path: '/empleados', icon: <Users size={20} />, roles: ['ADMIN'] },
 		{ label: 'Clases', path: '/clases', icon: <Puzzle size={20} /> },
 		{ label: 'Ejercicios', path: '/ejercicios', icon: <SportShoe size={20} /> },
-		{ label: 'Boletas', path: '/boletas', icon: <ReceiptSwissFranc size={20} /> },
+		{
+			label: 'Boletas',
+			path: '/boletas',
+			icon: <ReceiptSwissFranc size={20} />,
+			roles: ['ADMIN', 'SOCIO', 'RECEPCIONISTA'],
+		},
 	]
+
+	const handleUserAction = (key: string | number) => {
+		if (key === 'profile') {
+			navigate('/perfil')
+		} else if (key === 'logout') {
+			logout()
+		}
+	}
 
 	return (
 		<div className={`app-gym ${sidebarOpen ? 'sidebar-open' : ''}`}>
@@ -51,7 +84,10 @@ export function DashboardLayout() {
 				<nav className="sidebar-body-gym">
 					<ul className="sidebar-items-gym">
 						{menuItems.map((item) => {
-							const isActive = location.pathname === item.path
+							const isActive =
+								item.path === '/'
+									? location.pathname === '/'
+									: location.pathname.startsWith(item.path)
 
 							const menuItem = (
 								<li
@@ -111,19 +147,22 @@ export function DashboardLayout() {
 										className="flex items-center gap-2 px-3 py-1 bg-zinc-50 hover:bg-zinc-100 rounded-full text-black font-semibold"
 									>
 										<img
-											src="https://i.pravatar.cc/150?u=admin"
-											alt="user avatar"
+											src={displayedAvatar}
+											alt={`Foto de perfil de ${displayedName}`}
 											className="navbar-user-image-gym"
+											onError={(event) => {
+												event.currentTarget.src = defaultAvatar
+											}}
 										/>
-										<span>{user?.firstName}</span>
+										<span>{displayedName}</span>
 									</Button>
 									<Dropdown.Popover>
 										<Dropdown.Menu
-											onAction={(key) => console.log(key)}
-											className="bg-white border shadow-xl rounded-xl p-2 min-w-150px"
+											onAction={(key) => handleUserAction(key)}
+											className="bg-white border shadow-xl rounded-xl p-2 min-w-37.5"
 										>
 											<Dropdown.Item id="profile" textValue="Ver Perfil">
-												<Label className="text-black font-medium cursor-pointer">Ver Perfil</Label>
+												<Label className="text-black font-medium cursor-pointer">Ver perfil</Label>
 											</Dropdown.Item>
 											<Dropdown.Item
 												id="logout"

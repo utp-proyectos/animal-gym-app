@@ -13,10 +13,25 @@ export interface PartnerRequest {
 	weight: number | null
 	height: number | null
 
-	membershipId: number
+	// Se conserva por compatibilidad; la membresía se asigna desde su propio módulo.
+	membershipId?: number | null
 
 	password: string
 	role: Role | null
 
 	image?: string | null
+}
+
+export interface UpdatePartnerProfileRequest {
+	firstName: string
+
+	lastName: string
+
+	email: string
+
+	phoneNumber: string
+
+	gender: 'Masculino' | 'Femenino' | 'Otro'
+
+	birthDate: string
 }

@@ -4,7 +4,12 @@ import type { SessionResponse, SessionRequest } from '../types'
 import { toFormData } from '@/shared/util'
 
 export const sessionService = {
-	getAll: () => api.get<ApiResponse<SessionResponse[]>>('/sessions').then((res) => res.data.data),
+	getAll: (partnerId?: number | null) =>
+		api
+			.get<ApiResponse<SessionResponse[]>>('/sessions', {
+				params: partnerId ? { partnerId } : {},
+			})
+			.then((res) => res.data.data),
 
 	getById: (id: number) =>
 		api.get<ApiResponse<SessionResponse>>(`/sessions/${id}`).then((res) => res.data.data),

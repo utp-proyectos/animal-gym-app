@@ -5,14 +5,13 @@ import CustomField from '@/shared/components/ui/CustomField'
 import { CustomNumberField } from '@/shared/components/ui/CustomNumberField'
 import { CustomSelect } from '@/shared/components/ui/CustomSelect'
 import FileField from '@/shared/components/ui/FileField'
-import { useMemberships } from '@/features/membership/hooks/useMemberships'
 import defaultImg from '@/assets/global/default.png'
 import previewImg from '@/assets/global/preview.png'
 
 const GENDER_OPTIONS = [
-	{ label: 'Masculino', value: 'M' },
-	{ label: 'Femenino', value: 'F' },
-	{ label: 'Prefiero no especificar', value: 'NO_ESPECIFICADO' },
+	{ label: 'Masculino', value: 'Masculino' },
+	{ label: 'Femenino', value: 'Femenino' },
+	{ label: 'Otro', value: 'Otro' },
 ]
 
 interface PartnerFormProps {
@@ -34,15 +33,6 @@ function SectionDivider({ label }: { label: string }) {
 
 const PartnerForm = ({ isEditing = false, currentImageUrl }: PartnerFormProps) => {
 	const { control } = useFormContext()
-
-	const { data: memberships = [], isLoading: isLoadingMemberships } = useMemberships()
-
-	const membershipOptions = memberships
-		.filter((m) => m.status === true)
-		.map((m) => ({
-			label: `${m.name} — S/ ${m.price.toFixed(2)} / ${m.duration} días`,
-			value: m.id,
-		}))
 
 	const avatarValue = useWatch({ control, name: 'avatar' }) as FileList | null
 
@@ -89,7 +79,7 @@ const PartnerForm = ({ isEditing = false, currentImageUrl }: PartnerFormProps) =
 					control={control}
 					render={({ field, fieldState: { error } }) => (
 						<CustomField label="Teléfono" errorMessage={error?.message}>
-							<Input {...field} placeholder="987654321" inputMode="tel" />
+							<Input {...field} placeholder="987654321" maxLength={9} inputMode="numeric" />
 						</CustomField>
 					)}
 				/>
@@ -111,7 +101,7 @@ const PartnerForm = ({ isEditing = false, currentImageUrl }: PartnerFormProps) =
 					control={control}
 					render={({ field, fieldState: { error } }) => (
 						<CustomSelect
-							label="Género"
+							label="Género *"
 							placeholder="Selecciona..."
 							options={GENDER_OPTIONS}
 							value={field.value ?? null}
@@ -125,7 +115,7 @@ const PartnerForm = ({ isEditing = false, currentImageUrl }: PartnerFormProps) =
 					control={control}
 					render={({ field, fieldState: { error } }) => (
 						<CustomDatePicker
-							label="Fecha de nacimiento"
+							label="Fecha de nacimiento *"
 							value={field.value ?? null}
 							onChange={field.onChange}
 							errorMessage={error?.message}
@@ -134,29 +124,14 @@ const PartnerForm = ({ isEditing = false, currentImageUrl }: PartnerFormProps) =
 				/>
 			</div>
 
-			<SectionDivider label="Membresía e ingreso" />
-
-			<Controller
-				name="membershipId"
-				control={control}
-				render={({ field, fieldState: { error } }) => (
-					<CustomSelect
-						label="Membresía *"
-						placeholder={isLoadingMemberships ? 'Cargando planes...' : 'Selecciona un plan'}
-						options={membershipOptions}
-						value={field.value ?? null}
-						onChange={field.onChange}
-						errorMessage={error?.message}
-					/>
-				)}
-			/>
+			<SectionDivider label="Ingreso" />
 
 			<Controller
 				name="hireDate"
 				control={control}
 				render={({ field, fieldState: { error } }) => (
 					<CustomDatePicker
-						label="Fecha de ingreso al gimnasio"
+						label="Fecha de ingreso al gimnasio *"
 						value={field.value ?? null}
 						onChange={field.onChange}
 						errorMessage={error?.message}

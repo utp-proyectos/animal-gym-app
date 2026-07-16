@@ -6,10 +6,11 @@ import { DashboardLayout } from '@/shared/components/layout/DashboardLayout'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { authGuard } from './authGuard'
 import { SessionPage } from '@/features/session/page/SessionPage'
-import { RoutinePage } from '@/features/routine/page/RoutinePage'
 import { RoutineDetailPage } from '@/features/routine/page/RoutineDetailPage'
 import { MembershipPage } from '@/features/membership/page/MembershipPage'
 import { PartnerPage } from '@/features/partner/page/PartnerPage'
+import RoutineRedirect from '@/features/routine/components/RoutineRedirect'
+import { ProfilePage } from '@/features/profile/pages/ProfilePage'
 
 export const router = createBrowserRouter([
 	{
@@ -22,13 +23,18 @@ export const router = createBrowserRouter([
 				element: <Navigate to="/clases" replace />,
 			},
 			{
+				path: 'perfil',
+				Component: ProfilePage,
+			},
+			{
 				path: 'socios',
 				Component: PartnerPage,
-				loader: (args) => authGuard(args, ['ADMIN']),
+				loader: (args) => authGuard(args, ['ADMIN', 'RECEPCIONISTA']),
 			},
 			{
 				path: 'membresias',
 				Component: MembershipPage,
+				loader: (args) => authGuard(args, ['ADMIN', 'SOCIO', 'RECEPCIONISTA']),
 			},
 			{
 				path: 'empleados',
@@ -37,7 +43,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'rutinas',
-				Component: RoutinePage,
+				Component: RoutineRedirect,
 			},
 			{
 				path: 'rutinas/partner/:partnerId',
@@ -53,6 +59,7 @@ export const router = createBrowserRouter([
 			},
 			{
 				path: 'boletas',
+				loader: (args) => authGuard(args, ['ADMIN', 'SOCIO', 'RECEPCIONISTA']),
 				Component: BillPage,
 			},
 		],

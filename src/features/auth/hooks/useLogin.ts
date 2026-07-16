@@ -5,6 +5,7 @@ import { loginService } from '../services/authService'
 import type { ApiResponse, Role } from '@/shared/types'
 import { AxiosError, isAxiosError } from 'axios'
 import { toast } from '@heroui/react'
+import { queryClient } from '@/lib/queryClient'
 
 const ROLE_REDIRECT: Record<Role, string> = {
 	ADMIN: '/',
@@ -43,6 +44,7 @@ export const useLogout = () => {
 	const logout = useAuthStore((state) => state.logout)
 
 	return () => {
+		queryClient.clear()
 		logout()
 		navigate('/login')
 	}

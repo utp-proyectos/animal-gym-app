@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { partnerService } from '../services/partnerService'
-import type { PartnerRequest } from '../types'
+import type { PartnerRequest, UpdatePartnerProfileRequest } from '../types'
 
 const PARTNER_KEY = 'partners' as const
 
@@ -52,6 +52,25 @@ export function useUpdatePartner() {
 	})
 }
 
+export function useUpdatePartnerProfile() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: ({ id, payload }: { id: number; payload: UpdatePartnerProfileRequest }) =>
+			partnerService.updateProfile(id, payload),
+
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: [PARTNER_KEY],
+			})
+
+			queryClient.invalidateQueries({
+				queryKey: [PARTNER_KEY, variables.id, 'detail'],
+			})
+		},
+	})
+}
+
 export function useDeletePartner() {
 	const queryClient = useQueryClient()
 
@@ -87,7 +106,7 @@ export function useGetPartnerRoutines(partnerId: number | null) {
 
 export function useGetAllPartnersWithRoutines() {
 	return useQuery({
-		queryKey: [PARTNER_KEY],
+		queryKey: [PARTNER_KEY, 'with-routines'],
 		queryFn: partnerService.getAllPartnersWithRoutines,
 	})
 }

@@ -9,6 +9,7 @@ import { CustomNumberField } from '@/shared/components/ui/CustomNumberField'
 import defult from '@/assets/global/default.png'
 import preview from '@/assets/global/preview.png'
 import { LockKeyhole } from 'lucide-react'
+import MaskInput from '@/shared/components/ui/MaskInput'
 interface EmployeeFormProps {
 	isEditing?: boolean
 }
@@ -34,7 +35,7 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						control={control}
 						render={({ field, fieldState: { error } }) => (
 							<CustomField label="Nombre" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su nombre"></Input>
+								<Input {...field} placeholder="Ej. Leonardo"></Input>
 							</CustomField>
 						)}
 					/>
@@ -45,7 +46,7 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						control={control}
 						render={({ field, fieldState: { error } }) => (
 							<CustomField label="Apellido" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su apellido"></Input>
+								<Input {...field} placeholder="Ej. Murillo"></Input>
 							</CustomField>
 						)}
 					/>
@@ -59,7 +60,7 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						control={control}
 						render={({ field, fieldState: { error } }) => (
 							<CustomField label="Dni" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su dni" maxLength={8}></Input>
+								<MaskInput mask="00000000" placeholder="Ej. 00000000" {...field} />
 							</CustomField>
 						)}
 					/>
@@ -70,7 +71,7 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						control={control}
 						render={({ field, fieldState: { error } }) => (
 							<CustomField label="Telefono" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su telefono" maxLength={9}></Input>
+								<MaskInput mask="000000000" placeholder="Ej. 000000000" {...field}></MaskInput>
 							</CustomField>
 						)}
 					/>
@@ -84,7 +85,7 @@ const EmployeeForm = ({ isEditing = false }: EmployeeFormProps) => {
 						control={control}
 						render={({ field, fieldState: { error } }) => (
 							<CustomField label="Email" errorMessage={error?.message}>
-								<Input {...field} placeholder="Ingrese su email"></Input>
+								<Input {...field} placeholder="Ej. Example@gmail.com"></Input>
 							</CustomField>
 						)}
 					/>

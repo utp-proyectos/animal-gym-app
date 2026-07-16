@@ -11,7 +11,6 @@ import type { EmployeeDetailResponse } from '../types'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 import { parseDate, type DateValue } from '@internationalized/date'
 import { Filters } from '@/shared/components/ui/Filters'
-import { useIsMutating } from '@tanstack/react-query'
 interface ModalState {
 	isOpen: boolean
 	data: EmployeeDetailResponse | null
@@ -30,7 +29,7 @@ const INITIAL_FILTERS = {
 export function EmployeePage() {
 	const { mutate: deleteEmployee } = useDeleteEmployee()
 	const { data: employees = [], isLoading, error } = useEmployees()
-	const isSaving = useIsMutating({ mutationKey: ['employees', 'save'] }) > 0
+	const [isSaving, setIsSaving] = useState(false)
 
 	const [filters, setFilters] = useState(INITIAL_FILTERS)
 	const [formModal, setFormModal] = useState<ModalState>(CLOSED)
@@ -183,9 +182,13 @@ export function EmployeePage() {
 						</Modal.Header>
 						<Modal.Body>
 							{isEditing && formModal.data ? (
-								<EditForm onClose={() => setFormModal(CLOSED)} employee={formModal.data} />
+								<EditForm
+									onClose={() => setFormModal(CLOSED)}
+									employee={formModal.data}
+									onPendingChange={setIsSaving}
+								/>
 							) : (
-								<CreateForm onClose={() => setFormModal(CLOSED)} />
+								<CreateForm onClose={() => setFormModal(CLOSED)} onPendingChange={setIsSaving} />
 							)}
 						</Modal.Body>
 						<Modal.Footer className="pt-4">

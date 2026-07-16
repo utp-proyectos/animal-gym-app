@@ -1,4 +1,5 @@
 import { toast } from '@heroui/react'
+import { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -9,14 +10,22 @@ import {
 } from '../schema/partnerSchema'
 import { useCreatePartner, useUploadPartnerAvatar } from '../hooks/usePartners'
 import PartnerForm from './PartnerForm'
+import type { AxiosError } from 'axios'
 
 interface Props {
 	onClose: () => void
+	onPendingChange?: (pending: boolean) => void
 }
 
-const PartnerCreateForm = ({ onClose }: Props) => {
-	const { mutateAsync: createPartner } = useCreatePartner()
-	const { mutateAsync: uploadAvatar } = useUploadPartnerAvatar()
+const PartnerCreateForm = ({ onClose, onPendingChange }: Props) => {
+	const { mutateAsync: createPartner, isPending: isCreating } = useCreatePartner()
+	const { mutateAsync: uploadAvatar, isPending: isUploading } = useUploadPartnerAvatar()
+	const isPending = isCreating || isUploading
+
+	useEffect(() => {
+		onPendingChange?.(isPending)
+		return () => onPendingChange?.(false)
+	}, [isPending, onPendingChange])
 
 	const form = useForm<CreatePartnerInput, unknown, CreatePartnerOutput>({
 		resolver: zodResolver(createPartnerSchema),
@@ -39,10 +48,23 @@ const PartnerCreateForm = ({ onClose }: Props) => {
 
 			onClose()
 			form.reset()
-		} catch {
-			toast.danger('Error al registrar', {
-				description: 'No se pudo registrar el socio. Inténtalo de nuevo.',
-			})
+		} catch (error) {
+			const axiosError = error as AxiosError<{ message?: string }>
+			const status = axiosError.response?.status
+			const message = axiosError.response?.data?.message
+
+			if (status === 409 && message) {
+				const lower = message.toLowerCase()
+				if (lower.includes('dni')) form.setError('dni', { type: 'manual', message })
+				else if (lower.includes('correo')) form.setError('email', { type: 'manual', message })
+				else if (lower.includes('teléfono')) {
+					form.setError('phoneNumber', { type: 'manual', message })
+				} else toast.danger('No se pudo registrar el socio', { description: message })
+			} else {
+				toast.danger('Error al registrar', {
+					description: message ?? 'No se pudo registrar el socio. Inténtalo de nuevo.',
+				})
+			}
 		}
 	}
 

@@ -13,4 +13,17 @@ export const bookingService = {
 		api
 			.delete<ApiResponse<string>>(`/bookings/session/${sessionId}/booking/${bookingId}`)
 			.then((res) => res.data),
+	subscribe: (partnerId: number, sessionId: number) =>
+		api
+			.post<ApiResponse<void>>(`/bookings/subscribe`, null, {
+				params: { partnerId, sessionId },
+			})
+			.then((res) => res.data),
+
+	cancel: (partnerId: number, sessionId: number) =>
+		api
+			.delete<ApiResponse<void>>(`/bookings/cancel`, {
+				params: { partnerId, sessionId },
+			})
+			.then((res) => res.data),
 }
