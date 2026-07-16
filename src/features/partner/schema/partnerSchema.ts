@@ -4,10 +4,11 @@ import type { DateValue } from '@internationalized/date'
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
-const optionalDate = z
+const requiredDate = z
 	.custom<DateValue | null>()
 	.nullable()
-	.transform((val) => val?.toString() ?? null)
+	.refine((val) => val !== null, 'La fecha es requerida')
+	.transform((val) => val!.toString())
 
 const avatarSchema = z
 	.custom<FileList | null>()
@@ -36,8 +37,8 @@ const basePartnerSchema = z.object({
 
 	phoneNumber: z
 		.string({ message: 'El teléfono es requerido' })
-		.min(9, 'Mínimo 9 dígitos')
-		.max(15, 'Máximo 15 caracteres'),
+		.length(9, 'El teléfono debe tener exactamente 9 dígitos')
+		.regex(/^\d{9}$/, 'El teléfono solo debe contener números'),
 
 	email: z
 		.string({ message: 'El correo es requerido' })
@@ -47,11 +48,11 @@ const basePartnerSchema = z.object({
 	gender: z
 		.string()
 		.nullable()
-		.optional()
-		.transform((val) => val ?? null),
+		.refine((val) => val !== null && val !== '', 'El género es requerido')
+		.transform((val) => val!),
 
-	birthDate: optionalDate,
-	hireDate: optionalDate,
+	birthDate: requiredDate,
+	hireDate: requiredDate,
 
 	weight: z
 		.number()
@@ -66,13 +67,6 @@ const basePartnerSchema = z.object({
 		.nullable()
 		.optional()
 		.transform((val) => val ?? null),
-
-	membershipId: z
-		.custom<number | null>()
-		.refine((val) => val !== null && Number(val) > 0, {
-			message: 'Selecciona una membresía válida',
-		})
-		.transform((val) => Number(val)),
 
 	role: z.literal('SOCIO').default('SOCIO'),
 
@@ -110,7 +104,6 @@ export const CREATE_PARTNER_DEFAULTS: CreatePartnerInput = {
 	gender: null,
 	birthDate: null,
 	hireDate: null,
-	membershipId: null,
 	avatar: null,
 	password: '',
 }

@@ -1,15 +1,17 @@
-import { useState } from 'react'
-import { Button, Card, Modal, Skeleton, toast } from '@heroui/react'
-import { Plus, Save, Frown } from 'lucide-react'
-import { useMemberships, useDeleteMembership } from '../hooks/useMemberships'
+import { useMemo, useState } from 'react'
+import { Button, Card, Modal, Skeleton, Spinner, toast } from '@heroui/react'
+import { CalendarClock, Frown, IdCard, Plus, Save } from 'lucide-react'
+import { useDeleteMembership, useMemberships, useMyMembership } from '../hooks/useMemberships'
 import { MembershipCard } from '../components/MembershipCard'
 import { Filters } from '@/shared/components/ui/Filters'
 import { DeleteModal } from '@/shared/components/ui/DeleteModal'
 import CreateForm from '../components/CreateForm'
 import EditForm from '../components/EditForm'
+import { MembershipAssignmentModal } from '../components/MembershipAssignmentModal'
+import { MembershipPurchaseModal } from '../components/MembershipPurchaseModal'
+import HasRole from '@/shared/components/auth/HasRole'
 import type { MembershipReponse } from '../types'
-
-// ── Modal state ────────────────────────────────────────────────────────────────
+import { useAuthStore } from '@/store/authStore'
 
 interface ModalState {
 	isOpen: boolean
@@ -18,90 +20,211 @@ interface ModalState {
 
 const CLOSED: ModalState = { isOpen: false, data: null }
 
-// ── Filtros ────────────────────────────────────────────────────────────────────
-
-const STATUS_OPTIONS = ['Todos', 'Activos', 'Inactivos']
-
-const INITIAL_FILTERS = {
-	search: '',
-	status: '',
-	maxPrice: 0, // 0 = sin filtro activo
+interface MembershipFilterState {
+	search: string
+	status: 'Todos' | 'Activos' | 'Inactivos'
+	availability: 'Todos' | 'Con cupos' | 'Cupo lleno'
+	priceRange: [number, number] | null
+	maxDuration: number | null
 }
 
-// ── Página ─────────────────────────────────────────────────────────────────────
+const INITIAL_FILTERS: MembershipFilterState = {
+	search: '',
+	status: 'Todos',
+	availability: 'Todos',
+	priceRange: null,
+	maxDuration: null,
+}
 
 export function MembershipPage() {
-	const { data: memberships = [], isLoading, error } = useMemberships()
+	const { data: memberships = [], isLoading: isLoadingMemberships, error } = useMemberships()
 	const { mutate: deleteMembership } = useDeleteMembership()
+	const role = useAuthStore((state) => state.user?.role)
+	const isPartner = role === 'SOCIO'
+	const {
+		data: currentMembership,
+		isLoading: isLoadingCurrentMembership,
+		isError: isCurrentMembershipError,
+	} = useMyMembership(isPartner)
 
-	const [filters, setFilters] = useState(INITIAL_FILTERS)
+	const [filters, setFilters] = useState<MembershipFilterState>(INITIAL_FILTERS)
 	const [formModal, setFormModal] = useState<ModalState>(CLOSED)
 	const [deleteModal, setDeleteModal] = useState<ModalState>(CLOSED)
+	const [assignmentModal, setAssignmentModal] = useState<ModalState>(CLOSED)
+	const [purchaseModal, setPurchaseModal] = useState<ModalState>(CLOSED)
+	const [isSaving, setIsSaving] = useState(false)
 
 	const isEditing = formModal.data !== null
+	const isLoading = isLoadingMemberships || (isPartner && isLoadingCurrentMembership)
+	const priceLimit = useMemo(() => {
+		const highestPrice = memberships.reduce((highest, membership) => {
+			const effectivePrice =
+				membership.active && membership.discountPrice !== null
+					? membership.discountPrice
+					: membership.price
+			return Math.max(highest, effectivePrice)
+		}, 0)
+		return Math.max(10, Math.ceil(highestPrice / 10) * 10)
+	}, [memberships])
+	const durationLimit = useMemo(
+		() => Math.max(1, ...memberships.map((membership) => membership.duration)),
+		[memberships],
+	)
+	const priceRange = filters.priceRange ?? ([0, priceLimit] as [number, number])
+	const maxDuration = filters.maxDuration ?? durationLimit
 
-	// ── Lógica de filtrado (cliente) ───────────────────────────────────────────
-
-	const filtered = memberships.filter((m) => {
+	const filtered = memberships.filter((membership) => {
+		const query = filters.search.trim().toLowerCase()
 		const matchSearch =
-			filters.search === '' || m.name.toLowerCase().includes(filters.search.toLowerCase())
-
+			query === '' ||
+			membership.name.toLowerCase().includes(query) ||
+			membership.description.toLowerCase().includes(query)
 		const matchStatus =
-			filters.status === '' ||
 			filters.status === 'Todos' ||
-			(filters.status === 'Activos' && m.status === true) ||
-			(filters.status === 'Inactivos' && m.status === false)
+			(filters.status === 'Activos' && membership.status) ||
+			(filters.status === 'Inactivos' && !membership.status)
+		const hasCapacity = membership.enrolledMembers < membership.capacityLimit
+		const matchAvailability =
+			filters.availability === 'Todos' ||
+			(filters.availability === 'Con cupos' && hasCapacity) ||
+			(filters.availability === 'Cupo lleno' && !hasCapacity)
+		const effectivePrice =
+			membership.active && membership.discountPrice !== null
+				? membership.discountPrice
+				: membership.price
+		const matchPrice = effectivePrice >= priceRange[0] && effectivePrice <= priceRange[1]
+		const matchDuration = membership.duration <= maxDuration
 
-		const matchPrice = filters.maxPrice === 0 || m.price <= filters.maxPrice
-
-		return matchSearch && matchStatus && matchPrice
+		return matchSearch && matchStatus && matchAvailability && matchPrice && matchDuration
 	})
-
-	// ── Render ─────────────────────────────────────────────────────────────────
-
+	
 	return (
 		<div className="p-8 max-w-7xl mx-auto min-h-screen bg-white text-slate-900">
 			{/* Header */}
 			<header className="flex justify-between items-end mb-10">
 				<div>
-					<h1 className="text-4xl font-black tracking-tight uppercase text-black">
-						Gestión de Membresías
-					</h1>
-					<p className="text-default-500 text-sm">Administra los planes del gimnasio</p>
+					<h1 className="text-4xl font-black tracking-tight uppercase text-black">Membresías</h1>
+					<p className="text-default-500 text-sm">
+						{isPartner
+							? 'Compra, renueva o cambia tu plan del gimnasio'
+							: 'Administra los planes y asignaciones del gimnasio'}
+					</p>
 				</div>
 
-				<Button
-					onPress={() => setFormModal({ isOpen: true, data: null })}
-					className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
-				>
-					<Plus size={20} className="mr-2" />
-					Nueva membresía
-				</Button>
+				<HasRole roles={['ADMIN', 'RECEPCIONISTA']}>
+					<Button
+						onPress={() => setFormModal({ isOpen: true, data: null })}
+						className="bg-primary text-white font-semibold px-6 rounded-full shadow-lg shadow-primary/20"
+					>
+						<Plus size={20} className="mr-2" />
+						Nueva membresía
+					</Button>
+				</HasRole>
 			</header>
+
+			{isPartner && !isLoadingCurrentMembership && currentMembership && (
+				<div
+					className={`mb-8 flex flex-col gap-3 rounded-3xl border p-5 sm:flex-row sm:items-center sm:justify-between ${
+						currentMembership.active
+							? 'border-primary/20 bg-primary/5'
+							: 'border-warning/20 bg-warning/5'
+					}`}
+				>
+					<div className="flex items-center gap-3">
+						<div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-primary shadow-sm">
+							<IdCard size={22} />
+						</div>
+						<div>
+							<p className="text-xs font-bold uppercase tracking-wide text-default-500">
+								{currentMembership.active ? 'Tu membresía actual' : 'Estado de tu membresía'}
+							</p>
+							<p className="text-lg font-black text-slate-900">
+								{currentMembership.membershipName ?? 'Todavía no tienes una membresía'}
+							</p>
+						</div>
+					</div>
+					{currentMembership.expirationDate && (
+						<div className="flex items-center gap-2 text-sm font-semibold text-default-600">
+							<CalendarClock size={17} />
+							{currentMembership.active
+								? `${currentMembership.daysRemaining} días restantes`
+								: 'La membresía está vencida'}
+						</div>
+					)}
+				</div>
+			)}
+
+			{isPartner && isCurrentMembershipError && (
+				<div className="mb-8 rounded-2xl border border-danger/20 bg-danger/5 p-4 text-sm text-danger">
+					No se pudo obtener tu membresía actual. Vuelve a iniciar sesión o inténtalo nuevamente.
+				</div>
+			)}
 
 			{/* Contenido principal */}
 			<div className="flex flex-col md:flex-row gap-8">
-				{/* Panel de filtros */}
-				<Filters title="Filtrar membresías" onReset={() => setFilters(INITIAL_FILTERS)}>
+				<Filters title={`Filtrar membresías (${filtered.length}/${memberships.length})`} onReset={() => setFilters(INITIAL_FILTERS)}>
 					<Filters.Search
 						value={filters.search}
-						placeholder="Buscar membresía..."
-						onChange={(v) => setFilters((p) => ({ ...p, search: v }))}
+						placeholder="Nombre o descripción..."
+						onChange={(value) => setFilters((current) => ({ ...current, search: value }))}
 					/>
 					<Filters.Select
 						label="Estado"
 						value={filters.status}
-						placeholder="Seleccionar estado"
-						options={STATUS_OPTIONS}
-						onChange={(v) => setFilters((p) => ({ ...p, status: v }))}
+						options={['Todos', 'Activos', 'Inactivos']}
+						onChange={(value) =>
+							setFilters((current) => ({
+								...current,
+								status: value as MembershipFilterState['status'],
+							}))
+						}
+					/>
+					<Filters.Select
+						label="Disponibilidad"
+						value={filters.availability}
+						options={['Todos', 'Con cupos', 'Cupo lleno']}
+						onChange={(value) =>
+							setFilters((current) => ({
+								...current,
+								availability: value as MembershipFilterState['availability'],
+							}))
+						}
 					/>
 					<Filters.Range
-						label="Precio máximo"
-						value={filters.maxPrice}
+						label={`Precio mínimo: S/ ${priceRange[0]}`}
+						value={priceRange[0]}
 						min={0}
-						max={500}
+						max={priceLimit}
 						step={10}
-						onChange={(v) => setFilters((p) => ({ ...p, maxPrice: v }))}
+						onChange={(value) =>
+							setFilters((current) => ({
+								...current,
+								priceRange: [Math.min(value, priceRange[1]), priceRange[1]],
+							}))
+						}
+					/>
+					<Filters.Range
+						label={`Precio máximo: S/ ${priceRange[1]}`}
+						value={priceRange[1]}
+						min={0}
+						max={priceLimit}
+						step={10}
+						onChange={(value) =>
+							setFilters((current) => ({
+								...current,
+								priceRange: [priceRange[0], Math.max(value, priceRange[0])],
+							}))
+						}
+					/>
+					<Filters.Range
+						label={`Duración máxima: ${maxDuration} días`}
+						value={maxDuration}
+						min={1}
+						max={durationLimit}
+						step={1}
+						onChange={(value) =>
+							setFilters((current) => ({ ...current, maxDuration: value }))
+						}
 					/>
 				</Filters>
 
@@ -113,21 +236,21 @@ export function MembershipPage() {
 							{Array.from({ length: 6 }).map((_, i) => (
 								<Card
 									key={i}
-									className="overflow-hidden border border-gray-100 shadow-sm flex flex-col"
+									className="p-0 overflow-hidden border-none shadow-md flex flex-col"
 								>
 									<div className="w-full aspect-video relative">
 										<Skeleton className="w-full h-full" animationType="shimmer" />
 										<div className="absolute top-3 left-3">
 											<Skeleton className="w-14 h-5 rounded-full" animationType="shimmer" />
 										</div>
-										<div className="absolute top-3 right-3">
-											<Skeleton className="w-8 h-8 rounded-full" animationType="shimmer" />
-										</div>
 									</div>
 									<div className="p-5 flex flex-col gap-3 flex-1">
-										<div className="flex flex-col gap-1.5">
-											<Skeleton className="w-3/4 h-5 rounded-xl" animationType="shimmer" />
-											<Skeleton className="w-1/3 h-3.5 rounded-lg" animationType="shimmer" />
+										<div className="flex items-start justify-between gap-2">
+											<div className="flex flex-1 flex-col gap-1.5">
+												<Skeleton className="w-3/4 h-5 rounded-xl" animationType="shimmer" />
+												<Skeleton className="w-1/3 h-3.5 rounded-lg" animationType="shimmer" />
+											</div>
+											<Skeleton className="w-8 h-8 rounded-full" animationType="shimmer" />
 										</div>
 										<Skeleton className="w-full h-8 rounded-lg" animationType="shimmer" />
 										<div className="h-px bg-default-100" />
@@ -177,6 +300,9 @@ export function MembershipPage() {
 									membership={membership}
 									onEdit={(m) => setFormModal({ isOpen: true, data: m })}
 									onDelete={(m) => setDeleteModal({ isOpen: true, data: m })}
+									onAssign={(m) => setAssignmentModal({ isOpen: true, data: m })}
+									onPurchase={(m) => setPurchaseModal({ isOpen: true, data: m })}
+									currentMembership={isPartner ? currentMembership : null}
 								/>
 							))}
 						</div>
@@ -187,11 +313,13 @@ export function MembershipPage() {
 			{/* Modal — formulario crear / editar */}
 			<Modal.Backdrop
 				isOpen={formModal.isOpen}
-				onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
+				onOpenChange={(isOpen) => {
+					if (!isSaving) setFormModal({ isOpen, data: null })
+				}}
 			>
 				<Modal.Container size="lg" scroll="inside" placement="center">
 					<Modal.Dialog className="rounded-3xl w-full max-h-[88vh]">
-						<Modal.CloseTrigger />
+						<Modal.CloseTrigger isDisabled={isSaving} />
 
 						<Modal.Header className="pb-4">
 							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
@@ -206,19 +334,39 @@ export function MembershipPage() {
 
 						<Modal.Body>
 							{isEditing && formModal.data ? (
-								<EditForm onClose={() => setFormModal(CLOSED)} membership={formModal.data} />
+								<EditForm
+									onClose={() => setFormModal(CLOSED)}
+									membership={formModal.data}
+									onPendingChange={setIsSaving}
+								/>
 							) : (
-								<CreateForm onClose={() => setFormModal(CLOSED)} />
+								<CreateForm
+									onClose={() => setFormModal(CLOSED)}
+									onPendingChange={setIsSaving}
+								/>
 							)}
 						</Modal.Body>
 
 						<Modal.Footer className="pt-4">
-							<Button variant="secondary" slot="close">
+							<Button variant="secondary" slot="close" isDisabled={isSaving}>
 								Cancelar
 							</Button>
-							<Button type="submit" form="membership-form">
-								<Save className="size-4" />
-								{isEditing ? 'Guardar cambios' : 'Crear membresía'}
+							<Button
+								type="submit"
+								form="membership-form"
+								isPending={isSaving}
+								isDisabled={isSaving}
+							>
+								{({ isPending }) => (
+									<>
+										{isPending ? <Spinner color="current" size="sm" /> : <Save className="size-4" />}
+										{isPending
+											? 'Guardando...'
+											: isEditing
+												? 'Guardar cambios'
+												: 'Crear membresía'}
+									</>
+								)}
 							</Button>
 						</Modal.Footer>
 					</Modal.Dialog>
@@ -247,6 +395,22 @@ export function MembershipPage() {
 						})
 				}}
 			/>
+
+			{assignmentModal.data && (
+				<MembershipAssignmentModal
+					isOpen={assignmentModal.isOpen}
+					membership={assignmentModal.data}
+					onClose={() => setAssignmentModal(CLOSED)}
+				/>
+			)}
+
+			{purchaseModal.data && (
+				<MembershipPurchaseModal
+					isOpen={purchaseModal.isOpen}
+					membership={purchaseModal.data}
+					onClose={() => setPurchaseModal(CLOSED)}
+				/>
+			)}
 		</div>
 	)
 }

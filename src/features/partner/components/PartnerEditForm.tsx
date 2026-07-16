@@ -12,6 +12,7 @@ import {
 import { useUpdatePartner, useUploadPartnerAvatar } from '../hooks/usePartners'
 import type { PartnerDetailResponse } from '../types'
 import PartnerForm from './PartnerForm'
+import type { AxiosError } from 'axios'
 
 const toDateValue = (dateStr: string | null | undefined): DateValue | null => {
 	if (!dateStr) return null
@@ -35,7 +36,6 @@ function buildDefaultValues(partner: PartnerDetailResponse): EditPartnerInput {
 		hireDate: toDateValue(partner.hireDate),
 		weight: partner.weight ?? undefined,
 		height: partner.height ?? undefined,
-		membershipId: partner.membershipId ?? null,
 		password: '',
 		avatar: null,
 	}
@@ -44,11 +44,18 @@ function buildDefaultValues(partner: PartnerDetailResponse): EditPartnerInput {
 interface Props {
 	partner: PartnerDetailResponse
 	onClose: () => void
+	onPendingChange?: (pending: boolean) => void
 }
 
-const PartnerEditForm = ({ partner, onClose }: Props) => {
-	const { mutateAsync: updatePartner } = useUpdatePartner()
-	const { mutateAsync: uploadAvatar } = useUploadPartnerAvatar()
+const PartnerEditForm = ({ partner, onClose, onPendingChange }: Props) => {
+	const { mutateAsync: updatePartner, isPending: isUpdating } = useUpdatePartner()
+	const { mutateAsync: uploadAvatar, isPending: isUploading } = useUploadPartnerAvatar()
+	const isPending = isUpdating || isUploading
+
+	useEffect(() => {
+		onPendingChange?.(isPending)
+		return () => onPendingChange?.(false)
+	}, [isPending, onPendingChange])
 
 	const form = useForm<EditPartnerInput, unknown, EditPartnerOutput>({
 		resolver: zodResolver(editPartnerSchema),
@@ -75,10 +82,23 @@ const PartnerEditForm = ({ partner, onClose }: Props) => {
 			})
 
 			onClose()
-		} catch {
-			toast.danger('Error al actualizar', {
-				description: 'No se pudieron guardar los cambios. Inténtalo de nuevo.',
-			})
+		} catch (error) {
+			const axiosError = error as AxiosError<{ message?: string }>
+			const status = axiosError.response?.status
+			const message = axiosError.response?.data?.message
+
+			if (status === 409 && message) {
+				const lower = message.toLowerCase()
+				if (lower.includes('dni')) form.setError('dni', { type: 'manual', message })
+				else if (lower.includes('correo')) form.setError('email', { type: 'manual', message })
+				else if (lower.includes('teléfono')) {
+					form.setError('phoneNumber', { type: 'manual', message })
+				} else toast.danger('No se pudo actualizar el socio', { description: message })
+			} else {
+				toast.danger('Error al actualizar', {
+					description: message ?? 'No se pudieron guardar los cambios. Inténtalo de nuevo.',
+				})
+			}
 		}
 	}
 
