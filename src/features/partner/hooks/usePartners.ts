@@ -106,7 +106,7 @@ export function useGetPartnerRoutines(partnerId: number | null) {
 
 export function useGetAllPartnersWithRoutines() {
 	return useQuery({
-		queryKey: [PARTNER_KEY],
+		queryKey: [PARTNER_KEY, 'with-routines'],
 		queryFn: partnerService.getAllPartnersWithRoutines,
 	})
 }

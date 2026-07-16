@@ -6,10 +6,13 @@ import { editSchema, type EditInput, type EditOutput } from '../schema/membershi
 import { useUpdateMembership } from '../hooks/useMemberships'
 import MembershipForm from './MembershipForm'
 import type { MembershipReponse } from '../types'
+import type { AxiosError } from 'axios'
+import { useEffect } from 'react'
 
 interface Props {
 	onClose: () => void
 	membership: MembershipReponse | null
+	onPendingChange?: (pending: boolean) => void
 }
 
 const formatInitialValues = (membership: MembershipReponse): EditInput => ({
@@ -26,8 +29,13 @@ const formatInitialValues = (membership: MembershipReponse): EditInput => ({
 	image: null,
 })
 
-const EditForm = ({ onClose, membership }: Props) => {
-	const { mutate } = useUpdateMembership()
+const EditForm = ({ onClose, membership, onPendingChange }: Props) => {
+	const { mutate, isPending } = useUpdateMembership()
+
+	useEffect(() => {
+		onPendingChange?.(isPending)
+		return () => onPendingChange?.(false)
+	}, [isPending, onPendingChange])
 
 	const form = useForm<EditInput, unknown, EditOutput>({
 		resolver: zodResolver(editSchema),
@@ -44,9 +52,18 @@ const EditForm = ({ onClose, membership }: Props) => {
 					})
 					onClose()
 				},
-				onError: () => {
+				onError: (error) => {
+					const axiosError = error as AxiosError<{
+						message?: string
+						data?: Record<string, string>
+					}>
+					const response = axiosError.response?.data
+					const validationMessage = Object.values(response?.data ?? {})[0]
 					toast.danger('Error al editar membresía', {
-						description: 'No se pudo actualizar la membresía. Inténtalo de nuevo.',
+						description:
+							validationMessage ??
+							response?.message ??
+							'No se pudo actualizar la membresía. Inténtalo de nuevo.',
 					})
 				},
 			},

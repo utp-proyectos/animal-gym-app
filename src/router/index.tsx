@@ -29,11 +29,12 @@ export const router = createBrowserRouter([
 			{
 				path: 'socios',
 				Component: PartnerPage,
-				loader: (args) => authGuard(args, ['ADMIN']),
+				loader: (args) => authGuard(args, ['ADMIN', 'RECEPCIONISTA']),
 			},
 			{
 				path: 'membresias',
 				Component: MembershipPage,
+				loader: (args) => authGuard(args, ['ADMIN', 'SOCIO', 'RECEPCIONISTA']),
 			},
 			{
 				path: 'empleados',

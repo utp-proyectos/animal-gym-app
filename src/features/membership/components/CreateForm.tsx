@@ -4,13 +4,21 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { createSchema, type CreateInput, type CreateOutput } from '../schema/membershipSchema'
 import { useCreateMembership } from '../hooks/useMemberships'
 import MembershipForm from './MembershipForm'
+import type { AxiosError } from 'axios'
+import { useEffect } from 'react'
 
 interface Props {
 	onClose: () => void
+	onPendingChange?: (pending: boolean) => void
 }
 
-const CreateForm = ({ onClose }: Props) => {
-	const { mutate } = useCreateMembership()
+const CreateForm = ({ onClose, onPendingChange }: Props) => {
+	const { mutate, isPending } = useCreateMembership()
+
+	useEffect(() => {
+		onPendingChange?.(isPending)
+		return () => onPendingChange?.(false)
+	}, [isPending, onPendingChange])
 
 	const form = useForm<CreateInput, unknown, CreateOutput>({
 		resolver: zodResolver(createSchema),
@@ -36,9 +44,18 @@ const CreateForm = ({ onClose }: Props) => {
 				})
 				onClose()
 			},
-			onError: () => {
+			onError: (error) => {
+				const axiosError = error as AxiosError<{
+					message?: string
+					data?: Record<string, string>
+				}>
+				const response = axiosError.response?.data
+				const validationMessage = Object.values(response?.data ?? {})[0]
 				toast.danger('Error al crear membresía', {
-					description: 'No se pudo crear la membresía. Inténtalo de nuevo.',
+					description:
+						validationMessage ??
+						response?.message ??
+						'No se pudo crear la membresía. Inténtalo de nuevo.',
 				})
 			},
 		})

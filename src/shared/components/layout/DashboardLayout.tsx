@@ -32,8 +32,18 @@ export function DashboardLayout() {
 
 	const menuItems: MenuItem[] = [
 		// { label: 'Inicio', path: '/', icon: <House size={20} /> },
-		{ label: 'Socios', path: '/socios', icon: <Contact size={20} />, roles: ['ADMIN'] },
-		{ label: 'Membresias', path: '/membresias', icon: <IdCard size={20} /> },
+		{
+			label: 'Socios',
+			path: '/socios',
+			icon: <Contact size={20} />,
+			roles: ['ADMIN', 'RECEPCIONISTA'],
+		},
+		{
+			label: 'Membresias',
+			path: '/membresias',
+			icon: <IdCard size={20} />,
+			roles: ['ADMIN', 'SOCIO', 'RECEPCIONISTA'],
+		},
 		{ label: 'Rutinas', path: '/rutinas', icon: <CalendarCheck size={20} /> },
 		{ label: 'Empleados', path: '/empleados', icon: <Users size={20} />, roles: ['ADMIN'] },
 		{ label: 'Clases', path: '/clases', icon: <Puzzle size={20} /> },

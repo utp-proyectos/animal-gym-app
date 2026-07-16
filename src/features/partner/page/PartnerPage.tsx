@@ -61,6 +61,7 @@ export function PartnerPage() {
 	const [formModal, setFormModal] = useState<ModalState>(CLOSED)
 	const [deleteModal, setDeleteModal] = useState<ModalState>(CLOSED)
 	const [detailModal, setDetailModal] = useState<ModalState>(CLOSED)
+	const [isSaving, setIsSaving] = useState(false)
 
 	const isEditing = formModal.data !== null
 
@@ -92,8 +93,9 @@ export function PartnerPage() {
 		const itemDate = p.expirationDate ? parseDate(p.expirationDate) : null
 		const matchDate =
 			!filters.dateRange ||
-			!itemDate ||
-			(itemDate >= filters.dateRange.start && itemDate <= filters.dateRange.end)
+			(itemDate !== null &&
+				itemDate >= filters.dateRange.start &&
+				itemDate <= filters.dateRange.end)
 
 		return matchSearch && matchStatus && matchMembership && matchDate
 	})
@@ -388,11 +390,13 @@ export function PartnerPage() {
 
 			<Modal.Backdrop
 				isOpen={formModal.isOpen}
-				onOpenChange={(isOpen) => setFormModal({ isOpen, data: null })}
+				onOpenChange={(isOpen) => {
+					if (!isSaving) setFormModal({ isOpen, data: null })
+				}}
 			>
 				<Modal.Container size="lg" scroll="inside" placement="center">
 					<Modal.Dialog className="rounded-3xl w-full max-h-[88vh]">
-						<Modal.CloseTrigger />
+						<Modal.CloseTrigger isDisabled={isSaving} />
 
 						<Modal.Header className="pb-4">
 							<Modal.Heading className="text-4xl font-black tracking-tight uppercase text-black">
@@ -413,24 +417,40 @@ export function PartnerPage() {
 										<p className="text-sm text-default-400">Cargando datos del socio...</p>
 									</div>
 								) : partnerDetail ? (
-									<PartnerEditForm partner={partnerDetail} onClose={() => setFormModal(CLOSED)} />
+									<PartnerEditForm
+										partner={partnerDetail}
+										onClose={() => setFormModal(CLOSED)}
+										onPendingChange={setIsSaving}
+									/>
 								) : null
 							) : (
-								<PartnerCreateForm onClose={() => setFormModal(CLOSED)} />
+								<PartnerCreateForm
+									onClose={() => setFormModal(CLOSED)}
+									onPendingChange={setIsSaving}
+								/>
 							)}
 						</Modal.Body>
 
 						<Modal.Footer className="pt-4">
-							<Button variant="secondary" slot="close">
+							<Button variant="secondary" slot="close" isDisabled={isSaving}>
 								Cancelar
 							</Button>
 							<Button
 								type="submit"
 								form="partner-form"
-								isDisabled={isEditing && (isLoadingDetail || !partnerDetail)}
+								isPending={isSaving}
+								isDisabled={isSaving || (isEditing && (isLoadingDetail || !partnerDetail))}
 							>
-								<Save className="size-4" />
-								{isEditing ? 'Guardar cambios' : 'Registrar socio'}
+								{({ isPending }) => (
+									<>
+										{isPending ? <Spinner color="current" size="sm" /> : <Save className="size-4" />}
+										{isPending
+											? 'Guardando...'
+											: isEditing
+												? 'Guardar cambios'
+												: 'Registrar socio'}
+									</>
+								)}
 							</Button>
 						</Modal.Footer>
 					</Modal.Dialog>

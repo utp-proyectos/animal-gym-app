@@ -1,6 +1,18 @@
-import type { MembershipReponse } from '../types'
-import { Card, Button, Chip, Dropdown, type Key } from '@heroui/react'
-import { Ellipsis, Pencil, Trash2, Users, Clock, AlertCircle } from 'lucide-react'
+import type { MembershipReponse, MembershipSelfResponse } from '../types'
+import { Card, Button, Chip, Dropdown, Label, type Key } from '@heroui/react'
+import {
+	Edit3,
+	Trash2,
+	Users,
+	Clock,
+	AlertCircle,
+	UserPlus,
+	MoreVertical,
+	ShoppingCart,
+	RefreshCw,
+	ArrowRightLeft,
+} from 'lucide-react'
+import HasRole from '@/shared/components/auth/HasRole'
 
 const FALLBACK_IMAGE = 'https://placeholder.co/600x400/f1f5f9/94a3b8?text=Sin+imagen'
 
@@ -8,15 +20,50 @@ interface MembershipCardProps {
 	membership: MembershipReponse
 	onEdit: (membership: MembershipReponse) => void
 	onDelete: (membership: MembershipReponse) => void
+	onAssign: (membership: MembershipReponse) => void
+	onPurchase: (membership: MembershipReponse) => void
+	currentMembership?: MembershipSelfResponse | null
 }
 
-export function MembershipCard({ membership, onEdit, onDelete }: MembershipCardProps) {
+export function MembershipCard({
+	membership,
+	onEdit,
+	onDelete,
+	onAssign,
+	onPurchase,
+	currentMembership,
+}: MembershipCardProps) {
 	const isActive = membership.status === true
 	const hasActiveOffer = membership.active === true
 	const hasExpiredOffer = membership.expired === true
 	const isFull = membership.enrolledMembers >= membership.capacityLimit
 	const isAlmostFull = !isFull && membership.enrolledMembers >= membership.capacityLimit * 0.8
 	const spotsLeft = membership.capacityLimit - membership.enrolledMembers
+	const isCurrentMembership = currentMembership?.membershipId === membership.id
+	const isCurrentAndActive = isCurrentMembership && currentMembership?.active === true
+	const isCurrentAndExpired = isCurrentMembership && currentMembership?.active === false
+	const hasAnotherActiveMembership = currentMembership?.active === true && !isCurrentMembership
+	const partnerActionLabel = isCurrentAndActive
+		? 'Renovar membresía'
+		: isCurrentAndExpired
+			? 'Renovar membresía'
+			: hasAnotherActiveMembership
+				? 'Cambiar membresía'
+				: 'Comprar membresía'
+	const PartnerActionIcon = isCurrentAndActive
+		? RefreshCw
+		: isCurrentAndExpired
+			? RefreshCw
+			: hasAnotherActiveMembership
+				? ArrowRightLeft
+				: ShoppingCart
+	const partnerButtonLabel = isCurrentAndActive
+		? 'Renovar membresía'
+		: !isActive
+			? 'Membresía inactiva'
+			: isFull
+				? 'Sin cupos'
+				: partnerActionLabel
 
 	const handleMenuAction = (key: Key) => {
 		if (key === 'edit') onEdit(membership)
@@ -24,12 +71,16 @@ export function MembershipCard({ membership, onEdit, onDelete }: MembershipCardP
 	}
 
 	return (
-		<Card className="overflow-hidden border border-gray-100 shadow-sm hover:-translate-y-1 transition-transform duration-200 flex flex-col">
-			<div className="relative aspect-video w-full shrink-0 overflow-hidden">
+		<Card
+			className={`p-0 h-full bg-white shadow-md hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col ${
+				isCurrentMembership ? 'border-2 border-primary' : 'border-none'
+			}`}
+		>
+			<div className="w-full aspect-video relative overflow-hidden rounded-t-3xl bg-default-100">
 				<img
 					src={membership.image || FALLBACK_IMAGE}
 					alt={membership.name}
-					className="w-full h-full object-cover"
+					className="absolute inset-0 w-full h-full object-cover object-center"
 					onError={(e) => {
 						e.currentTarget.src = FALLBACK_IMAGE
 					}}
@@ -46,38 +97,13 @@ export function MembershipCard({ membership, onEdit, onDelete }: MembershipCardP
 					</Chip>
 				</div>
 
-				<div className="absolute top-3 right-3">
-					<Dropdown>
-						<Button
-							size="sm"
-							aria-label="Acciones de la membresía"
-							className="min-w-8 w-8 h-8 p-0 bg-white/90 rounded-full shadow-sm"
-						>
-							<Ellipsis size={16} className="text-gray-700" />
-						</Button>
-
-						<Dropdown.Popover>
-							<Dropdown.Menu
-								onAction={handleMenuAction}
-								className="min-w-40 bg-white border border-gray-100 shadow-xl rounded-2xl"
-							>
-								<Dropdown.Item id="edit" textValue="Editar">
-									<div className="flex items-center gap-2 py-0.5">
-										<Pencil size={14} className="text-gray-500" />
-										<span className="text-sm font-medium text-gray-700">Editar</span>
-									</div>
-								</Dropdown.Item>
-
-								<Dropdown.Item id="delete" textValue="Eliminar" className="text-danger">
-									<div className="flex items-center gap-2 py-0.5">
-										<Trash2 size={14} />
-										<span className="text-sm font-medium">Eliminar</span>
-									</div>
-								</Dropdown.Item>
-							</Dropdown.Menu>
-						</Dropdown.Popover>
-					</Dropdown>
-				</div>
+				{isCurrentMembership && (
+					<div className="absolute top-3 right-3">
+						<Chip size="sm" color={isCurrentAndActive ? 'accent' : 'danger'}>
+							{isCurrentAndActive ? 'Tu plan actual' : 'Plan vencido'}
+						</Chip>
+					</div>
+				)}
 
 				{hasActiveOffer && (
 					<div className="absolute bottom-3 left-3">
@@ -96,16 +122,54 @@ export function MembershipCard({ membership, onEdit, onDelete }: MembershipCardP
 				)}
 			</div>
 
-			<div className="p-5 flex flex-col gap-3 flex-1">
+			<div className="p-6 flex flex-col gap-3 flex-1">
 				{/* Nombre y duración */}
-				<div>
-					<h3 className="font-bold text-gray-900 text-lg leading-tight">{membership.name}</h3>
-					<p className="text-gray-400 text-xs font-semibold uppercase tracking-wide mt-0.5">
-						{membership.duration} días
-					</p>
+				<div className="flex justify-between items-start gap-2">
+					<div>
+						<h3 className="font-bold text-2xl text-black tracking-tight leading-tight">
+							{membership.name}
+						</h3>
+						<p className="text-default-500 text-xs font-semibold uppercase mt-1">
+							{membership.duration} días
+						</p>
+					</div>
+
+					<HasRole roles={['ADMIN', 'RECEPCIONISTA']}>
+						<Dropdown>
+							<Button
+								aria-label="Opciones de membresía"
+								className="min-w-8 w-8 h-8 p-0 bg-transparent hover:bg-default-100 rounded-full border-none outline-none flex items-center justify-center"
+							>
+								<MoreVertical size={20} className="text-black" strokeWidth={3} />
+							</Button>
+							<Dropdown.Popover>
+								<Dropdown.Menu
+									onAction={handleMenuAction}
+									className="min-w-42.5 bg-white border border-default-100 shadow-xl rounded-2xl"
+								>
+									<Dropdown.Item id="edit" textValue="Editar membresía">
+										<div className="flex items-center gap-2 py-1">
+											<Edit3 size={16} className="text-black" />
+											<Label className="font-semibold text-black">Editar membresía</Label>
+										</div>
+									</Dropdown.Item>
+									<Dropdown.Item
+										id="delete"
+										textValue="Eliminar membresía"
+										className="text-danger"
+									>
+										<div className="flex items-center gap-2 py-1">
+											<Trash2 size={16} />
+											<Label className="font-semibold">Eliminar membresía</Label>
+										</div>
+									</Dropdown.Item>
+								</Dropdown.Menu>
+							</Dropdown.Popover>
+						</Dropdown>
+					</HasRole>
 				</div>
 
-				<p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
+				<p className="text-gray-500 text-sm leading-relaxed line-clamp-2 min-h-10">
 					{membership.description}
 				</p>
 
@@ -167,6 +231,30 @@ export function MembershipCard({ membership, onEdit, onDelete }: MembershipCardP
 						</span>
 					)}
 				</div>
+
+				<HasRole roles={['ADMIN', 'RECEPCIONISTA']}>
+					<Button
+						className="w-full font-semibold"
+						variant="primary"
+						isDisabled={!isActive}
+						onPress={() => onAssign(membership)}
+					>
+						<UserPlus size={17} />
+						{!isActive ? 'Membresía inactiva' : 'Asignar / renovar'}
+					</Button>
+				</HasRole>
+
+				<HasRole roles="SOCIO">
+					<Button
+						className="w-full font-semibold"
+						variant="primary"
+						isDisabled={!isActive || (isFull && !isCurrentAndActive)}
+						onPress={() => onPurchase(membership)}
+					>
+						<PartnerActionIcon size={17} />
+						{partnerButtonLabel}
+					</Button>
+				</HasRole>
 			</div>
 		</Card>
 	)
