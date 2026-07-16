@@ -9,8 +9,9 @@ import { Mail, User } from 'lucide-react'
 import { CustomSelect } from '@/shared/components/ui/CustomSelect'
 import { CustomDateField } from '@/shared/components/ui/CustomDateField'
 import { parseDate, type DateValue } from '@internationalized/date'
+import defaultAvatar from '@/assets/global/default.png'
 
-const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150'
+// const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150'
 
 interface ProfileFormInputs {
 	firstName: string
@@ -140,7 +141,10 @@ export function ProfilePage() {
 					<div className="flex flex-col items-center gap-4 w-full">
 						<div className="relative">
 							<Avatar className="w-36 h-36 text-large shadow-inner border-4 border-default-100">
-								<Avatar.Image src={profileData?.avatar || DEFAULT_AVATAR} />
+								<Avatar.Image
+									src={profileData?.avatar?.trim() || defaultAvatar}
+									alt={`Foto de perfil de ${profileData?.firstName ?? 'usuario'}`}
+								/>
 							</Avatar>
 						</div>
 
